@@ -118,6 +118,7 @@ typedef struct {
 
 typedef struct {
     double cycle_time;
+    double elapsed_time;
     //Position stuff
     double target;          // actual segment length
     double progress;        // where are we in the segment?  0..target
@@ -127,7 +128,10 @@ typedef struct {
     double reqvel;          // vel requested by F word, calc'd by task
     double target_vel;      // velocity to actually track, limited by other factors
     double maxvel;          // max possible vel (feed override stops here)
+    double initialvel;
     double currentvel;      // keep track of current step (vel * cycle_time)
+    int accel_phase;
+    double factor;
     double finalvel;        // velocity to aim for at end of segment
     double term_vel;        // actual velocity at termination of segment
     double kink_vel;        // Temporary way to store our calculation of maximum velocity we can handle if this segment is declared tangent with the next

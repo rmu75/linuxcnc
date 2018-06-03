@@ -261,7 +261,7 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
     double v_target = tc->synchronized ? tc->target_vel : tc->reqvel;
 
     // Get the maximum allowed target velocity, and make sure we're below it
-    return fmin(v_target * tpGetFeedScale(tp,tc), tpGetMaxTargetVel(tp, tc));
+    return fmin(v_target * tpGetFeedScale(tp, tc), tpGetMaxTargetVel(tp, tc));
 }
 
 
@@ -333,6 +333,25 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
     return fmin(tc->finalvel, v_target);
 }
 
+/**
+ * Get acceleration for a tc based on the trajectory planner state.
+ */
+STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
+        TC_STRUCT const * const tc) {
+    double a_scale = tc->maxaccel;
+    /* Parabolic blending conditions: If the next segment or previous segment
+     * has a parabolic blend with this one, acceleration is scaled down by 1/2
+     * so that the sum of the two does not exceed the maximum.
+     */
+    //if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
+    a_scale *= 0.5;
+    //}
+    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
+        //Limit acceleration for cirular arcs to allow for normal acceleration
+        a_scale *= tc->acc_ratio_tan;
+    }
+    return a_scale;
+}
 
 /**
  * Convert the 2-part spindle position and sign to a signed double.
@@ -2318,12 +2337,14 @@ STATIC double estimateParabolicBlendPerformance(
  */
 STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_desired, int reverse_run)
 {
-    // If the resulting velocity is less than zero, than we're done. This
+    // If the resulting velocity is less than zero, then we're done. This
     // causes a small overshoot, but in practice it is very small.
-    double v_next = tc->currentvel + acc * tc->cycle_time;
+    //double v_next = tc->currentvel + acc * tc->cycle_time;
+    double v_next = vel_desired;
     // update position in this tc using trapezoidal integration
     // Note that progress can be greater than the target after this step.
-    if (v_next < 0.0) {
+
+    if (v_next < TP_VEL_EPSILON) {
         v_next = 0.0;
         //KLUDGE: the trapezoidal planner undershoots by half a cycle time, so
         //forcing the endpoint here is necessary. However, velocity undershoot
@@ -2335,18 +2356,21 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
         }
     } else {
         double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
+
         // Account for reverse run (flip sign if need be)
         double disp_sign = reverse_run ? -1 : 1;
         tc->progress += (disp_sign * displacement);
 
         //Progress has to be within the allowable range
         tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
+        //tc->progress += displacement;
+        //clip_max(&tc->progress,tc->target);
     }
-    tc->currentvel = v_next;
 
     // Check if we can make the desired velocity
-    tc->on_final_decel = (fabs(vel_desired - tc->currentvel) < TP_VEL_EPSILON) && (acc < 0.0);
+    tc->on_final_decel = (fabs(vel_desired - tc->currentvel) < TP_VEL_EPSILON) && (acc <= 0.0);
 
+    tc->currentvel = v_next;
     return TP_ERR_OK;
 }
 
@@ -2382,8 +2406,11 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
  * acceleration limits. The formula has been tweaked slightly to allow a
  * non-zero velocity at the instant the target is reached.
  */
-void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT const * const nexttc,
-        double * const acc, double * const vel_desired)
+void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp,
+                                 TC_STRUCT * const tc,
+                                 TC_STRUCT const * const nexttc,
+                                 double * const acc,
+                                 double * const vel_desired)
 {
     tc_debug_print("using trapezoidal acceleration\n");
 
@@ -2487,6 +2514,190 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 
     return TP_ERR_OK;
 }
+
+
+/**
+ * Calculate 6th order acceleration
+ *
+ * this uses a 5th order Bezier-curve for the velocity profile
+ * control points P_0 = P_1 = P_2 == initial velocity
+ * control points P_3 = P_4 = P_5 == final velocity
+ * assures that d/dt v(t) == 0 and d²/dt² v(t) == 0 for t=0 or 1
+ * and v(0) = initial velocity and v(1) = final velocity
+ */
+void tpCalculate6thAccel(TP_STRUCT const * const tp,
+        TC_STRUCT * const tc,
+        TC_STRUCT const * const nexttc,
+        double * const acc,
+        double * const vel_desired)
+{
+  tc_debug_print("using 6th order acceleration\n");
+  double delta_x = 0.0;
+
+  if (tc->accel_phase == 0) {
+    // s-curce acceleration
+    double vi = tc->initialvel;
+    double vc = tpGetRealTargetVel(tp, tc);
+    double vt = tpGetRealFinalVel(tp, tc, nexttc);
+
+    double a_max = 2*tpGetScaledAccel(tp, tc);
+    double dv = (vc - vi);
+    double am = 15.0/8.0*dv;
+    double f = fabs(a_max / am);
+
+    // check if we can reach target speed and
+    // scale appropriately if not
+    double xc = ((vi + vc) + (vc + vt)) / (2.0 * f) + 0.5*vc * tc->cycle_time;
+    if (tc->target < xc) {
+      vc *= sqrt(tc->target / xc);
+      dv = (vc - vi);
+      am = 15.0/8.0*dv;
+      f = fabs(a_max / am);
+    }
+
+    // calculate curve parameter
+    double t = f * tc->elapsed_time;
+    double t2 = t*t;
+    double t3 = t2*t;
+
+    delta_x = -(dv*(t3*t3 - 3*t3*t2 + 2.5 * t2*t2) + vi*t);
+
+    tc->elapsed_time += tc->cycle_time;
+    t = fmin(f * tc->elapsed_time, 1.0);
+    t2 = t*t;
+    t3 = t2*t;
+    delta_x += dv*(t3*t3 - 3*t3*t2 + 2.5 * t2*t2) + vi*t;
+
+    delta_x /= f;
+
+    *vel_desired = dv * (6.0 * t3*t2 - 15.0 * t2*t2 + 10.0 * t3) + vi;
+    *acc = dv * (30.0 * t2*t2 - 60 * t3 + 30 * t2);
+    tc_debug_print("   6th 0 time=%f vi=%f vc=%f a_max=%f am=%f v=%f a=%f progress=%f target=%f xc=%f t=%f\n", tc->elapsed_time, vi, vc, a_max, am, *vel_desired, *acc, tc->progress, tc->target, xc, t);
+
+    if (t >= 1.0)
+      tc->accel_phase = 1;
+  }
+
+  if (tc->accel_phase == 1) {
+    // cruise
+    *acc = 0;
+    *vel_desired = tc->currentvel;
+
+    double vc = tc->currentvel;
+    double vt = tpGetRealFinalVel(tp, tc, nexttc);
+    double dv = (vt - vc);
+    double a_max = 2*tpGetScaledAccel(tp, tc);
+    double am = 15.0/8.0*dv;
+    double f = fabs(a_max / am);
+    double xc = (vc + vt)/(2.0*f);
+
+    delta_x = vc * tc->cycle_time;
+
+    double d2go = tc->target - tc->progress - 0.5*tc->cycle_time * tc->currentvel;
+    tc_debug_print("   6th 1 vc=%f vt=%f d2go=%f xc=%f\n", vc, vt, d2go, xc);
+
+    if (d2go <= xc) {
+      // begin to decelerate
+      tc->accel_phase = 2;
+      tc->elapsed_time = 0;
+      tc->initialvel = tc->currentvel;
+      tc->factor = 0.0;
+    }
+  }
+
+  if (tc->accel_phase == 2) {
+
+    if (tc->progress >= tc->target) {
+      // switch into cruise mode
+      *acc = 0;
+      *vel_desired = tc->currentvel;
+    }
+    else {
+      // calculate s-curve deceleration
+      double vc = tc->initialvel;
+      double vt = tpGetRealFinalVel(tp, tc, nexttc);
+      double dv = (vt - vc);
+      double a_max = 2*tpGetScaledAccel(tp, tc);
+      double am = 15.0/8.0*dv;
+
+      if (tc->factor == 0.0) {
+        tc->factor = (vc + vt)/(2.0*(tc->target - tc->progress));
+      }
+      double f = tc->factor;
+
+      // calculate curve parameter
+      double t = f * tc->elapsed_time;
+      double t2 = t*t;
+      double t3 = t2*t;
+
+      delta_x = -(dv*(t3*t3 - 3*t3*t2 + 2.5 * t2*t2) + vc*t);
+
+      tc->elapsed_time += tc->cycle_time;
+      t = fmin(f * tc->elapsed_time, 1.0);
+      t2 = t*t;
+      t3 = t2*t;
+      delta_x += dv*(t3*t3 - 3*t3*t2 + 2.5 * t2*t2) + vc*t;
+
+      delta_x /= f;
+
+      if (t >= 1.0) {
+        *vel_desired = vt;
+        *acc = 0;
+        delta_x = vt * tc->cycle_time;
+      }
+      else {
+        *vel_desired = dv * (6.0 * t3*t2 - 15.0 * t2*t2 + 10.0 * t3) + vc;
+        *acc = dv * (30.0 * t2*t2 - 60 * t3 + 30 * t2);
+      }
+      tc_debug_print("   6th 2 time=%f vc=%f vt=%f a_max=%f am=%f v=%f a=%f progress=%f target=%f t=%f\n", tc->elapsed_time, vc, vt, a_max, am, *vel_desired, *acc, tc->progress, tc->target, t);
+    }
+  }
+
+  tc->progress += delta_x;
+}
+
+
+/**
+ * Calculate 6th order "ramp" accel
+ */
+STATIC int tpCalculateRampAccel6(TP_STRUCT const * const tp,
+                                 TC_STRUCT * const tc,
+                                 TC_STRUCT const * const nexttc,
+                                 double * const acc,
+                                 double * const vel_desired)
+{
+  tc_debug_print("using 6th order ramped acceleration\n");
+
+  if (tc->accel_phase != 3) {
+    tc->accel_phase = 3;
+    tc->initialvel = tc->currentvel;
+    tc->elapsed_time = 0;
+  }
+
+  tc->elapsed_time += tc->cycle_time;
+
+  double vi = tc->initialvel;
+  double vt = tpGetRealFinalVel(tp, tc, nexttc);
+
+  double a_max = 2*tpGetScaledAccel(tp, tc);
+  double dv = (vt - vi);
+  double am = 15.0/8.0*dv;
+  double f = fabs(a_max / am);
+
+  double t = fmin(f * tc->elapsed_time, 1.0);
+  double t2 = t*t;
+  double t3 = t2*t;
+
+  *vel_desired = dv * (6.0 * t3*t2 - 15.0 * t2*t2 + 10.0 * t3) + vi;
+  *acc = dv * (30.0 * t2*t2 - 60 * t3 + 30 * t2);
+
+  double displacement = (tc->currentvel + *vel_desired) * 0.5 * tc->cycle_time;
+  tc->progress += displacement;
+
+  tc_debug_print("  6th ramp vi=%f vt=%f vc=%f v=%f acc=%f t=%f dx=%f\n", vi, vt, tc->currentvel, *vel_desired, *acc, t, displacement);
+  return TP_ERR_OK;
+}
+
 
 void tpToggleDIOs(TC_STRUCT * const tc) {
 
@@ -2925,6 +3136,10 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     tc->blending_next = 0;
     tc->on_final_decel = 0;
 
+    tc->initialvel = tc->currentvel;
+    tc->accel_phase = 0;
+    tc->elapsed_time = 0;
+
     if (TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
         tp_debug_print("Setting up position sync\n");
         // if we aren't already synced, wait
@@ -3092,12 +3307,13 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
     // Also, don't ramp up for parabolic blends
     if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
-        res_accel = tpCalculateRampAccel(tp, tc, nexttc, &acc, &vel_desired);
+        res_accel = tpCalculateRampAccel6(tp, tc, nexttc, &acc, &vel_desired);
     }
 
     // Check the return in case the ramp calculation failed, fall back to trapezoidal
     if (res_accel != TP_ERR_OK) {
-        tpCalculateTrapezoidalAccel(tp, tc, nexttc, &acc, &vel_desired);
+        //tpCalculateTrapezoidalAccel(tp, tc, nexttc, &acc, &vel_desired);
+        tpCalculate6thAccel(tp, tc, nexttc, &acc, &vel_desired);
     }
 
     tcUpdateDistFromAccel(tc, acc, vel_desired, tp->reverse_run);
@@ -3317,6 +3533,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         case TC_TERM_COND_TANGENT:
             nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
             nexttc->currentvel = tc->term_vel;
+            nexttc->initialvel = tc->term_vel;
             tp_debug_print("Doing tangent split\n");
             break;
         case TC_TERM_COND_PARABOLIC:
