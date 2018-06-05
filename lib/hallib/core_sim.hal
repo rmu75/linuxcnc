@@ -6,7 +6,7 @@ loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # load 6 differentiators (for velocity and accel signals
-loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
+loadrt ddt names=ddt_x,ddt_xv,ddt_xa,ddt_xj,ddt_y,ddt_yv,ddt_ya,ddt_yj,ddt_z,ddt_zv
 # load additional blocks
 loadrt hypot names=vel_xy,vel_xyz
 
@@ -16,8 +16,12 @@ addf motion-controller servo-thread
 # link the differentiator functions into the code
 addf ddt_x servo-thread
 addf ddt_xv servo-thread
+addf ddt_xa servo-thread
+addf ddt_xj servo-thread
 addf ddt_y servo-thread
 addf ddt_yv servo-thread
+addf ddt_ya servo-thread
+addf ddt_yj servo-thread
 addf ddt_z servo-thread
 addf ddt_zv servo-thread
 addf vel_xy servo-thread
@@ -32,9 +36,13 @@ net Zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb ddt_z.in
 # send the position commands thru differentiators to
 # generate velocity and accel signals
 net Xvel ddt_x.out => ddt_xv.in vel_xy.in0
-net Xacc <= ddt_xv.out
+net Xacc ddt_xv.out => ddt_xa.in
+net Xjerk ddt_xa.out => ddt_xj.in
+net Xsnap <= ddt_xj.out
 net Yvel ddt_y.out => ddt_yv.in vel_xy.in1
-net Yacc <= ddt_yv.out
+net Yacc ddt_yv.out => ddt_ya.in
+net Yjerk ddt_ya.out => ddt_yj.in
+net Ysnap <= ddt_yj.out
 net Zvel ddt_z.out => ddt_zv.in vel_xyz.in0
 net Zacc <= ddt_zv.out
 
