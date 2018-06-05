@@ -639,30 +639,10 @@ int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos)
 
 int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp)
 {
-  static EmcPose last_pose;
   
     if (!tp || !disp) {
         return TP_ERR_MISSING_INPUT;
     }
-    tp_debug_print("tpAddCurrentPos %f %f %f\n", disp->tran.x, disp->tran.y, disp->tran.z);
-
-    EmcPose last = last_pose;
-    emcPoseSelfSub(&last, disp);
-    last_pose = *disp;
-    double ts = tp->cycleTime * tp->cycleTime;
-    
-    tp_debug_print("  current speed: %f %f %f current accel: %f %f %f\n",
-                   disp->tran.x / tp->cycleTime,
-                   disp->tran.y / tp->cycleTime,
-                   disp->tran.z / tp->cycleTime,
-                   last.tran.x / ts,
-                   last.tran.y / ts,
-                   last.tran.z / ts);
-
-    if (fabs(last.tran.x) / ts > 1000 ||
-        fabs(last.tran.y) / ts > 1000 |
-        fabs(last.tran.z) / ts > 1000)
-      tp_debug_print("  ACCEL VIOLATION\n");
       
     if (emcPoseValid(disp)) {
         emcPoseSelfAdd(&tp->currentPos, disp);
@@ -2445,11 +2425,35 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 /**
  * Calculate 6th order acceleration
  *
- * this uses a 5th order Bezier-curve for the velocity profile
+ * this uses a 5th order Bezier-interpolation for the velocity profile
+ * (therefore position is 6th order polynomial, hence the name)
+ *
  * control points P_0 = P_1 = P_2 == initial velocity
  * control points P_3 = P_4 = P_5 == final velocity
  * assures that d/dt v(t) == 0 and d²/dt² v(t) == 0 for t=0 or 1
- * and v(0) = initial velocity and v(1) = final velocity 
+ * and v(0) = initial velocity and v(1) = final velocity
+ *
+ * for these control points, maximum acceleration
+ * happens at t=1/2 and is equal to 15/8(v(1)-v(0))
+ *
+ * absolute distance travelled is 1/2(abs(v(0)) + abs(v(1)))
+ *
+ * t has to be scaled so that v'(1/2) < maximum allowed acceleration, this
+ * scaling factor is "f" in the code and is stored in tc->factor (for now).
+ *
+ * a typical segment is split into an acceleration, an (optional) cruise and
+ * a deceleration phase. cruise phase has constant velocity.
+ *
+ * if acceleration and deceleration can not reach target velocity in given distance
+ * cruise phase is omitted and an intermediate velocity is calculated.
+ * if this intermediate velocity is larger than start and exit velocity,
+ * accelerate up to this intermediate velocity and decelerate immediately.
+ * otoh if this intermediate velocity is smaller than either start or exit velocity,
+ * directly interpolate from start to exit velocity in a "curved ramp" fashion.
+ *
+ * deceleration phase adjusts the factor so the remaining distance to go matches
+ * exactly, even slight undershoot would be bad in case exit velocity is 0 (never
+ * reaches target), overshoot leads to acceleration spikes.
  */
 void tpCalculate6thAccel(TP_STRUCT const * const tp,
         TC_STRUCT * const tc,
