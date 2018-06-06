@@ -129,7 +129,9 @@ typedef struct {
     double target_vel;      // velocity to actually track, limited by other factors
     double maxvel;          // max possible vel (feed override stops here)
     double initialvel;
+    double targetvel;
     double currentvel;      // keep track of current step (vel * cycle_time)
+    double vt;
     int accel_phase;
     double factor;
     double finalvel;        // velocity to aim for at end of segment
