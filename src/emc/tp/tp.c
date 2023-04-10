@@ -43,6 +43,8 @@
 
 //#define TC_DEBUG
 //#define TP_DEBUG
+//#define BZ_DEBUG
+
 #include "tp_debug.h"
 
 // FIXME: turn off this feature, which causes blends between rapids to
@@ -436,7 +438,7 @@ static int makepins(int id) {
     res += hal_param_float_newf(HAL_RO, &(tp_haldata->finalvel), id, "%s.finalvel", HAL_PREFIX);
     res += hal_param_float_newf(HAL_RO, &(tp_haldata->progress), id, "%s.progress", HAL_PREFIX);
     res += hal_param_float_newf(HAL_RO, &(tp_haldata->target), id, "%s.target", HAL_PREFIX);
-    res += hal_param_float_newf(HAL_RO, &(tp_haldata->target), id, "%s.factor", HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &(tp_haldata->factor), id, "%s.factor", HAL_PREFIX);
 
     if (res) goto error;
     rtapi_print("@@@ %s:%s: ok\n",__FILE__,__FUNCTION__);
@@ -2605,7 +2607,7 @@ double bez_x(double t, double f, double vi, double vt)
 }
 
 /**
- * Calculate 6th order acceleration
+ * Calculate quintic velocity profile acceleration
  *
  * this uses a 5th order Bezier-interpolation for the velocity profile
  * (therefore position is 6th order polynomial, hence the name)
@@ -2637,13 +2639,13 @@ double bez_x(double t, double f, double vi, double vt)
  * exactly, even slight undershoot would be bad in case exit velocity is 0 (never
  * reaches target), overshoot leads to acceleration spikes.
  */
-void tpCalculate6thAccel(TP_STRUCT const * const tp,
+void tpCalculateQvpAccel(TP_STRUCT const * const tp,
         TC_STRUCT * const tc,
         TC_STRUCT const * const nexttc,
         double * const acc,
         double * const vel_desired)
 {
-  tc_debug_print("using 6th order acceleration phase %d\n", tc->accel_phase);
+  tc_debug_print("using quintic velocity profile acceleration phase %d\n", tc->accel_phase);
   double delta_x = 0.0;
 
   if (tc->accel_phase == 0) {
@@ -2675,7 +2677,7 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
     // scale appropriately if not
     double xc = ((vi + vc) + (vc + vt)) / (2.0 * f); // + 0.5*vc * tc->cycle_time;
     if (tc->target < xc) {
-      bz_debug_print("   6th scaling: f=%f vi=%f vc=%f vt=%f xc=%f target=%f\n", f, vi, vc, vt, xc, tc->target);
+      bz_debug_print("   qvp scaling: f=%f vi=%f vc=%f vt=%f xc=%f target=%f\n", f, vi, vc, vt, xc, tc->target);
 
       vc *= sqrt(tc->target / xc);
       dv = (vc - vi);
@@ -2690,7 +2692,7 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
     double t3 = t2*t;
 
     if ((vc - vi < TP_VEL_EPSILON) || (vc - vt < TP_VEL_EPSILON)) {
-      bz_debug_print("   6th trying do reach target vel via ramp\n");
+      bz_debug_print("   qvp trying do reach target vel via ramp\n");
       tc->accel_phase = 2;
       tc->targetvel = vt;
       //tc->factor = 0.0;
@@ -2711,12 +2713,12 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
 
       *vel_desired = dv * (6.0 * t3*t2 - 15.0 * t2*t2 + 10.0 * t3) + vi;
       *acc = dv * (30.0 * t2*t2 - 60 * t3 + 30 * t2) * f;
-      bz_debug_print("   6th 0 id=%04d type=%d time=%f v=%f dx=%f f=%f vi=%f vc=%f vt=%f a_max=%f am=%f a=%f progress=%f target=%f xc=%f t=%f\n",
+      bz_debug_print("   qvp 0 id=%04d type=%d time=%f v=%f dx=%f f=%f vi=%f vc=%f vt=%f a_max=%f am=%f a=%f progress=%f target=%f xc=%f t=%f\n",
                      tc->id, tc->motion_type, tc->elapsed_time, *vel_desired, delta_x, f, vi, vc, vt, a_max, am, *acc, tc->progress, tc->target, xc, t);
       if (*acc > a_max)
-        bz_debug_print("   6th acc violation!\n");
+        bz_debug_print("   qvp acc violation!\n");
       if (vc < vi && vc < vt) {
-        bz_debug_print("   6th 0 cruise velocity < initial/target velocities target_vel=%f reqvel=%f feedscale=%f max_target_vel=%f\n",
+        bz_debug_print("   qvp 0 cruise velocity < initial/target velocities target_vel=%f reqvel=%f feedscale=%f max_target_vel=%f\n",
                        tc->target_vel, tc->reqvel, tpGetFeedScale(tp, tc), tpGetMaxTargetVel(tp, tc));
       }
 
@@ -2741,11 +2743,11 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
     double vc = tpGetRealTargetVel(tp, tc);
     double vt = tpGetRealFinalVel(tp, tc, nexttc);
     double dv = (vt - vi);
-    //double a_max = tpGetScaledAccel(tp, tc);
-    //double am = 15.0/8.0*dv;
+    double a_max = 8.0/15.0*tpGetScaledAccel(tp, tc);
+    double am = 15.0/8.0*dv;
     double f = tc->factor;
-    //if (fabs(dv) > TP_VEL_EPSILON)
-    //  f = fabs(a_max / am);
+    if (fabs(dv) > TP_VEL_EPSILON)
+      f = fabs(a_max / am);
 
     double xc = 0;
     if (f > 0.0)
@@ -2755,10 +2757,11 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
     delta_x = tc->currentvel * tc->cycle_time;
 
     double d2go = tc->target - tc->progress - delta_x;// - 0.5*tc->cycle_time * tc->currentvel;
-    bz_debug_print("   6th 1 id=%04d type=%d time=%f v=%f dx=%f dv=%f f=%f vc=%f vt=%f progress=%f d2go=%f xc=%f\n",
+    bz_debug_print("   qvp 1 id=%04d type=%d time=%f v=%f dx=%f dv=%f f=%f vc=%f vt=%f progress=%f d2go=%f xc=%f\n",
                    tc->id, tc->motion_type, tc->elapsed_time, vi, delta_x, dv, f, vc, vt, tc->progress, d2go, xc);
 
-    if (d2go - xc < TP_VEL_EPSILON || dv > 0.0) {
+    if (d2go < TP_VEL_EPSILON) {}
+    else if (d2go - xc < TP_VEL_EPSILON || dv > 0.0) {
       // begin to decelerate
       tc->accel_phase = 2;
       tc->elapsed_time = 0;
@@ -2827,10 +2830,10 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
         *vel_desired = dv * (6.0 * t3*t2 - 15.0 * t2*t2 + 10.0 * t3) + vc;
         *acc = dv * (30.0 * t2*t2 - 60 * t3 + 30 * t2) * f;
       }
-      bz_debug_print("   6th 2 id=%04d type=%d time=%f v=%f dx=%f f=%f vc=%f vt=%f dv=%f a_max=%f am=%f a=%f progress=%f target=%f t=%f\n",
+      bz_debug_print("   qvp 2 id=%04d type=%d time=%f v=%f dx=%f f=%f vc=%f vt=%f dv=%f a_max=%f am=%f a=%f progress=%f target=%f t=%f\n",
                      tc->id, tc->motion_type, tc->elapsed_time, *vel_desired, delta_x, f, vc, vt, dv, a_max, am, *acc, tc->progress, tc->target, t);
       if (*acc > a_max)
-        bz_debug_print("   6th acc violation!\n");
+        bz_debug_print("   qvp acc violation!\n");
     }
   }
 
@@ -2839,7 +2842,7 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
 
 
 /**
- * Calculate 6th order "ramp" accel
+ * Calculate qvp order "ramp" accel
  */
 STATIC int tpCalculateRampAccel6(TP_STRUCT const * const tp,
                                  TC_STRUCT * const tc,
@@ -2847,7 +2850,7 @@ STATIC int tpCalculateRampAccel6(TP_STRUCT const * const tp,
                                  double * const acc,
                                  double * const vel_desired)
 {
-  bz_debug_print("using 6th order ramped acceleration\n");
+  bz_debug_print("using qvp order ramped acceleration\n");
 
   if (tc->accel_phase != 3) {
     tc->accel_phase = 3;
@@ -2887,10 +2890,10 @@ STATIC int tpCalculateRampAccel6(TP_STRUCT const * const tp,
   double displacement = (tc->currentvel + *vel_desired) * 0.5 * tc->cycle_time;
   tc->progress += delta_x;
 
-  bz_debug_print("   6th R id=%04d type=%d time=%f v=%f dx=%f vi=%f vt=%f vc=%f acc=%f d2go=%f t=%f\n",
+  bz_debug_print("   qvp R id=%04d type=%d time=%f v=%f dx=%f vi=%f vt=%f vc=%f acc=%f d2go=%f t=%f\n",
                  tc->id, tc->motion_type, tc->elapsed_time, *vel_desired, delta_x, vi, vt, tc->currentvel, *acc, tc->target - tc->progress, t);
   if (*acc > a_max)
-    bz_debug_print("  6th acc violation!\n");
+    bz_debug_print("  qvp acc violation!\n");
 
   return TP_ERR_OK;
 }
@@ -3519,7 +3522,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     // Check the return in case the ramp calculation failed, fall back to trapezoidal
     if (res_accel != TP_ERR_OK) {
 #ifdef BEZIER
-        tpCalculate6thAccel(tp, tc, nexttc, &acc, &vel_desired);
+        tpCalculateQvpAccel(tp, tc, nexttc, &acc, &vel_desired);
 #else
         tpCalculateTrapezoidalAccel(tp, tc, nexttc, &acc, &vel_desired);
 #endif

@@ -1,24 +1,24 @@
 /********************************************************************
-* Description: tc_debug.h
-*
-*
-* Author: Robert W. Ellenberg
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2013 All rights reserved.
-*
-* Last change:
-********************************************************************/
+ * Description: tc_debug.h
+ *
+ *
+ * Author: Robert W. Ellenberg
+ * License: GPL Version 2
+ * System: Linux
+ *
+ * Copyright (c) 2013 All rights reserved.
+ *
+ * Last change:
+ ********************************************************************/
 #ifndef TP_DEBUG_H
 #define TP_DEBUG_H
 
-#include "rtapi.h"  /* printing functions */
+#include "rtapi.h" /* printing functions */
 
 /** TP debug stuff */
 #ifdef TP_DEBUG
-//Kludge because I didn't know any better at the time
-//FIXME replace these with better names?
+// Kludge because I didn't know any better at the time
+// FIXME replace these with better names?
 #define tp_debug_print(...) rtapi_print(__VA_ARGS__)
 #elif defined(UNIT_TEST)
 #include <stdio.h>
@@ -27,8 +27,16 @@
 #define tp_debug_print(...)
 #endif
 
-// Verbose but effective wrappers for building faux-JSON debug output for a function
-#define tp_debug_json_double(varname_) tp_debug_print("%s: %g, ", #varname_, varname_)
+#ifdef BT_DEBUG
+#define bz_debug_print(...) rtapi_print(__VA_ARGS__)
+#else
+#define bz_debug_print(...)
+#endif
+
+// Verbose but effective wrappers for building faux-JSON debug output for a
+// function
+#define tp_debug_json_double(varname_)                                         \
+  tp_debug_print("%s: %g, ", #varname_, varname_)
 #define tp_debug_json_start(fname_) tp_debug_print("%s: {", #fname_)
 #define tp_debug_json_end() tp_debug_print("}\n")
 
@@ -43,7 +51,7 @@
 #ifdef TC_DEBUG
 #define tc_debug_print(...) rtapi_print(__VA_ARGS__)
 #else
-#define tc_debug_print(...) 
+#define tc_debug_print(...)
 #endif
 
 /** TP position data output to debug acceleration spikes */
