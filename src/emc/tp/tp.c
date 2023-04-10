@@ -10,6 +10,9 @@
 *
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
+
+/* quintic bezier stuff (c) 2018-2023 Robert Schöftner */
+
 #include "rtapi.h"              /* rtapi_print_msg */
 #include "posemath.h"           /* Geometry types & functions */
 #include "emcpose.h"
@@ -27,6 +30,7 @@
 #define EMC_TRAJ_TERM_COND_STOP  0
 #define EMC_TRAJ_TERM_COND_EXACT 1
 #define EMC_TRAJ_TERM_COND_BLEND 2
+#define BEZIER
 
 /**
  * @section tpdebugflags TP debugging flags
@@ -37,6 +41,8 @@
  * and selectively compile in assertions and debug printing.
  */
 
+//#define TC_DEBUG
+//#define TP_DEBUG
 #include "tp_debug.h"
 
 // FIXME: turn off this feature, which causes blends between rapids to
@@ -46,7 +52,7 @@
 #define TP_OPTIMIZATION_LAZY
 
 #define MAKE_TP_HAL_PINS
-#undef  MAKE_TP_HAL_PINS
+//#undef  MAKE_TP_HAL_PINS
 
 // api for tpCreate() inherits a component id  provision to include hal pins:
 // (not used by the this default tp implementation but may
@@ -391,6 +397,16 @@ static struct  tp_haldata {
   // Example pin pointers
   hal_u32_t *in;
   hal_u32_t *out;
+  hal_u32_t active_tc_id;
+  hal_u32_t accel_phase;
+  hal_float_t elapsed_time;
+  hal_float_t currentvel;
+  hal_float_t targetvel;
+  hal_float_t reqvel;
+  hal_float_t finalvel;
+  hal_float_t progress;
+  hal_float_t target;
+
   // Example parameters
   hal_float_t param_rw;
   hal_float_t param_ro;
@@ -410,6 +426,15 @@ static int makepins(int id) {
     // hal parameter examples:
     res += hal_param_float_newf(HAL_RW, &tp_haldata->param_rw,id,"%s.param-rw",HAL_PREFIX);
     res += hal_param_float_newf(HAL_RO, &tp_haldata->param_ro,id,"%s.param-ro",HAL_PREFIX);
+    res += hal_param_u32_newf(HAL_RO, &(tp_haldata->active_tc_id), id, "%s.active_tc_id", HAL_PREFIX);
+    res += hal_param_u32_newf(HAL_RO, &(tp_haldata->accel_phase), id, "%s.accel_phase", HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &(tp_haldata->elapsed_time), id, "%s.elapsed_time", HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &(tp_haldata->currentvel), id, "%s.currentvel", HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &(tp_haldata->targetvel), id, "%s.targetvel", HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &(tp_haldata->reqvel), id, "%s.reqvel", HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &(tp_haldata->finalvel), id, "%s.finalvel", HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &(tp_haldata->progress), id, "%s.progress", HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &(tp_haldata->target), id, "%s.target", HAL_PREFIX);
 
     if (res) goto error;
     rtapi_print("@@@ %s:%s: ok\n",__FILE__,__FUNCTION__);
@@ -2559,6 +2584,24 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 }
 
 
+double bez_x(double t, double f, double vi, double vt)
+{
+    //f=1/f;
+    double f3 = f*f*f;
+    double f4 = f3*f;
+    double f5 = f4*f;
+    double t4 = t*t*t*t;
+    double t5 = t4*t;
+    double t6 = t5*t;
+    double dv = vi - vt;
+
+    // -f^5*t^6*(v_i - v_t) + 3*f^4*t^5*(v_i - v_t) - 5/2*f^3*t^4*(v_i - v_t) + t*v_i
+
+    double ret = (-f5*t6 + 3*f4*t5 - 2.5*f3*t4)*dv + t*vi;
+    //bz_debug_print("    || t=%f, f=%f, vi=%f, vt=%f, ret=%f\n", t, f, vi, vt, ret);
+    return ret;
+}
+
 /**
  * Calculate 6th order acceleration
  *
@@ -2607,17 +2650,15 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
     double vc = tpGetRealTargetVel(tp, tc);
     double vt = tpGetRealFinalVel(tp, tc, nexttc);
     vc=fmax(fmax(vi, vc), vt);
-    // double a_max = 2*tpGetScaledAccel(tp, tc);
     double a_max = 8.0/15.0*tpGetScaledAccel(tp, tc);
     double dv = (vc - vi);
     if (fabs(dv) < TP_VEL_EPSILON) {
       *vel_desired = vi;
       *acc = 0;
       tc->factor = 0;
-      tc_debug_print("       delta_v = 0 -> going to phase 1\n");
+      bz_debug_print("       delta_v = 0 -> going to phase 1\n");
 
-      delta_x = (tc->currentvel + *vel_desired) * tc->cycle_time / 2.0;
-      //tc->currentvel = *vel_desired;
+      delta_x = tc->currentvel * tc->cycle_time;
       tc->accel_phase = 1;
 
       tc->progress += delta_x;
@@ -2630,9 +2671,9 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
 
     // check if we can reach target speed and
     // scale appropriately if not
-    double xc = ((vi + vc) + (vc + vt)) / (2.0 * f) + 0.5*vc * tc->cycle_time;
+    double xc = ((vi + vc) + (vc + vt)) / (2.0 * f); // + 0.5*vc * tc->cycle_time;
     if (tc->target < xc) {
-      tc_debug_print("   6th scaling: vi=%f vc=%f vt=%f xc=%f target=%f\n", vi, vc, vt, xc, tc->target);
+      bz_debug_print("   6th scaling: vi=%f vc=%f vt=%f xc=%f target=%f\n", vi, vc, vt, xc, tc->target);
 
       vc *= sqrt(tc->target / xc);
       dv = (vc - vi);
@@ -2647,10 +2688,11 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
     double t3 = t2*t;
 
     if ((vc < vi) || (vc < vt)) {
-      tc_debug_print("   6th trying do reach target vel via ramp\n");
+      bz_debug_print("   6th trying do reach target vel via ramp\n");
       tc->accel_phase = 2;
-      tc->targetvel = 0.0;
-      tc->factor = 0.0;
+      //tc->targetvel = 0.0;
+      //tc->factor = 0.0;
+      tc->factor = (vi + vt)/(2.0*(tc->target - tc->progress - delta_x));
     }
     else {
       // calculate curve parameter
@@ -2658,37 +2700,31 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
       double t2 = t*t;
       double t3 = t2*t;
 
-      delta_x = -(dv*(t3*t3 - 3*t3*t2 + 2.5 * t2*t2) + vi*t);
-
       tc->elapsed_time += tc->cycle_time;
       t = fmin(f * tc->elapsed_time, 1.0);
       t2 = t*t;
       t3 = t2*t;
-      delta_x += dv*(t3*t3 - 3*t3*t2 + 2.5 * t2*t2) + vi*t;
-
-      delta_x /= f;
+      delta_x = bez_x(tc->elapsed_time, f, vi, vc)
+                - bez_x(tc->elapsed_time - tc->cycle_time, f, vi, vc);
 
       *vel_desired = dv * (6.0 * t3*t2 - 15.0 * t2*t2 + 10.0 * t3) + vi;
       *acc = dv * (30.0 * t2*t2 - 60 * t3 + 30 * t2) * f;
-      tc_debug_print("   6th 0 id=%04d type=%d time=%f v=%f dx=%f f=%f vi=%f vc=%f vt=%f a_max=%f am=%f a=%f progress=%f target=%f xc=%f t=%f\n",
+      bz_debug_print("   6th 0 id=%04d type=%d time=%f v=%f dx=%f f=%f vi=%f vc=%f vt=%f a_max=%f am=%f a=%f progress=%f target=%f xc=%f t=%f\n",
                      tc->id, tc->motion_type, tc->elapsed_time, *vel_desired, delta_x, f, vi, vc, vt, a_max, am, *acc, tc->progress, tc->target, xc, t);
       if (*acc > a_max)
-        tc_debug_print("   6th acc violation!\n");
+        bz_debug_print("   6th acc violation!\n");
       if (vc < vi && vc < vt) {
-        tc_debug_print("   6th 0 cruise velocity < initial/target velocities target_vel=%f reqvel=%f feedscale=%f max_target_vel=%f\n",
+        bz_debug_print("   6th 0 cruise velocity < initial/target velocities target_vel=%f reqvel=%f feedscale=%f max_target_vel=%f\n",
                        tc->target_vel, tc->reqvel, tpGetFeedScale(tp, tc), tpGetMaxTargetVel(tp, tc));
       }
 
       if (t >= 1.0) {
-        tc_debug_print("       going to phase 2\n");
+        bz_debug_print("       going to phase 2\n");
 
-        delta_x = (tc->currentvel + *vel_desired) * tc->cycle_time / 2.0;
-        //tc->currentvel = *vel_desired;
+        delta_x = tc->currentvel * tc->cycle_time;
         tc->accel_phase = 1;
-
         tc->progress += delta_x;
         return;
-        //tc->elapsed_time -= tc->cycle_time;
       }
     }
   }
@@ -2703,30 +2739,32 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
     double vc = tpGetRealTargetVel(tp, tc);
     double vt = tpGetRealFinalVel(tp, tc, nexttc);
     double dv = (vt - vi);
-    double a_max = tpGetScaledAccel(tp, tc);
-    double am = 15.0/8.0*dv;
+    //double a_max = tpGetScaledAccel(tp, tc);
+    //double am = 15.0/8.0*dv;
     double f = tc->factor;
-    if (fabs(dv) > TP_VEL_EPSILON)
-      f = fabs(a_max / am);
+    //if (fabs(dv) > TP_VEL_EPSILON)
+    //  f = fabs(a_max / am);
 
     double xc = 0;
     if (f > 0.0)
       xc = (vi + vt)/(2.0*f);
 
     //TODO: check for changed target vel
-    delta_x = vi * tc->cycle_time;
+    delta_x = tc->currentvel * tc->cycle_time;
 
-    double d2go = tc->target - tc->progress - 0.5*tc->cycle_time * tc->currentvel;
-    tc_debug_print("   6th 1 id=%04d type=%d time=%f v=%f dx=%f f=%f vc=%f vt=%f d2go=%f xc=%f\n",
-                   tc->id, tc->motion_type, tc->elapsed_time, vi, delta_x, f, vc, vt, d2go, xc);
+    double d2go = tc->target - tc->progress - delta_x;// - 0.5*tc->cycle_time * tc->currentvel;
+    bz_debug_print("   6th 1 id=%04d type=%d time=%f v=%f dx=%f f=%f vc=%f vt=%f progress=%f d2go=%f xc=%f\n",
+                   tc->id, tc->motion_type, tc->elapsed_time, vi, delta_x, f, vc, vt, tc->progress, d2go, xc);
 
-    if (d2go <= xc || dv > 0.0) {
+    if (fabs(d2go - xc) < TP_VEL_EPSILON || dv > 0.0) {
       // begin to decelerate
       tc->accel_phase = 2;
       tc->elapsed_time = 0;
       tc->initialvel = tc->currentvel;
       tc->targetvel = 0.0;
-      tc->factor = 0.0;
+      tc->factor = (tc->currentvel + vt)/(2.0*(tc->target - tc->progress - delta_x));
+      bz_debug_print("  setting f=%f\n", tc->factor);
+      // jump right into decel
     }
   }
 
@@ -2746,22 +2784,22 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
       double a_max = tpGetScaledAccel(tp, tc);
       double d2go = (tc->target - tc->progress);
       double max_dv = sqrt(16.0/15.0 * d2go * a_max);
-      if (tc->targetvel == 0.0) {
-        tc_debug_print("   max_dv=%f dv=%f a_max=%f dx=%f vt=%f\n",
-                       max_dv, dv, a_max, d2go, vt);
-        dv = saturate(dv, max_dv);
-        vt = dv + vc;
-        tc->targetvel = vt;
-        tc->factor = 0.0;
-      }
+      //if (tc->targetvel == 0.0) {
+      //  bz_debug_print("   max_dv=%f dv=%f a_max=%f dx=%f vt=%f\n",
+      //                 max_dv, dv, a_max, d2go, vt);
+      //  dv = saturate(dv, max_dv);
+      //  vt = dv + vc;
+      //  tc->targetvel = vt;
+      //  //tc->factor = 0.0;
+      //}
       vt = tc->targetvel;
       dv = (vt - vc);
       double am = 15.0/8.0*dv;
 
-      if (tc->factor == 0.0) {
-        tc->factor = (vc + vt)/(2.0*(tc->target - tc->progress));
-        tc_debug_print("  setting f=%f\n", tc->factor);
-      }
+      //if (tc->factor == 0.0) {
+      //  tc->factor = (tc->currentvel + vt)/(2.0*(tc->target - tc->progress - delta_x));
+      //  bz_debug_print("  setting f=%f\n", tc->factor);
+      //}
       double f = tc->factor;
 
       // calculate curve parameter
@@ -2769,29 +2807,28 @@ void tpCalculate6thAccel(TP_STRUCT const * const tp,
       double t2 = t*t;
       double t3 = t2*t;
 
-      delta_x = -(dv*(t3*t3 - 3*t3*t2 + 2.5 * t2*t2) + vc*t);
+      delta_x = bez_x(tc->elapsed_time, f, vc, vt)
+                - bez_x(tc->elapsed_time - tc->cycle_time, f, vc, vt);
 
       tc->elapsed_time += tc->cycle_time;
       t = fmin(f * tc->elapsed_time, 1.0);
       t2 = t*t;
       t3 = t2*t;
-      delta_x += dv*(t3*t3 - 3*t3*t2 + 2.5 * t2*t2) + vc*t;
-
-      delta_x /= f;
 
       if (t >= 1.0) {
         *vel_desired = vt;
         *acc = 0;
-        delta_x = vt * tc->cycle_time;
+        tc->progress = tc->target;
+        return;
       }
       else {
         *vel_desired = dv * (6.0 * t3*t2 - 15.0 * t2*t2 + 10.0 * t3) + vc;
         *acc = dv * (30.0 * t2*t2 - 60 * t3 + 30 * t2) * f;
       }
-      tc_debug_print("   6th 2 id=%04d type=%d time=%f v=%f dx=%f f=%f vc=%f vt=%f a_max=%f am=%f a=%f progress=%f target=%f t=%f\n",
+      bz_debug_print("   6th 2 id=%04d type=%d time=%f v=%f dx=%f f=%f vc=%f vt=%f a_max=%f am=%f a=%f progress=%f target=%f t=%f\n",
                      tc->id, tc->motion_type, tc->elapsed_time, *vel_desired, delta_x, f, vc, vt, a_max, am, *acc, tc->progress, tc->target, t);
       if (*acc > a_max)
-        tc_debug_print("   6th acc violation!\n");
+        bz_debug_print("   6th acc violation!\n");
     }
   }
 
@@ -2808,7 +2845,7 @@ STATIC int tpCalculateRampAccel6(TP_STRUCT const * const tp,
                                  double * const acc,
                                  double * const vel_desired)
 {
-  tc_debug_print("using 6th order ramped acceleration\n");
+  bz_debug_print("using 6th order ramped acceleration\n");
 
   if (tc->accel_phase != 3) {
     tc->accel_phase = 3;
@@ -2848,10 +2885,10 @@ STATIC int tpCalculateRampAccel6(TP_STRUCT const * const tp,
   double displacement = (tc->currentvel + *vel_desired) * 0.5 * tc->cycle_time;
   tc->progress += delta_x;
 
-  tc_debug_print("   6th R id=%04d type=%d time=%f v=%f dx=%f vi=%f vt=%f vc=%f acc=%f d2go=%f t=%f\n",
+  bz_debug_print("   6th R id=%04d type=%d time=%f v=%f dx=%f vi=%f vt=%f vc=%f acc=%f d2go=%f t=%f\n",
                  tc->id, tc->motion_type, tc->elapsed_time, *vel_desired, delta_x, vi, vt, tc->currentvel, *acc, tc->target - tc->progress, t);
   if (*acc > a_max)
-    tc_debug_print("  6th acc violation!\n");
+    bz_debug_print("  6th acc violation!\n");
 
   return TP_ERR_OK;
 }
@@ -3287,8 +3324,8 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
             tc->reqvel,
             tc->finalvel,
             tc->target);
-    emcmot_hal_data->traj_active_tc = tc->id;
-    emcmot_hal_data->traj_pos_out = tc->accel_phase;
+    tp_haldata->active_tc_id = tc->id;
+    tp_haldata->accel_phase = tc->accel_phase;
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
@@ -3823,22 +3860,22 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     tc_debug_print("tpRunCycle -------------------\n");
 
-    emcmot_hal_data->traj_active_tc = tc->id;
-    emcmot_hal_data->traj_pos_out = tc->accel_phase;
-    emcmot_hal_data->traj_vel_out = tc->elapsed_time;
-    emcmot_hal_data->tc_vel[0] = tc->currentvel;
-    emcmot_hal_data->tc_vel[1] = tc->target_vel;
-    emcmot_hal_data->tc_vel[2] = tc->reqvel;
-    emcmot_hal_data->tc_vel[3] = tc->finalvel;
-    emcmot_hal_data->tc_pos[0] = tc->progress;
-    emcmot_hal_data->tc_pos[1] = tc->target;
+    tp_haldata->active_tc_id = tc->id;
+    tp_haldata->accel_phase = tc->accel_phase;
+    tp_haldata->elapsed_time = tc->elapsed_time;
+    tp_haldata->currentvel = tc->currentvel;
+    tp_haldata->targetvel = tc->target_vel;
+    tp_haldata->reqvel = tc->reqvel;
+    tp_haldata->finalvel = tc->finalvel;
+    tp_haldata->progress = tc->progress;
+    tp_haldata->target = tc->target;
 
 
-#ifdef TC_DEBUG
-    //Hack debug output for timesteps
-    static double time_elapsed = 0;
-    time_elapsed+=tp->cycleTime;
-#endif
+//#ifdef TC_DEBUG
+//    //Hack debug output for timesteps
+//    static double time_elapsed = 0;
+//    time_elapsed+=tp->cycleTime;
+//#endif
 
     /* If the queue empties enough, assume that the program is near the end.
      * This forces the last segment to be "finalized" to let the optimizer run.*/
