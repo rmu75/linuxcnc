@@ -256,10 +256,6 @@ DEBUG := $(DEBUG) -g -Wall -D_FORTIFY_SOURCE=2
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
 CXXFLAGS += -std=gnu++17
-# https://github.com/pybind/pybind11/issues/1604
-ifeq '' '$(findstring clang++,$(CXX))'
-  CXXFLAGS += -fsized-deallocation
-endif
 # In Debian 11, any inclusion of <boost/python.hpp> leads to several
 # diagnostics from included headers about deprecated features. LinuxCNC does
 # not directly use these deprecated features, but it does use boost::python.
@@ -273,6 +269,11 @@ ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS) $(LDFLAGS)
 else
 LDFLAGS := -Wl,-rpath-link,../lib $(LIBTIRPC_LIBS) $(LDFLAGS)
+endif
+
+# https://github.com/pybind/pybind11/issues/1604
+ifeq '' '$(findstring clang++,$(CXX))'
+  LDFLAGS += -fsized-deallocation
 endif
 
 # Rules to make .o (object) files
