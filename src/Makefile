@@ -271,11 +271,6 @@ else
 LDFLAGS := -Wl,-rpath-link,../lib $(LIBTIRPC_LIBS) $(LDFLAGS)
 endif
 
-# https://github.com/pybind/pybind11/issues/1604
-ifeq '' '$(findstring clang++,$(CXX))'
-  LDFLAGS += -fsized-deallocation
-endif
-
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
 	$(ECHO) Compiling $<
