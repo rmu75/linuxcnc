@@ -10,6 +10,152 @@
 enum class hal_dir{
     IN = HAL_IN,
     OUT = HAL_OUT,
+    IO = HAL_IO,
+};
+
+template<typename T>
+class hal_pin{
+    public:
+    std::string name;
+    volatile T** ptr;
+    T operator=(const T& value){
+        **ptr = value;
+        return **ptr;
+    }
+    operator T(){
+        return **ptr;
+    }
+};
+//requires
+//typedef int hal_port;
+//using hal_port = int;
+struct hal_port{
+    //public:
+    int ptr;
+    // operator int(){
+    //     return ptr;
+    // }
+};
+using pin_t = std::variant<hal_pin<double>,hal_pin<bool>,hal_pin<int32_t>,hal_pin<uint32_t>,hal_pin<hal_port>>;
+
+class PyPin{
+    public:
+    pin_t pin_;
+    PyPin(pin_t pin){
+        pin_ = pin;
+    }
+    PyPin(){
+    }
+    auto getname(){
+        std::string s;
+        std::visit([&s](auto&& pin){ s=pin.name; }, pin_);
+        return s;
+    }
+    std::variant<double,bool,int32_t,uint32_t> getitem(){
+        if (auto* v = std::get_if<hal_pin<double>>(&pin_)) {
+            return *v;
+        } else if (auto* v = std::get_if<hal_pin<bool>>(&pin_)) {
+            return *v;
+        } else if (auto* v = std::get_if<hal_pin<int32_t>>(&pin_)) {
+            return *v;
+        } else if (auto* v = std::get_if<hal_pin<uint32_t>>(&pin_)) {
+            return *v;
+        }
+        return 0;
+    }
+
+    void setitem_variant(std::variant<double,bool,int32_t,uint32_t> value){
+        if (auto* p = std::get_if<double>(&value)) {
+            setitem<double>(*p);
+        } else if (auto* p = std::get_if<bool>(&value)) {
+            setitem<bool>(*p);
+        } else if (auto* p = std::get_if<int32_t>(&value)) {
+            setitem<int32_t>(*p);
+        } else if (auto* p = std::get_if<uint32_t>(&value)) {
+            setitem<uint32_t>(*p);
+        }
+    }
+
+    template<typename T>
+    void setitem(T value){
+        if (auto* p = std::get_if<hal_pin<double>>(&pin_)) {
+            *p = value;
+        } else if (auto* p = std::get_if<hal_pin<bool>>(&pin_)) {
+            *p = value;
+        } else if (auto* p = std::get_if<hal_pin<int32_t>>(&pin_)) {
+            *p = value;
+        } else if (auto* p = std::get_if<hal_pin<uint32_t>>(&pin_)) {
+            *p = value;
+        }
+    }
+
+    bool write(std::string data){
+        if (auto* v = std::get_if<hal_pin<hal_port>>(&pin_)) {
+            auto ret = hal_port_write((**v->ptr).ptr, data.c_str(), data.length());//(**v->ptr).ptr,
+            return ret;
+        }
+        //not a port
+        return false;
+    }
+
+    unsigned int writable(){
+        if (auto* v = std::get_if<hal_pin<hal_port>>(&pin_)) {
+            auto ret = hal_port_writable((**v->ptr).ptr);//(**v->ptr).ptr,
+            return ret;
+        }
+        //not a port
+        return 0;
+    }
+
+    unsigned int readable(){
+        if (auto* v = std::get_if<hal_pin<hal_port>>(&pin_)) {
+            auto ret = hal_port_readable((**v->ptr).ptr);//(**v->ptr).ptr,
+            return ret;
+        }
+        //not a port
+        return 0;
+    }
+
+    void waitWritable(unsigned int count){
+        if (auto* v = std::get_if<hal_pin<hal_port>>(&pin_)) {
+            hal_port_wait_writable((hal_port_t**)(v->ptr), count, 0);//(**v->ptr).ptr,
+        }
+    }
+
+    std::string read(unsigned int count){
+        if (auto* v = std::get_if<hal_pin<hal_port>>(&pin_)) {
+            std::string foo(count, '\0');
+            auto ret = hal_port_read((**v->ptr).ptr, foo.data(), count);//(**v->ptr).ptr,
+            if(ret)
+                return foo;
+            else
+                return "";
+        }
+        //not a port
+        return "";
+    }
+
+    std::string peek(unsigned int count){
+        if (auto* v = std::get_if<hal_pin<hal_port>>(&pin_)) {
+            std::string foo(count, '\0');
+            auto ret = hal_port_peek((**v->ptr).ptr, foo.data(), count);//(**v->ptr).ptr,
+            if(ret)
+                return foo;
+            else
+                return "";
+        }
+        //not a port
+        return "";
+    }
+
+    unsigned int size(){
+        if (auto* v = std::get_if<hal_pin<hal_port>>(&pin_)) {
+            auto ret = hal_port_buffer_size((**v->ptr).ptr);//(**v->ptr).ptr,
+            return ret;
+        }
+        //not a port
+        return 0;
+    }
 };
 
 class hal{
@@ -33,22 +179,26 @@ class hal{
         hal_comp_t *thecomp = halpr_find_comp_by_name(name.c_str());
         return thecomp && (thecomp->ready != 0);
     }
-};
-
-template<typename T>
-class hal_pin{
-    public:
-    volatile T** ptr;
-    T operator=(const T& value){
-        **ptr = value;
-        return **ptr;
+    static int sigNew(std::string name, hal_type_t dir){
+        return hal_signal_new(name.c_str(), dir);
     }
-    operator T(){
-        return **ptr;
+    static int sigLink(std::string pin_name, std::string sig_name){
+        return hal_link(pin_name.c_str(), sig_name.c_str());
+    }
+    //TODO
+    static int get_value(std::string name){
+        return 0;
+    }
+    //TODO
+    static void set_p(std::string name, std::string value){
+
+    }
+    //TODO
+    static auto get_info_signals(){
+        std::map<std::string, int> ret;
+        return ret;
     }
 };
-
-using pin_t = std::variant<hal_pin<double>,hal_pin<bool>,hal_pin<int32_t>,hal_pin<uint32_t>>;
 
 class hal_comp{
     int comp_id;
@@ -66,6 +216,9 @@ class hal_comp{
     int add_pin_(std::string name, hal_dir dir, hal_pin<double> pin){
         return hal_pin_new(name.c_str(), HAL_FLOAT, static_cast<hal_pin_dir_t>(dir), (void **)(pin.ptr), comp_id);
     }
+    int add_pin_(std::string name, hal_dir dir, hal_pin<hal_port> pin){
+        return hal_pin_new(name.c_str(), HAL_PORT, static_cast<hal_pin_dir_t>(dir), (void **)(pin.ptr), comp_id);
+    }
     public:
     int error = 0;
     hal_comp(std::string name){
@@ -79,33 +232,52 @@ class hal_comp{
     }
     hal_comp() = delete;
 
-    void newpin(std::string name, hal_type_t type, hal_dir dir){
+    void setprefix(std::string name){
+        comp_name = name;
+    }
+    
+    std::string getprefix(){
+        return comp_name;
+    }
+
+    PyPin newpin(std::string name, hal_type_t type, hal_dir dir){
         auto& pin = map[name];
         switch(type){
             case HAL_BIT:
             pin = hal_pin<bool>();
+            std::get<hal_pin<bool>>(pin).name = name;
             add_pin(name, dir, std::get<hal_pin<bool>>(pin));
             break;
             case HAL_FLOAT:
             pin = hal_pin<double>();
+            std::get<hal_pin<double>>(pin).name = name;
             add_pin(name, dir, std::get<hal_pin<double>>(pin));
             break;
             case HAL_S32:
             pin = hal_pin<int32_t>();
+            std::get<hal_pin<int32_t>>(pin).name = name;
             add_pin(name, dir, std::get<hal_pin<int32_t>>(pin));
             break;
             case HAL_U32:
             pin = hal_pin<uint32_t>();
+            std::get<hal_pin<uint32_t>>(pin).name = name;
             add_pin(name, dir, std::get<hal_pin<uint32_t>>(pin));
+            break;
+            case HAL_PORT:
+            pin = hal_pin<hal_port>();
+            std::get<hal_pin<hal_port>>(pin).name = name;
+            add_pin(name, dir, std::get<hal_pin<hal_port>>(pin));
             break;
             [[fallthrough]];
             default:
             break;
         }
+        auto foo = PyPin(pin);
+        return foo;
     }
 
     std::variant<double,bool,int32_t,uint32_t> getitem(std::string name){
-        auto pin = map[name];
+        auto pin = map.at(name);
         if (auto* v = std::get_if<hal_pin<double>>(&pin)) {
             return *v;
         } else if (auto* v = std::get_if<hal_pin<bool>>(&pin)) {
@@ -120,7 +292,7 @@ class hal_comp{
 
     template<typename T>
     void setitem(std::string name, T value){
-        auto pin = map[name];
+        auto pin = map.at(name);
         if (auto* p = std::get_if<hal_pin<double>>(&pin)) {
             *p = value;
         } else if (auto* p = std::get_if<hal_pin<bool>>(&pin)) {
@@ -134,6 +306,11 @@ class hal_comp{
 
     void ready(){
         hal_ready(comp_id);
+    }
+    void exit(){
+        if(comp_id > 0)
+            hal_exit(comp_id);
+        comp_id = -1;
     }
 
     template<typename T>
@@ -152,7 +329,7 @@ class hal_comp{
     }
 
     ~hal_comp(){
-        hal_exit(comp_id);
+        exit();
     }
 };
 

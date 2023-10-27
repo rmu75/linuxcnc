@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from pyhal import *
+import hal
 import time
 from struct import *
 import os
@@ -163,25 +163,25 @@ def testProgram(prog, pin, pos, offset, bpp, dpu, program, data):
 
 def main():
     try:
-        c = component("test")
+        c = hal.component("test")
 
         pin = {
-            'reset': c.pinNew("reset", halType.BIT, pinDir.OUT),
-            'enabled': c.pinNew("enabled", halType.BIT, pinDir.IN),
-            'position': c.pinNew("position", halType.FLOAT, pinDir.OUT),
-            'output': c.pinNew("output", halType.FLOAT, pinDir.IN),
-            'offset': c.pinNew("offset", halType.FLOAT, pinDir.IN),
-            'bpp': c.pinNew("bpp", halType.SIGNED, pinDir.IN),
-            'ppu': c.pinNew("ppu", halType.FLOAT, pinDir.IN),
-            'count': c.pinNew("count", halType.SIGNED, pinDir.IN),
-            'fault': c.pinNew("fault", halType.BIT, pinDir.IN),
-            'fault_code': c.pinNew("fault-code", halType.SIGNED, pinDir.IN),
-            'state': c.pinNew("state", halType.SIGNED, pinDir.IN),
-            'bitmap_position': c.pinNew("bitmap-position", halType.FLOAT, pinDir.IN),
-            'current_pixel_index': c.pinNew("current-pixel-index", halType.SIGNED, pinDir.IN),
-            'current_pixel_value': c.pinNew("current-pixel-value", halType.FLOAT, pinDir.IN),
-            'previous_pixel_value': c.pinNew("previous-pixel-value", halType.FLOAT, pinDir.IN),
-            'fraction': c.pinNew("fraction", halType.FLOAT, pinDir.IN),
+            'reset': c.newpin("reset", hal.HAL_BIT, hal.HAL_OUT),
+            'enabled': c.newpin("enabled", hal.HAL_BIT, hal.HAL_IN),
+            'position': c.newpin("position", hal.HAL_FLOAT, hal.HAL_OUT),
+            'output': c.newpin("output", hal.HAL_FLOAT, hal.HAL_IN),
+            'offset': c.newpin("offset", hal.HAL_FLOAT, hal.HAL_IN),
+            'bpp': c.newpin("bpp", hal.HAL_S32, hal.HAL_IN),
+            'ppu': c.newpin("ppu", hal.HAL_FLOAT, hal.HAL_IN),
+            'count': c.newpin("count", hal.HAL_S32, hal.HAL_IN),
+            'fault': c.newpin("fault", hal.HAL_BIT, hal.HAL_IN),
+            'fault_code': c.newpin("fault-code", hal.HAL_S32, hal.HAL_IN),
+            'state': c.newpin("state", hal.HAL_S32, hal.HAL_IN),
+            'bitmap_position': c.newpin("bitmap-position", hal.HAL_FLOAT, hal.HAL_IN),
+            'current_pixel_index': c.newpin("current-pixel-index", hal.HAL_S32, hal.HAL_IN),
+            'current_pixel_value': c.newpin("current-pixel-value", hal.HAL_FLOAT, hal.HAL_IN),
+            'previous_pixel_value': c.newpin("previous-pixel-value", hal.HAL_FLOAT, hal.HAL_IN),
+            'fraction': c.newpin("fraction", hal.HAL_FLOAT, hal.HAL_IN),
         }
         c.ready()
 

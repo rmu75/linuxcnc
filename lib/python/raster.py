@@ -3,7 +3,7 @@
 """
 from re import match
 from enum import Enum
-from pyhal import *
+import hal
 from struct import *
 import time
 
@@ -53,11 +53,11 @@ class RasterProgrammer(object):
                 enabled - BIT IN - link to the raster's enabled pin. Raster programmer uses this to wait on rasters activation
         """
         self.__timeout = 5.0
-        self.component = component(name)
-        self.port = self.component.pinNew("program", halType.PORT, pinDir.OUT)
-        self.faultCode = self.component.pinNew("fault-code", halType.SIGNED, pinDir.IN)
-        self.enabled = self.component.pinNew("enabled", halType.BIT, pinDir.IN)
-        self.run    = self.component.pinNew("run", halType.BIT, pinDir.OUT)
+        self.component = hal.component(name)
+        self.port = self.component.newpin("program", hal.HAL_PORT, hal.HAL_OUT)
+        self.faultCode = self.component.newpin("fault-code", hal.HAL_S32, hal.HAL_IN)
+        self.enabled = self.component.newpin("enabled", hal.HAL_BIT, hal.HAL_IN)
+        self.run    = self.component.newpin("run", hal.HAL_BIT, hal.HAL_OUT)
         self.component.ready()
 
         self.run.value = False

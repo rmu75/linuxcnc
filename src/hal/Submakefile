@@ -23,10 +23,10 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
 
-HALMODULE := ../lib/python/_hal.so
+HALMODULE := ../lib/python/hal.so
 $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+	$(Q)$(CXX) $(LDFLAGS) -shared -fPIC `python3 -m pybind11 --includes` -o $@ $^
 
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)

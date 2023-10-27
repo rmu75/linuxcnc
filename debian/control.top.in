@@ -40,6 +40,7 @@ Build-Depends:
     python3-dev,
     python3-tk,
     python3-xlib,
+    python3-pybind11,
     tcl@TCLTK_VERSION@-dev,
     tclx,
     tk@TCLTK_VERSION@-dev,

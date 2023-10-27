@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 
-import _hal, hal
+import hal
 import linuxcnc
 import os
 import math
@@ -32,17 +32,30 @@ try:
 except:
     CYCLE_TIME = 100
 
-class GPin(GObject.Object, hal.Pin):
+class GPin(GObject.Object):
     __gtype_name__ = 'GPin'
     __gsignals__ = {'value-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ())}
 
     REGISTRY = []
     UPDATE = False
 
-    def __init__(self, *a, **kw):
+    def set(self, value):
+        self.pin.set(value)
+
+    def get(self):
+        return self.pin.get()
+    
+    @property
+    def name(self):
+        return self.pin.name
+
+    @property
+    def value(self):
+        return self.pin.value
+
+    def __init__(self, pin):
         GObject.Object.__init__(self)
-        hal.Pin.__init__(self, *a, **kw)
-        self._item_wrap(self._item)
+        self.pin = pin
         self._prev = None
         self.REGISTRY.append(self)
         self.update_start()
@@ -61,9 +74,9 @@ class GPin(GObject.Object, hal.Pin):
         for p in self.REGISTRY:
             try:
                 p.update()
-            except:
+            except Exception as e:
                 kill.append(p)
-                print("Error updating pin %s; Removing" % p)
+                print(f"Error updating pin {p}: {e}; Removing")
         for p in kill:
             self.REGISTRY.remove(p)
         return self.UPDATE
@@ -85,8 +98,8 @@ class GComponent:
             comp = comp.comp
         self.comp = comp
 
-    def newpin(self, *a, **kw): return GPin(_hal.component.newpin(self.comp, *a, **kw))
-    def getpin(self, *a, **kw): return GPin(_hal.component.getpin(self.comp, *a, **kw))
+    def newpin(self, *a, **kw): return GPin(hal.component.newpin(self.comp, *a, **kw))
+    def getpin(self, *a, **kw): return GPin(hal.component.getpin(self.comp, *a, **kw))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
 
