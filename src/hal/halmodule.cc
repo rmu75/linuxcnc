@@ -36,7 +36,11 @@ PYBIND11_MODULE(hal, m) {
         //.def_property("value", &PyPin::getitem, &PyPin::setitem<bool>)
         //.def_property("value", &PyPin::getitem, &PyPin::setitem<double>)
         .def_property("value", &PyPin::getitem, &PyPin::setitem_variant)
-        .def_property_readonly("name", &PyPin::getname);
+        // .def_property_readonly("name", &PyPin::getname)
+        .def("get_name", &PyPin::getname);
+        // .def("is_pin", &PyPin::is_pin)
+        // .def("get_type", &PyPin::get_type)
+        // .def("get_dir", &PyPin::get_dir);
         //.def_property("value", &PyPin::getitem, [](py::object o) { py::cast<> });
 
     py::class_<hal_comp>(m, "component")
@@ -44,6 +48,7 @@ PYBIND11_MODULE(hal, m) {
         .def("newpin", &hal_comp::newpin)
         .def("setprefix", &hal_comp::setprefix)
         .def("getprefix", &hal_comp::getprefix)
+        .def("getitem", &hal_comp::getitem)
         .def("__getitem__", &hal_comp::getitem)
         .def("__getattr__", &hal_comp::getitem)
         .def("__setitem__", &hal_comp::setitem<double>)

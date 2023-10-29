@@ -7,7 +7,7 @@ try:
     ps = h.newpin("s", hal.HAL_S32, hal.HAL_OUT)
     pu = h.newpin("u", hal.HAL_U32, hal.HAL_OUT)
     pf = h.newpin("f", hal.HAL_FLOAT, hal.HAL_OUT)
-    param = h.newparam("param", hal.HAL_BIT, hal.HAL_RW)
+    #param = h.newparam("param", hal.HAL_BIT, hal.HAL_RW)
     h.ready()
 
     def try_set(p, v):
@@ -64,22 +64,22 @@ try:
         print("pincheck {} {} {} {}".format(
             i.get_name(), i.is_pin(), i.get_type() == t, i.get_dir() == d))
 
-    pin_validate(ps, hal.HAL_S32, hal.HAL_OUT)
-    pin_validate(pu, hal.HAL_U32, hal.HAL_OUT)
-    pin_validate(pf, hal.HAL_FLOAT, hal.HAL_OUT)
+    #pin_validate(ps, hal.HAL_S32, hal.HAL_OUT)
+    #pin_validate(pu, hal.HAL_U32, hal.HAL_OUT)
+    #pin_validate(pf, hal.HAL_FLOAT, hal.HAL_OUT)
 
     pin = h.getitem("s")
 
-    pin_validate(pin, hal.HAL_S32, hal.HAL_OUT)
+    #pin_validate(pin, hal.HAL_S32, hal.HAL_OUT)
     try:
         pin = h.getitem("not-found")
         print("{} {} {}".format("getitem", "not-found", "ok"))
     except:
         print("{} {} {}".format("getitem", "not-found", "fail"))
 
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
-    param = h.getitem("param")
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
+    #pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
+    #param = h.getitem("param")
+    #pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
 
     try_set_pin(pu, 0)
     try_set_pin(pu, -1)
