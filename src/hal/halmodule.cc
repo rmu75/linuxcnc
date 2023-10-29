@@ -16,6 +16,11 @@ PYBIND11_MODULE(hal, m) {
     m.def("get_info_signals", &hal::get_info_signals);
     m.def("sigNew", &hal::sigNew);
     m.def("sigLink", &hal::sigLink);
+    m.attr("is_kernelspace") = py::int_(rtapi_is_kernelspace());
+    m.attr("is_userspace") = py::int_(!rtapi_is_kernelspace());
+    m.def("connect", &hal_link);//TODO: check hal_shmem_base
+    m.def("disconnect", &hal_unlink);//TODO: check hal_shmem_base
+    m.def("new_sig", &hal_signal_new);
 
     py::class_<PyPin>(m, "Pin")
         .def(py::init<>())
