@@ -4,8 +4,10 @@
 #include <map>
 #include <string>
 #include <variant>
+#include <stdexcept>
 #include <hal.h>
 #include <hal_priv.h>
+#include <string.h>
 
 enum class hal_dir{
     IN = HAL_IN,
@@ -159,6 +161,78 @@ class PyPin{
 };
 
 class hal{
+    private:
+    static int set_common(hal_type_t type, void *d_ptr, const char *value) {
+        // This function assumes that the mutex is held
+        int retval = 0;
+        double fval;
+        long lval;
+        unsigned long ulval;
+        long long llval;
+        unsigned long long ullval;
+        char *cp;
+
+        switch (type) {
+        case HAL_BIT:
+        if ((strcmp("1", value) == 0) || (strcasecmp("TRUE", value) == 0)) {
+            *(hal_bit_t *) (d_ptr) = 1;
+        } else if ((strcmp("0", value) == 0) || (strcasecmp("FALSE", value)) == 0) {
+            *(hal_bit_t *) (d_ptr) = 0;
+        } else {
+            retval = -EINVAL;
+        }
+        break;
+        case HAL_FLOAT:
+        fval = strtod ( value, &cp );
+        if ((*cp != '\0') && (!isspace(*cp))) {
+            // invalid character(s) in string
+            retval = -EINVAL;
+        } else {
+            *((hal_float_t *) (d_ptr)) = fval;
+        }
+        break;
+        case HAL_S32:
+        lval = strtol(value, &cp, 0);
+        if ((*cp != '\0') && (!isspace(*cp))) {
+            // invalid chars in string
+            retval = -EINVAL;
+        } else {
+            *((hal_s32_t *) (d_ptr)) = lval;
+        }
+        break;
+        case HAL_U32:
+        ulval = strtoul(value, &cp, 0);
+        if ((*cp != '\0') && (!isspace(*cp))) {
+            // invalid chars in string
+            retval = -EINVAL;
+        } else {
+            *((hal_u32_t *) (d_ptr)) = ulval;
+        }
+        break;
+        case HAL_S64:
+        llval = strtoll(value, &cp, 0);
+        if ((*cp != '\0') && (!isspace(*cp))) {
+            // invalid chars in string
+            retval = -EINVAL;
+        } else {
+            *((hal_s64_t *) (d_ptr)) = llval;
+        }
+        break;
+        case HAL_U64:
+        ullval = strtoull(value, &cp, 0);
+        if ((*cp != '\0') && (!isspace(*cp))) {
+            // invalid chars in string
+            retval = -EINVAL;
+        } else {
+            *((hal_u64_t *) (d_ptr)) = ullval;
+        }
+        break;
+        default:
+        // Shouldn't get here, but just in case... 
+        retval = -EINVAL;
+        }
+        return retval;
+    }
     public:
     static bool component_exists(std::string name){
         return halpr_find_comp_by_name(name.c_str()) != NULL;
@@ -192,6 +266,42 @@ class hal{
     //TODO
     static void set_p(std::string name, std::string value){
 
+    static bool set_p(const std::string &name, const std::string &value){
+        rtapi_mutex_get(&(hal_data->mutex));
+        auto param = halpr_find_param_by_name(name.c_str());
+        hal_type_t type;
+        void *d_ptr;
+        if (param == 0) {
+            auto pin = halpr_find_pin_by_name(name.c_str());
+            if(pin == 0) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                throw std::invalid_argument("pin not found");
+            } else {
+                // found it 
+                type = pin->type;
+                if(pin->dir == HAL_OUT) {
+                    rtapi_mutex_give(&(hal_data->mutex));
+                    throw std::invalid_argument("pin not writable");
+                }
+                if(pin->signal != 0) {
+                    rtapi_mutex_give(&(hal_data->mutex));
+                    throw std::invalid_argument("pin connected to signal");
+                }
+                d_ptr = (void*)&pin->dummysig;
+            }
+        } else {
+            // found it 
+            type = param->type;
+            /* is it read only? */
+            if (param->dir == HAL_RO) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                throw std::invalid_argument("param not writable");
+            }
+            d_ptr = SHMPTR(param->data_ptr);
+        }
+        auto retval = set_common(type, d_ptr, value.c_str());
+        rtapi_mutex_give(&(hal_data->mutex));   
+        return retval != 0;
     }
     //TODO
     static auto get_info_signals(){
