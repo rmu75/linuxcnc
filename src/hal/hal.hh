@@ -9,6 +9,16 @@
 #include <hal_priv.h>
 #include <string.h>
 
+class hal_mutex_guard {
+    public:
+    hal_mutex_guard() {
+        rtapi_mutex_get(&(hal_data->mutex));
+    }
+    ~hal_mutex_guard() {
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+};
+
 enum class hal_dir{
     IN = HAL_IN,
     OUT = HAL_OUT,
@@ -263,28 +273,23 @@ class hal{
     static int get_value(std::string name){
         return 0;
     }
-    //TODO
-    static void set_p(std::string name, std::string value){
 
     static bool set_p(const std::string &name, const std::string &value){
-        rtapi_mutex_get(&(hal_data->mutex));
+        hal_mutex_guard m;
         auto param = halpr_find_param_by_name(name.c_str());
         hal_type_t type;
         void *d_ptr;
         if (param == 0) {
             auto pin = halpr_find_pin_by_name(name.c_str());
             if(pin == 0) {
-                rtapi_mutex_give(&(hal_data->mutex));
                 throw std::invalid_argument("pin not found");
             } else {
                 // found it 
                 type = pin->type;
                 if(pin->dir == HAL_OUT) {
-                    rtapi_mutex_give(&(hal_data->mutex));
                     throw std::invalid_argument("pin not writable");
                 }
                 if(pin->signal != 0) {
-                    rtapi_mutex_give(&(hal_data->mutex));
                     throw std::invalid_argument("pin connected to signal");
                 }
                 d_ptr = (void*)&pin->dummysig;
@@ -294,13 +299,11 @@ class hal{
             type = param->type;
             /* is it read only? */
             if (param->dir == HAL_RO) {
-                rtapi_mutex_give(&(hal_data->mutex));
                 throw std::invalid_argument("param not writable");
             }
             d_ptr = SHMPTR(param->data_ptr);
         }
         auto retval = set_common(type, d_ptr, value.c_str());
-        rtapi_mutex_give(&(hal_data->mutex));   
         return retval != 0;
     }
     //TODO
