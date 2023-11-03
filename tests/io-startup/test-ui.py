@@ -51,6 +51,7 @@ os.system("halcmd source ../../postgui.hal")
 #
 
 l = linuxcnc_util.LinuxCNC()
+l.wait_for_linuxcnc_startup()
 
 wait_for_pin_value('tool-number', expected_startup_tool_number)
 
