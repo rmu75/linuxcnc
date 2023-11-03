@@ -270,8 +270,85 @@ class hal{
         return hal_link(pin_name.c_str(), sig_name.c_str());
     }
     //TODO
-    static int get_value(std::string name){
-        return 0;
+    static std::variant<double,bool,int32_t,uint32_t> get_value(const std::string &name){
+    hal_param_t *param;
+    hal_pin_t *pin;
+    hal_sig_t *sig;
+    hal_type_t type;
+    void *d_ptr;
+
+    // if(!hal_shmem_base) {
+	// PyErr_Format(PyExc_RuntimeError,
+	// 	"Cannot call before creating component");
+	// return NULL;
+    // }
+    /* get mutex before accessing shared data */
+
+    hal_mutex_guard m;
+    /* search param list for name */
+    param = halpr_find_param_by_name(name.c_str());
+    if (param) {
+        /* found it */
+        type = param->type;
+        d_ptr = SHMPTR(param->data_ptr);
+        /* convert to python value */
+        switch(type) {
+            case HAL_BIT: return ((bool)*(hal_bit_t *)d_ptr);
+            case HAL_U32: return ((uint32_t)*(hal_u32_t *)d_ptr);
+            case HAL_S32: return ((int32_t)*(hal_s32_t *)d_ptr);
+            //case HAL_U64: return ((unsigned long long)*(hal_u64_t *)d_ptr);
+            //case HAL_S64: return ((long long)*(hal_s64_t *)d_ptr);
+            case HAL_FLOAT: return ((double)*(hal_float_t *)d_ptr);
+            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+        }
+    }
+    /* not found, search pin list for name */
+    pin = halpr_find_pin_by_name(name.c_str());
+    if(pin) {
+        /* found it */
+        type = pin->type;
+        if (pin->signal != 0) {
+            sig = (hal_sig_t*)SHMPTR(pin->signal);
+            d_ptr = SHMPTR(sig->data_ptr);
+        } else {
+            sig = 0;
+            d_ptr = &(pin->dummysig);
+        }
+        /* convert to python value */
+        switch(type) {
+            case HAL_BIT: return ((bool)*(hal_bit_t *)d_ptr);
+            case HAL_U32: return ((uint32_t)*(hal_u32_t *)d_ptr);
+            case HAL_S32: return ((int32_t)*(hal_s32_t *)d_ptr);
+            //case HAL_U64: return ((unsigned long long)*(hal_u64_t *)d_ptr);
+            //case HAL_S64: return ((long long)*(hal_s64_t *)d_ptr);
+            case HAL_FLOAT: return ((double)*(hal_float_t *)d_ptr);
+            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+        }
+    }
+    sig = halpr_find_sig_by_name(name.c_str());
+    if (sig != 0) {
+        /* found it */
+        type = sig->type;
+        d_ptr = SHMPTR(sig->data_ptr);
+        /* convert to python value */
+        switch(type) {
+            case HAL_BIT: return ((bool)*(hal_bit_t *)d_ptr);
+            case HAL_U32: return ((uint32_t)*(hal_u32_t *)d_ptr);
+            case HAL_S32: return ((int32_t)*(hal_s32_t *)d_ptr);
+            //case HAL_U64: return ((unsigned long long)*(hal_u64_t *)d_ptr);
+            //case HAL_S64: return ((long long)*(hal_s64_t *)d_ptr);
+            case HAL_FLOAT: return ((double)*(hal_float_t *)d_ptr);
+            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+        }
+    }
+    /* error if here */
+    throw std::invalid_argument("Can't set value: pin / param " + name + " not found");
     }
 
     static bool set_p(const std::string &name, const std::string &value){

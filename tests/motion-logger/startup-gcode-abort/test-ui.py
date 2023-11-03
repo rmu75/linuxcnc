@@ -26,7 +26,7 @@ waitlimit = 300
 while 0 < waitlimit:
     try:
         waiting = 'TRUE' != hal.get_value('motion.in-position')
-    except RuntimeError:
+    except ValueError:
         break
     time.sleep(0.1)
     waitlimit -= 1
