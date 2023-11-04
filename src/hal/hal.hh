@@ -116,30 +116,16 @@ public:
     auto getname()
     {
         std::string s;
-        std::visit(
-            [&s](auto&& pin) {
-                s = pin.name;
-            },
-            pin_);
+        std::visit([&s](auto&& pin) { s = pin.name; }, pin_);
         return s;
     }
     pin_value_t getitem()
     {
-        return std::visit(overloaded {[](double arg) -> pin_value_t {
-                                          return arg;
-                                      },
-                                      [](int32_t arg) -> pin_value_t {
-                                          return arg;
-                                      },
-                                      [](uint32_t arg) -> pin_value_t {
-                                          return arg;
-                                      },
-                                      [](bool arg) -> pin_value_t {
-                                          return arg;
-                                      },
-                                      [](hal_port port) -> pin_value_t {
-                                          return 0;
-                                      }},
+        return std::visit(overloaded {[](double arg) -> pin_value_t { return arg; },
+                                      [](int32_t arg) -> pin_value_t { return arg; },
+                                      [](uint32_t arg) -> pin_value_t { return arg; },
+                                      [](bool arg) -> pin_value_t { return arg; },
+                                      [](hal_port port) -> pin_value_t { return 0; }},
                           pin_);
         return 0;
     }
@@ -149,18 +135,10 @@ public:
         // much better would be
         // std::visit(overloaded{[this](auto arg){setitem(arg);}}, value);
         // but that doesn't compile
-        std::visit(overloaded {[this](double arg) {
-                                   setitem(arg);
-                               },
-                               [this](int32_t arg) {
-                                   setitem(arg);
-                               },
-                               [this](uint32_t arg) {
-                                   setitem(arg);
-                               },
-                               [this](bool arg) {
-                                   setitem(arg);
-                               },
+        std::visit(overloaded {[this](double arg) { setitem(arg); },
+                               [this](int32_t arg) { setitem(arg); },
+                               [this](uint32_t arg) { setitem(arg); },
+                               [this](bool arg) { setitem(arg); },
                                [](hal_port) {}},
                    value);
     }
@@ -168,18 +146,10 @@ public:
     template<typename T>
     void setitem(T value)
     {
-        std::visit(overloaded {[value](hal_pin<double>& pin) {
-                                   pin = value;
-                               },
-                               [value](hal_pin<int32_t>& pin) {
-                                   pin = value;
-                               },
-                               [value](hal_pin<uint32_t>& pin) {
-                                   pin = value;
-                               },
-                               [value](hal_pin<bool>& pin) {
-                                   pin = value;
-                               },
+        std::visit(overloaded {[value](hal_pin<double>& pin) { pin = value; },
+                               [value](hal_pin<int32_t>& pin) { pin = value; },
+                               [value](hal_pin<uint32_t>& pin) { pin = value; },
+                               [value](hal_pin<bool>& pin) { pin = value; },
                                [](hal_pin<hal_port>& pin) {}},
                    pin_);
     }
@@ -625,21 +595,11 @@ public:
     {
         // code duplication
         auto pin = map.at(name);
-        return std::visit(overloaded {[](double arg) -> pin_value_t {
-                                          return arg;
-                                      },
-                                      [](int32_t arg) -> pin_value_t {
-                                          return arg;
-                                      },
-                                      [](uint32_t arg) -> pin_value_t {
-                                          return arg;
-                                      },
-                                      [](bool arg) -> pin_value_t {
-                                          return arg;
-                                      },
-                                      [](hal_port port) -> pin_value_t {
-                                          return 0;
-                                      }},
+        return std::visit(overloaded {[](double arg) -> pin_value_t { return arg; },
+                                      [](int32_t arg) -> pin_value_t { return arg; },
+                                      [](uint32_t arg) -> pin_value_t { return arg; },
+                                      [](bool arg) -> pin_value_t { return arg; },
+                                      [](hal_port port) -> pin_value_t { return 0; }},
                           pin);
         return 0;
     }
@@ -649,18 +609,10 @@ public:
     {
         // code duplication
         auto pin = map.at(name);
-        std::visit(overloaded {[value](hal_pin<double>& pin) {
-                                   pin = value;
-                               },
-                               [value](hal_pin<int32_t>& pin) {
-                                   pin = value;
-                               },
-                               [value](hal_pin<uint32_t>& pin) {
-                                   pin = value;
-                               },
-                               [value](hal_pin<bool>& pin) {
-                                   pin = value;
-                               },
+        std::visit(overloaded {[value](hal_pin<double>& pin) { pin = value; },
+                               [value](hal_pin<int32_t>& pin) { pin = value; },
+                               [value](hal_pin<uint32_t>& pin) { pin = value; },
+                               [value](hal_pin<bool>& pin) { pin = value; },
                                [](hal_pin<hal_port>& pin) {}},
                    pin);
     }
