@@ -1,3 +1,5 @@
+// #pragma once
+
 #ifndef HALXX_HH
 #define HALXX_HH
 
@@ -8,6 +10,12 @@
 #include <hal.h>
 #include <hal_priv.h>
 #include <string.h>
+
+
+// ich würd alles in namespace hal {} stecken und dafür die hal_ prefixes weglassen
+
+// std::strings als parameter: überall wo man potentiell einen c_str braucht würd ich 
+// const std::string& übergeben, wo man keinen c_str braucht einen string_view
 
 class hal_mutex_guard {
     public:
@@ -25,30 +33,60 @@ enum class hal_dir{
     IO = HAL_IO,
 };
 
+
+// comment RS: why not inherit from hal_pin_t? would that mean hal_param and hal_signal class
+// templates are needed too?
 template<typename T>
 class hal_pin{
     public:
     std::string name;
-    volatile T** ptr;
+    T** ptr;
     T operator=(const T& value){
-        **ptr = value;
+        **(const_cast<volatile T**>(ptr)) = value;
         return **ptr;
     }
     operator T(){
-        return **ptr;
+        return **(const_cast<volatile T**>(ptr));
     }
 };
+
 //requires
 //typedef int hal_port;
 //using hal_port = int;
 struct hal_port{
+    hal_port(volatile hal_port& port) { ptr = port.ptr; }
     //public:
     int ptr;
     // operator int(){
     //     return ptr;
     // }
 };
+/*
+funzt nicht
+
+template<>
+class hal_pin<hal_port> {
+   public:
+    std::string name;
+    volatile hal_port** ptr;
+    hal_port operator=(const hal_port& value) volatile { 
+        **ptr = value;
+        return **ptr;
+    }
+    operator hal_port (){
+        return **ptr;
+    }
+};
+*/
 using pin_t = std::variant<hal_pin<double>,hal_pin<bool>,hal_pin<int32_t>,hal_pin<uint32_t>,hal_pin<hal_port>>;
+using pin_value_t = std::variant<double, bool, int32_t, uint32_t>;
+
+// helper type for the visitor (should work with c++17)
+template<class... Ts>
+struct overloaded : Ts... { using Ts::operator()...; };
+// explicit deduction guide (not needed as of C++20)
+template<class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
 
 class PyPin{
     public:
@@ -63,42 +101,39 @@ class PyPin{
         std::visit([&s](auto&& pin){ s=pin.name; }, pin_);
         return s;
     }
-    std::variant<double,bool,int32_t,uint32_t> getitem(){
-        if (auto* v = std::get_if<hal_pin<double>>(&pin_)) {
-            return *v;
-        } else if (auto* v = std::get_if<hal_pin<bool>>(&pin_)) {
-            return *v;
-        } else if (auto* v = std::get_if<hal_pin<int32_t>>(&pin_)) {
-            return *v;
-        } else if (auto* v = std::get_if<hal_pin<uint32_t>>(&pin_)) {
-            return *v;
-        }
+    pin_value_t getitem(){
+        return std::visit(overloaded{
+            [](double arg)  -> pin_value_t {return arg;},
+            [](int32_t arg)  -> pin_value_t {return arg;},
+            [](uint32_t arg)  -> pin_value_t {return arg;},
+            [](bool arg) -> pin_value_t {return arg;},
+            [](hal_port port) -> pin_value_t {return 0;}
+        }, pin_);
         return 0;
     }
 
-    void setitem_variant(std::variant<double,bool,int32_t,uint32_t> value){
-        if (auto* p = std::get_if<double>(&value)) {
-            setitem<double>(*p);
-        } else if (auto* p = std::get_if<bool>(&value)) {
-            setitem<bool>(*p);
-        } else if (auto* p = std::get_if<int32_t>(&value)) {
-            setitem<int32_t>(*p);
-        } else if (auto* p = std::get_if<uint32_t>(&value)) {
-            setitem<uint32_t>(*p);
-        }
+    void setitem_variant(pin_value_t value){
+        // much better would be
+        // std::visit(overloaded{[this](auto arg){setitem(arg);}}, value);
+        // but that doesn't compile
+        std::visit(overloaded{
+            [this](double arg) {setitem(arg);},
+            [this](int32_t arg) {setitem(arg);},
+            [this](uint32_t arg) {setitem(arg);},
+            [this](bool arg) {setitem(arg);},
+            [](hal_port) {}
+        }, value);
     }
 
     template<typename T>
     void setitem(T value){
-        if (auto* p = std::get_if<hal_pin<double>>(&pin_)) {
-            *p = value;
-        } else if (auto* p = std::get_if<hal_pin<bool>>(&pin_)) {
-            *p = value;
-        } else if (auto* p = std::get_if<hal_pin<int32_t>>(&pin_)) {
-            *p = value;
-        } else if (auto* p = std::get_if<hal_pin<uint32_t>>(&pin_)) {
-            *p = value;
-        }
+        std::visit(overloaded{
+            [value](hal_pin<double>& pin){ pin = value;},
+            [value](hal_pin<int32_t>& pin){ pin = value;},
+            [value](hal_pin<uint32_t>& pin){ pin = value;},
+            [value](hal_pin<bool>& pin){ pin = value;},
+            [](hal_pin<hal_port>& pin){}
+        }, pin_);
     }
 
     bool write(std::string data){
@@ -302,6 +337,7 @@ class hal{
             case HAL_PORT: // HAL_PORT is currently not supported
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default: ; // gets rid of warning but makes sun go nova
         }
     }
     /* not found, search pin list for name */
@@ -327,6 +363,7 @@ class hal{
             case HAL_PORT: // HAL_PORT is currently not supported
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default: ; // gets rid of warning but makes sun go nova
         }
     }
     sig = halpr_find_sig_by_name(name.c_str());
@@ -345,6 +382,7 @@ class hal{
             case HAL_PORT: // HAL_PORT is currently not supported
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default: ; // gets rid of warning but makes sun go nova
         }
     }
     /* error if here */
@@ -390,28 +428,25 @@ class hal{
     }
 };
 
+template <typename T>
+struct hal_type_to_type_t {};
+template<> struct hal_type_to_type_t<bool> { static const hal_type_t type_t_val = HAL_BIT; };
+template<> struct hal_type_to_type_t<int32_t> { static const hal_type_t type_t_val = HAL_S32; };
+template<> struct hal_type_to_type_t<uint32_t> { static const hal_type_t type_t_val = HAL_U32; };
+template<> struct hal_type_to_type_t<double> { static const hal_type_t type_t_val = HAL_FLOAT; };
+template<> struct hal_type_to_type_t<hal_port> { static const hal_type_t type_t_val = HAL_PORT; };
+
 class hal_comp{
     int comp_id;
     std::string comp_name;
-    std::map<std::string,pin_t> map;
-    int add_pin_(std::string name, hal_dir dir, hal_pin<bool> pin){
-        return hal_pin_new(name.c_str(), HAL_BIT, static_cast<hal_pin_dir_t>(dir), (void **)(pin.ptr), comp_id);
-    }
-    int add_pin_(std::string name, hal_dir dir, hal_pin<int32_t> pin){
-        return hal_pin_new(name.c_str(), HAL_S32, static_cast<hal_pin_dir_t>(dir), (void **)(pin.ptr), comp_id);
-    }
-    int add_pin_(std::string name, hal_dir dir, hal_pin<uint32_t> pin){
-        return hal_pin_new(name.c_str(), HAL_U32, static_cast<hal_pin_dir_t>(dir), (void **)(pin.ptr), comp_id);
-    }
-    int add_pin_(std::string name, hal_dir dir, hal_pin<double> pin){
-        return hal_pin_new(name.c_str(), HAL_FLOAT, static_cast<hal_pin_dir_t>(dir), (void **)(pin.ptr), comp_id);
-    }
-    int add_pin_(std::string name, hal_dir dir, hal_pin<hal_port> pin){
-        return hal_pin_new(name.c_str(), HAL_PORT, static_cast<hal_pin_dir_t>(dir), (void **)(pin.ptr), comp_id);
+    std::map<std::string,pin_t> map; 
+    template <typename T>
+    int add_pin_(const std::string& name, hal_dir dir, hal_pin<T> pin) {
+        return hal_pin_new(name.c_str(), hal_type_to_type_t<T>::type_t_val, static_cast<hal_pin_dir_t>(dir), (void **)(pin.ptr), comp_id);
     }
     public:
     int error = 0;
-    hal_comp(std::string name){
+    hal_comp(const std::string& name){
         comp_id = hal_init(name.c_str());
         comp_name = name;
         if(comp_id < 0){
@@ -422,7 +457,7 @@ class hal_comp{
     }
     hal_comp() = delete;
 
-    void setprefix(std::string name){
+    void setprefix(const std::string& name){
         comp_name = name;
     }
     
@@ -430,68 +465,59 @@ class hal_comp{
         return comp_name;
     }
 
-    PyPin newpin(std::string name, hal_type_t type, hal_dir dir){
-        auto& pin = map[name];
+    template <typename T>
+    PyPin newpin_(const std::string& name, hal_dir dir) {
+        auto pin = hal_pin<T>();
+        pin.name = name;
+        add_pin(name, dir, pin);
+        map[name] = pin;
+        return PyPin(pin);
+    }
+    PyPin newpin(const std::string& name, hal_type_t type, hal_dir dir){
         switch(type){
             case HAL_BIT:
-            pin = hal_pin<bool>();
-            std::get<hal_pin<bool>>(pin).name = name;
-            add_pin(name, dir, std::get<hal_pin<bool>>(pin));
-            break;
+            return newpin_<bool>(name, dir);
             case HAL_FLOAT:
-            pin = hal_pin<double>();
-            std::get<hal_pin<double>>(pin).name = name;
-            add_pin(name, dir, std::get<hal_pin<double>>(pin));
-            break;
+            return newpin_<double>(name, dir);
             case HAL_S32:
-            pin = hal_pin<int32_t>();
-            std::get<hal_pin<int32_t>>(pin).name = name;
-            add_pin(name, dir, std::get<hal_pin<int32_t>>(pin));
-            break;
+            return newpin_<int32_t>(name, dir);
             case HAL_U32:
-            pin = hal_pin<uint32_t>();
-            std::get<hal_pin<uint32_t>>(pin).name = name;
-            add_pin(name, dir, std::get<hal_pin<uint32_t>>(pin));
-            break;
+            return newpin_<uint32_t>(name, dir);
             case HAL_PORT:
-            pin = hal_pin<hal_port>();
-            std::get<hal_pin<hal_port>>(pin).name = name;
-            add_pin(name, dir, std::get<hal_pin<hal_port>>(pin));
-            break;
+            return newpin_<hal_port>(name, dir);
             [[fallthrough]];
             default:
             break;
         }
+        auto& pin = map[name];
         auto foo = PyPin(pin);
         return foo;
     }
 
-    std::variant<double,bool,int32_t,uint32_t> getitem(std::string name){
-        auto pin = map.at(name);
-        if (auto* v = std::get_if<hal_pin<double>>(&pin)) {
-            return *v;
-        } else if (auto* v = std::get_if<hal_pin<bool>>(&pin)) {
-            return *v;
-        } else if (auto* v = std::get_if<hal_pin<int32_t>>(&pin)) {
-            return *v;
-        } else if (auto* v = std::get_if<hal_pin<uint32_t>>(&pin)) {
-            return *v;
-        }
+    std::variant<double,bool,int32_t,uint32_t> getitem(const std::string& name){
+        // code duplication
+       auto pin = map.at(name);
+       return std::visit(overloaded{
+            [](double arg)  -> pin_value_t {return arg;},
+            [](int32_t arg)  -> pin_value_t {return arg;},
+            [](uint32_t arg)  -> pin_value_t {return arg;},
+            [](bool arg) -> pin_value_t {return arg;},
+            [](hal_port port) -> pin_value_t {return 0;}
+        }, pin);
         return 0;
     }
 
     template<typename T>
-    void setitem(std::string name, T value){
+    void setitem(const std::string& name, T value){
+        // code duplication
         auto pin = map.at(name);
-        if (auto* p = std::get_if<hal_pin<double>>(&pin)) {
-            *p = value;
-        } else if (auto* p = std::get_if<hal_pin<bool>>(&pin)) {
-            *p = value;
-        } else if (auto* p = std::get_if<hal_pin<int32_t>>(&pin)) {
-            *p = value;
-        } else if (auto* p = std::get_if<hal_pin<uint32_t>>(&pin)) {
-            *p = value;
-        }
+        std::visit(overloaded{
+            [value](hal_pin<double>& pin){ pin = value;},
+            [value](hal_pin<int32_t>& pin){ pin = value;},
+            [value](hal_pin<uint32_t>& pin){ pin = value;},
+            [value](hal_pin<bool>& pin){ pin = value;},
+            [](hal_pin<hal_port>& pin){}
+        }, pin);
     }
 
     void ready(){
@@ -504,10 +530,12 @@ class hal_comp{
     }
 
     template<typename T>
-    void add_pin(std::string pin_name, hal_dir dir, hal_pin<T> &pin){
-        pin.ptr = (volatile T**)hal_malloc(8);
+    void add_pin(const std::string& pin_name, hal_dir dir, hal_pin<T> &pin){
+        // warum nicht hal_malloc(sizeof(T)); ? 
+        // potentielle fussangel falls da was größeres dazugebaut wird
+        pin.ptr = static_cast<T**>(hal_malloc(8));
         if(!pin.ptr){
-            error -= 1;
+            error -= 1; // really? not error = -1; ?
             rtapi_print_msg(RTAPI_MSG_ERR, "%s ERROR: hal_malloc() failed\n", pin_name.c_str());
             hal_exit(comp_id);
         }
@@ -519,7 +547,7 @@ class hal_comp{
     }
 
     ~hal_comp(){
-        exit();
+        exit(); // kann sein dass das exit rekursiv aufruft? wäre das schädlich?
     }
 };
 
