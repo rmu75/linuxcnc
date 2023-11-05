@@ -15,20 +15,17 @@
  * Last change:
  ********************************************************************/
 
-#include "interpl.hh"   // these decls
+#include "interpl.hh"  // these decls
 #include "emc.hh"
 #include "emcglb.h"
-#include "nmlmsg.hh"    // class NMLmsg
+#include "nmlmsg.hh"  // class NMLmsg
 #include "rcs_print.hh"
 
 NML_INTERP_LIST interp_list; /* NML Union, for interpreter */
 
 
 // sets the line number used for subsequent appends
-void NML_INTERP_LIST::set_line_number(int line)
-{
-    next_line_number = line;
-}
+void NML_INTERP_LIST::set_line_number(int line) { next_line_number = line; }
 
 int NML_INTERP_LIST::append(std::unique_ptr<NMLmsg>&& nml_msg_ptr)
 {
@@ -109,12 +106,6 @@ void NML_INTERP_LIST::print()
     rcs_print("\n");
 }
 
-int NML_INTERP_LIST::len()
-{
-    return ((int)linked_list.size());
-}
+int NML_INTERP_LIST::len() { return ((int)linked_list.size()); }
 
-int NML_INTERP_LIST::get_line_number()
-{
-    return line_number;
-}
+int NML_INTERP_LIST::get_line_number() { return line_number; }

@@ -22,8 +22,8 @@
 extern std::unique_ptr<NMLmsg> emcTaskCommand;
 extern int stepping;
 extern int steppingWait;
-extern int emcTaskQueueCommand(std::unique_ptr<NMLmsg> &&cmd);
-extern int emcTaskOnce(const char *inifile, EMC_IO_STAT &emcioStatus);
+extern int emcTaskQueueCommand(std::unique_ptr<NMLmsg>&& cmd);
+extern int emcTaskOnce(const char* inifile, EMC_IO_STAT& emcioStatus);
 
 // Returns 0 if all joints are homed, 1 if any joints are un-homed.
 int all_homed(void);
@@ -43,10 +43,12 @@ int emcTaskPlanSynch();
 int emcTaskPlanSetOptionalStop(bool state);
 int emcTaskPlanSetBlockDelete(bool state);
 void emcTaskPlanExit();
-int emcTaskPlanOpen(const char *file);
+int emcTaskPlanOpen(const char* file);
 int emcTaskPlanRead();
-int emcTaskPlanExecute(const char *command);
-int emcTaskPlanExecute(const char *command, int line_number); //used in case of MDI to pass the pseudo line number to interp
+int emcTaskPlanExecute(const char* command);
+int emcTaskPlanExecute(
+    const char* command,
+    int line_number);  // used in case of MDI to pass the pseudo line number to interp
 int emcTaskPlanPause();
 int emcTaskPlanResume();
 int emcTaskPlanClose();
@@ -54,9 +56,8 @@ int emcTaskPlanReset();
 
 int emcTaskPlanLine();
 int emcTaskPlanLevel();
-int emcTaskPlanCommand(char *cmd);
+int emcTaskPlanCommand(char* cmd);
 
-int emcTaskUpdate(EMC_TASK_STAT * stat);
+int emcTaskUpdate(EMC_TASK_STAT* stat);
 
 #endif
-
