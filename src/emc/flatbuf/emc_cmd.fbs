@@ -1,0 +1,7 @@
+table SetDebug {
+  debug_level: int;
+}
+
+table JogCmd {
+  joint_or_axis: int;
+}

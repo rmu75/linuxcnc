@@ -46,21 +46,22 @@
   issued.
   */
 
-#include <stdio.h>      // vsprintf()
-#include <string.h>     // strcpy()
-#include <stdarg.h>     // va_start()
-#include <stdlib.h>     // exit()
-#include <signal.h>     // signal(), SIGINT
-#include <float.h>      // DBL_MAX
-#include <sys/types.h>  // pid_t
-#include <unistd.h>     // fork()
-#include <sys/wait.h>   // waitpid(), WNOHANG, WIFEXITED
-#include <ctype.h>      // isspace()
+#include "tooldata.hh"
+#include "usrmotintf.h"
+#include <ctype.h>  // isspace()
+#include <float.h>  // DBL_MAX
 #include <libintl.h>
 #include <locale.h>
-#include "usrmotintf.h"
 #include <rtapi_string.h>
-#include "tooldata.hh"
+#include <signal.h>     // signal(), SIGINT
+#include <stdarg.h>     // va_start()
+#include <stdio.h>      // vsprintf()
+#include <stdlib.h>     // exit()
+#include <string.h>     // strcpy()
+#include <sys/types.h>  // pid_t
+#include <sys/wait.h>   // waitpid(), WNOHANG, WIFEXITED
+#include <unistd.h>     // fork()
+#include <memory>
 
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
@@ -68,23 +69,28 @@
 fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_MASK_OM);
 #endif
 
+#include <zmqpp/zmqpp.hpp>
+
+#include "canon.hh"  // CANON_TOOL_TABLE stuff
 #include "config.h"
-#include "rcs.hh"  // NML classes, nmlErrorFormat()
 #include "emc.hh"  // EMC NML
 #include "emc_nml.hh"
-#include "canon.hh"            // CANON_TOOL_TABLE stuff
-#include "inifile.hh"          // INIFILE
-#include "interpl.hh"          // NML_INTERP_LIST, interp_list
-#include "emcglb.h"            // EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
-#include "interp_return.hh"    // public interpreter return values
+#include "emcglb.h"    // EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
+#include "inifile.hh"  // INIFILE
+#include "inihal.hh"
 #include "interp_internal.hh"  // interpreter private definitions
-#include "rcs_print.hh"
-#include "timer.hh"
+#include "interp_return.hh"    // public interpreter return values
+#include "interpl.hh"          // NML_INTERP_LIST, interp_list
+#include "motion.h"            // EMCMOT_ORIENT_*
 #include "nml_oi.hh"
+#include "rcs.hh"  // NML classes, nmlErrorFormat()
+#include "rcs_print.hh"
 #include "task.hh"  // emcTaskCommand etc
 #include "taskclass.hh"
-#include "motion.h"  // EMCMOT_ORIENT_*
-#include "inihal.hh"
+#include "timer.hh"
+
+#include "../flatbuf/emc_error_generated.h"
+#include "../flatbuf/emc_stat_generated.h"
 
 static emcmot_config_t emcmotConfig;
 
@@ -98,6 +104,10 @@ static emcmot_config_t emcmotConfig;
 static RCS_CMD_CHANNEL* emcCommandBuffer = 0;
 static RCS_STAT_CHANNEL* emcStatusBuffer = 0;
 static NML* emcErrorBuffer = 0;
+
+static std::unique_ptr<zmqpp::socket> command_socket;
+static std::unique_ptr<zmqpp::socket> error_socket;
+static std::unique_ptr<zmqpp::socket> status_socket;
 
 // NML command channel data pointer
 static RCS_CMD_MSG* emcCommand = 0;
@@ -222,8 +232,16 @@ int emcOperatorError(const char* fmt, ...)
     // force a NULL at the end for safety
     error_msg.error[LINELEN - 1] = 0;
 
+    flatbuffers::FlatBufferBuilder fbb;
+    auto msg = EMC::CreateOperatorError(fbb, fbb.CreateString(error_msg.error));
+    fbb.Finish(msg);
+
     // write it
     rcs_print("%s\n", error_msg.error);
+    zmqpp::message message;
+    message.add_raw(fbb.GetBufferPointer(), fbb.GetSize());
+
+    error_socket->send(message);
     return emcErrorBuffer->write(error_msg);
 }
 
@@ -242,7 +260,15 @@ int emcOperatorText(const char* fmt, ...)
     // force a NULL at the end for safety
     text_msg.text[LINELEN - 1] = 0;
 
+    flatbuffers::FlatBufferBuilder fbb;
+    auto msg = EMC::CreateOperatorText(fbb, fbb.CreateString(text_msg.text));
+    fbb.Finish(msg);
+
     // write it
+    zmqpp::message message;
+    message.add_raw(fbb.GetBufferPointer(), fbb.GetSize());
+
+    error_socket->send(message);
     return emcErrorBuffer->write(text_msg);
 }
 
@@ -261,7 +287,15 @@ int emcOperatorDisplay(const char* fmt, ...)
     // force a NULL at the end for safety
     display_msg.display[LINELEN - 1] = 0;
 
+    flatbuffers::FlatBufferBuilder fbb;
+    auto msg = EMC::CreateOperatorDisplay(fbb, fbb.CreateString(display_msg.display));
+    fbb.Finish(msg);
+
     // write it
+    zmqpp::message message;
+    message.add_raw(fbb.GetBufferPointer(), fbb.GetSize());
+
+    error_socket->send(message);
     return emcErrorBuffer->write(display_msg);
 }
 
@@ -3129,6 +3163,21 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
+    // set up 0mq socket
+    zmqpp::context context;
+    command_socket = std::make_unique<zmqpp::socket>(context, zmqpp::socket_type::pull);
+    status_socket = std::make_unique<zmqpp::socket>(context, zmqpp::socket_type::pub);
+    error_socket = std::make_unique<zmqpp::socket>(context, zmqpp::socket_type::pub);
+    command_socket->bind("inproc://linuxcnc-command");
+    command_socket->bind("ipc://linuxcnc-command");
+    command_socket->bind("tcp://*:5027");
+    status_socket->bind("inproc://linuxcnc-status");
+    status_socket->bind("ipc://linuxcnc-status");
+    status_socket->bind("tcp://*:5028");
+    error_socket->bind("inproc://linuxcnc-error");
+    error_socket->bind("ipc://linuxcnc-error");
+    error_socket->bind("tcp://*:5029");
+
     // get our status data structure
     // moved up from emc_startup so we can expose it in Python right away
     emcStatus = new EMC_STAT;
@@ -3339,6 +3388,63 @@ int main(int argc, char* argv[])
         // will be updated in the _update() functions above. There's
         // no need to call the individual functions on all WM items.
         emcStatusBuffer->write(emcStatus);
+
+        {
+            // build flatbuffer
+            flatbuffers::FlatBufferBuilder builder;
+            auto& task_ = emcStatus->task;
+            auto g92_offset = CreatePose(builder,
+                                         task_.g92_offset.tran.x,
+                                         task_.g92_offset.tran.y,
+                                         task_.g92_offset.tran.z,
+                                         task_.g92_offset.a,
+                                         task_.g92_offset.b,
+                                         task_.g92_offset.c,
+                                         task_.g92_offset.u,
+                                         task_.g92_offset.v,
+                                         task_.g92_offset.w);
+            auto tool_offset = CreatePose(builder,
+                                          task_.toolOffset.tran.x,
+                                          task_.toolOffset.tran.y,
+                                          task_.toolOffset.tran.z,
+                                          task_.toolOffset.a,
+                                          task_.toolOffset.b,
+                                          task_.toolOffset.c,
+                                          task_.toolOffset.u,
+                                          task_.toolOffset.v,
+                                          task_.toolOffset.w);
+            auto task_stat = CreateTaskStat(builder,
+                                            static_cast<int>(task_.mode),
+                                            static_cast<int>(task_.state),
+                                            static_cast<int>(task_.execState),
+                                            static_cast<int>(task_.interpState),
+                                            task_.callLevel,
+                                            task_.motionLine,
+                                            task_.currentLine,
+                                            task_.readLine,
+                                            task_.optional_stop_state,
+                                            task_.block_delete_state,
+                                            task_.input_timeout,
+                                            builder.CreateString(task_.file),
+                                            builder.CreateString(task_.command),
+                                            builder.CreateString(task_.ini_filename),
+                                            task_.g5x_index,
+                                            g92_offset,
+                                            task_.rotation_xy,
+                                            tool_offset,
+                                            builder.CreateVector(task_.activeGCodes, 17),
+                                            builder.CreateVector(task_.activeMCodes, 10),
+                                            builder.CreateVector(task_.activeSettings, 5),
+                                            task_.interpreter_errcode,
+                                            task_.task_paused,
+                                            task_.delayLeft,
+                                            task_.queuedMDIcommands);
+            builder.Finish(task_stat);
+            
+            zmqpp::message message;
+            message.add_raw(builder.GetBufferPointer(), builder.GetSize());
+            status_socket->send(message);
+        }
 
         // wait on timer cycle, if specified, or calculate actual
         // interval if INI file says to run full out via

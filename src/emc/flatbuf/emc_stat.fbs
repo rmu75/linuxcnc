@@ -1,0 +1,197 @@
+table AxisStat {
+  axis: int;
+  min_position_limit: double;
+  max_position_limit: double;
+  velocity: double;
+}
+
+table JointSetBacklash {
+  joint: int;
+  backlash: double;
+}
+
+table JointSetMinPositionLimit {
+  joint: int;
+  limit: double;
+}
+
+table JointSetMaxPositionLimit {
+  joint: int;
+  limit: double;
+}
+
+enum JointType : byte {
+  linear = 0, angular = 1
+}
+
+table JointStat {
+  joint: int;
+  joint_type: JointType;
+  units: double;
+  backlash: double;
+  min_position_limit: double;
+  max_position_limit: double;
+  max_ferror: double;
+  min_ferror: double;
+  ferror_count: double;
+  ferror_high_mark: double;
+  output: double;
+  input: double;
+  velocity: double;
+  is_in_position: bool;
+  is_homing: bool;
+  is_homed: bool;
+  is_fault: bool;
+  is_enabled: bool;
+  is_min_soft_limit_exceeded: bool;
+  is_max_soft_limit_exceeded: bool;
+  is_min_hard_limit_exceeded: bool;
+  is_max_hard_limit_exceeded: bool;
+  is_override_limits: bool;
+}
+
+enum TrajMode : byte {
+  free = 0, coord = 1
+}
+
+table Pose {
+  x: double;
+  y: double;
+  z: double;
+  a: double;
+  b: double;
+  c: double;
+  u: double;
+  v: double;
+  w: double;
+}
+
+table TrajStat {
+  linear_units: double;
+  angular_units: double;
+  cycle_time: double;
+  joints: int;
+  spindles: int;
+  axis_mask: int;
+  mode: TrajMode;
+  is_enabled: bool;
+  is_in_position: bool;
+  queue: int;
+  active_queue: int;
+  is_queue_full: bool;
+  id: int;
+  is_paused: bool;
+  scale: double;
+  rapid_scale: double;
+  position: Pose;
+  actual_position: Pose;
+  velocity: double;
+  acceleration: double;
+  max_velocity: double;
+  max_acceleration: double;
+  probed_position: Pose;
+  is_probe_tripped: bool;
+  is_probing: bool;
+  probeval: int;
+  kinematics_type: int;
+  motion_type: int;
+  linear_distance_to_go: double;
+  distance_to_go: Pose;
+  current_vel: double;
+  is_feed_override_enabled: bool;
+  is_adaptive_feed_enabled: bool;
+  // state tag
+}
+
+table SpindleStat {
+  speed: double;
+  spindle_scale: double;
+  css_maximum: double;
+  css_factor: double;
+  state: int;
+  direction: int;
+  is_brake_engaged: bool;
+  is_increasing: bool;
+  is_decreasing: bool;
+  is_enabled: bool;
+  orient_state: int;
+  orient_fault: int;
+  is_spindle_override_enabled: bool;
+  is_homed: bool;
+}
+
+table MotionStat {
+  traj: TrajStat;
+  joint: [JointStat];
+  axis: [AxisStat];
+  spindle: [SpindleStat];
+  synch_di: [bool];
+  synch_do: [bool];
+  analog_input: [double];
+  analog_output: [double];
+  misc_error: [int];
+  debug: int;
+  is_on_soft_limit: bool;
+  is_external_offsets_applied: bool;
+  eoffset_pose: Pose;
+  num_extra_joints: int;
+  is_jogging_active: bool;
+}
+
+table TaskStat {
+  mode: int;
+  state: int;
+  exec_state: int;
+  interp_state: int;
+  call_level: int;
+  motion_line: int;
+  current_line: int;
+  read_line: int;
+  is_optional_stop_state: bool;
+  is_block_delete_state: bool;
+  is_input_timeout: bool;
+  filename: string;
+  command: string;
+  ini_filename: string;
+  g5x_index: int;
+  g92_offset: Pose;
+  rotation_xy: double;
+  tool_offset: Pose;
+  active_g_codes: [int];
+  active_m_codes: [int];
+  active_settings: [double];
+  interpreter_error_code: int;
+  is_task_paused: bool;
+  delay_left: double;
+  queued_mdi_commands: int;
+}
+
+table ToolStat {
+  pocket_prepped: int;
+  tool_in_spindle: int;
+  tool_from_pocket: int;
+}
+
+table CoolantStat {
+  is_mist: bool;
+  is_flood: bool;
+}
+
+table AuxStat {
+  is_estopped: bool;
+}
+
+table IOStat {
+  debug: int;
+  reason: int;
+  fault: int;
+  tool: ToolStat;
+  coolant: CoolantStat;
+  aux: AuxStat;
+}
+
+table EmcStat {
+  task: TaskStat;
+  motion: MotionStat;
+  io: IOStat;
+}

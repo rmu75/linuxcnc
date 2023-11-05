@@ -1,0 +1,14 @@
+namespace EMC;
+
+table OperatorError {
+  error: string;
+}
+
+table OperatorText {
+  text: string;
+}
+
+table OperatorDisplay {
+  display: string;
+}
+
