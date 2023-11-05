@@ -1,23 +1,12 @@
+include "emc_common.fbs";
+
+namespace EMC;
+
 table AxisStat {
   axis: int;
   min_position_limit: double;
   max_position_limit: double;
   velocity: double;
-}
-
-table JointSetBacklash {
-  joint: int;
-  backlash: double;
-}
-
-table JointSetMinPositionLimit {
-  joint: int;
-  limit: double;
-}
-
-table JointSetMaxPositionLimit {
-  joint: int;
-  limit: double;
 }
 
 enum JointType : byte {
@@ -52,18 +41,6 @@ table JointStat {
 
 enum TrajMode : byte {
   free = 0, coord = 1
-}
-
-table Pose {
-  x: double;
-  y: double;
-  z: double;
-  a: double;
-  b: double;
-  c: double;
-  u: double;
-  v: double;
-  w: double;
 }
 
 table TrajStat {

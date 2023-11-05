@@ -1,7 +1,40 @@
-table SetDebug {
+include "emc_common.fbs";
+
+namespace EMC;
+
+struct SetDebug {
   debug_level: int;
 }
 
-table JogCmd {
+struct JogCmd {
   joint_or_axis: int;
 }
+
+struct JointSetBacklash {
+  joint: int;
+  backlash: double;
+}
+
+struct JointSetMinPositionLimit {
+  joint: int;
+  limit: double;
+}
+
+struct JointSetMaxPositionLimit {
+  joint: int;
+  limit: double;
+}
+
+union Command {
+  set_debug: SetDebug,
+  jog_cmd: JogCmd,
+  join_set_backlash: JointSetBacklash,
+  joint_set_min_position_limit: JointSetMinPositionLimit,
+  joint_set_max_position_limit: JointSetMaxPositionLimit,
+}
+
+table CmdChannelMsg {
+  command: Command;
+}
+
+root_type CmdChannelMsg;

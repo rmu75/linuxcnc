@@ -3174,6 +3174,9 @@ int main(int argc, char* argv[])
     status_socket->bind("inproc://linuxcnc-status");
     status_socket->bind("ipc://linuxcnc-status");
     status_socket->bind("tcp://*:5028");
+    // only keep last status update
+    // att, conflate is not compatible with subscription filters
+    status_socket->set(zmqpp::socket_option::conflate, 1);
     error_socket->bind("inproc://linuxcnc-error");
     error_socket->bind("ipc://linuxcnc-error");
     error_socket->bind("tcp://*:5029");
@@ -3237,8 +3240,8 @@ int main(int argc, char* argv[])
             taskExecuteError = 0;
         }
         // run control cycle
-        if (0 != emcTaskPlan()) { taskPlanError = 1; }
-        if (0 != emcTaskExecute()) { taskExecuteError = 1; }
+        if (0 != emcTaskPlan()) taskPlanError = 1;
+        if (0 != emcTaskExecute()) taskExecuteError = 1;
         // update subordinate status
 
         emcMotionUpdate(&emcStatus->motion);
@@ -3255,10 +3258,10 @@ int main(int argc, char* argv[])
                 emcAbortCleanup(EMC_ABORT_AUX_ESTOP);
                 emcTaskPlanSynch();
             }
-            if (emcStatus->io.coolant.mist) { emcCoolantMistOff(); }
-            if (emcStatus->io.coolant.flood) { emcCoolantFloodOff(); }
+            if (emcStatus->io.coolant.mist) emcCoolantMistOff();
+            if (emcStatus->io.coolant.flood) emcCoolantFloodOff();
             for (int n = 0; n < emcStatus->motion.traj.spindles; n++) {
-                if (emcStatus->motion.spindle[n].enabled) { emcSpindleOff(n); }
+                if (emcStatus->motion.spindle[n].enabled) emcSpindleOff(n);
             }
         }
 
@@ -3287,9 +3290,8 @@ int main(int argc, char* argv[])
                 emcOperatorError("On Soft Limit");
                 // if gui does not provide a means to switch to joint mode
                 // the  machine may be stuck (a misconfiguration)
-                if (emcmotConfig.kinType == KINEMATICS_IDENTITY) {
+                if (emcmotConfig.kinType == KINEMATICS_IDENTITY)
                     emcOperatorError("Identity kinematics are MISCONFIGURED");
-                }
                 gave_soft_limit_message = 1;
             }
         } else if (emcStatus->motion.status == RCS_STATUS::ERROR
@@ -3329,9 +3331,8 @@ int main(int argc, char* argv[])
                 int was_open = taskplanopen;
                 emcTaskPlanClose();
                 emcTaskPlanReset();  // Flush any unflushed segments
-                if (emc_debug & EMC_DEBUG_INTERP && was_open) {
+                if (emc_debug & EMC_DEBUG_INTERP && was_open)
                     rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__, __LINE__);
-                }
             }
 
             // clear out the pending command
@@ -3393,27 +3394,25 @@ int main(int argc, char* argv[])
             // build flatbuffer
             flatbuffers::FlatBufferBuilder builder;
             auto& task_ = emcStatus->task;
-            auto g92_offset = CreatePose(builder,
-                                         task_.g92_offset.tran.x,
-                                         task_.g92_offset.tran.y,
-                                         task_.g92_offset.tran.z,
-                                         task_.g92_offset.a,
-                                         task_.g92_offset.b,
-                                         task_.g92_offset.c,
-                                         task_.g92_offset.u,
-                                         task_.g92_offset.v,
-                                         task_.g92_offset.w);
-            auto tool_offset = CreatePose(builder,
-                                          task_.toolOffset.tran.x,
-                                          task_.toolOffset.tran.y,
-                                          task_.toolOffset.tran.z,
-                                          task_.toolOffset.a,
-                                          task_.toolOffset.b,
-                                          task_.toolOffset.c,
-                                          task_.toolOffset.u,
-                                          task_.toolOffset.v,
-                                          task_.toolOffset.w);
-            auto task_stat = CreateTaskStat(builder,
+            auto g92_offset = EMC::Pose(task_.g92_offset.tran.x,
+                                   task_.g92_offset.tran.y,
+                                   task_.g92_offset.tran.z,
+                                   task_.g92_offset.a,
+                                   task_.g92_offset.b,
+                                   task_.g92_offset.c,
+                                   task_.g92_offset.u,
+                                   task_.g92_offset.v,
+                                   task_.g92_offset.w);
+            auto tool_offset = EMC::Pose(task_.toolOffset.tran.x,
+                                    task_.toolOffset.tran.y,
+                                    task_.toolOffset.tran.z,
+                                    task_.toolOffset.a,
+                                    task_.toolOffset.b,
+                                    task_.toolOffset.c,
+                                    task_.toolOffset.u,
+                                    task_.toolOffset.v,
+                                    task_.toolOffset.w);
+            auto task_stat = EMC::CreateTaskStat(builder,
                                             static_cast<int>(task_.mode),
                                             static_cast<int>(task_.state),
                                             static_cast<int>(task_.execState),
@@ -3429,9 +3428,9 @@ int main(int argc, char* argv[])
                                             builder.CreateString(task_.command),
                                             builder.CreateString(task_.ini_filename),
                                             task_.g5x_index,
-                                            g92_offset,
+                                            &g92_offset,
                                             task_.rotation_xy,
-                                            tool_offset,
+                                            &tool_offset,
                                             builder.CreateVector(task_.activeGCodes, 17),
                                             builder.CreateVector(task_.activeMCodes, 10),
                                             builder.CreateVector(task_.activeSettings, 5),
@@ -3440,7 +3439,6 @@ int main(int argc, char* argv[])
                                             task_.delayLeft,
                                             task_.queuedMDIcommands);
             builder.Finish(task_stat);
-            
             zmqpp::message message;
             message.add_raw(builder.GetBufferPointer(), builder.GetSize());
             status_socket->send(message);

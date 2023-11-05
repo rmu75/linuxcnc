@@ -6,6 +6,8 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+#include "emc_common_generated.h"
+
 namespace EMC {
 
 struct OperatorError;
@@ -19,6 +21,123 @@ struct OperatorTextT;
 struct OperatorDisplay;
 struct OperatorDisplayBuilder;
 struct OperatorDisplayT;
+
+struct ErrorChannelMsg;
+struct ErrorChannelMsgBuilder;
+struct ErrorChannelMsgT;
+
+enum Message {
+  Message_NONE = 0,
+  Message_operator_error = 1,
+  Message_operator_text = 2,
+  Message_operator_display = 3,
+  Message_MIN = Message_NONE,
+  Message_MAX = Message_operator_display
+};
+
+inline const Message (&EnumValuesMessage())[4] {
+  static const Message values[] = {
+    Message_NONE,
+    Message_operator_error,
+    Message_operator_text,
+    Message_operator_display
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMessage() {
+  static const char * const names[5] = {
+    "NONE",
+    "operator_error",
+    "operator_text",
+    "operator_display",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMessage(Message e) {
+  if (flatbuffers::IsOutRange(e, Message_NONE, Message_operator_display)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesMessage()[index];
+}
+
+template<typename T> struct MessageTraits {
+  static const Message enum_value = Message_NONE;
+};
+
+template<> struct MessageTraits<EMC::OperatorError> {
+  static const Message enum_value = Message_operator_error;
+};
+
+template<> struct MessageTraits<EMC::OperatorText> {
+  static const Message enum_value = Message_operator_text;
+};
+
+template<> struct MessageTraits<EMC::OperatorDisplay> {
+  static const Message enum_value = Message_operator_display;
+};
+
+struct MessageUnion {
+  Message type;
+  void *value;
+
+  MessageUnion() : type(Message_NONE), value(nullptr) {}
+  MessageUnion(MessageUnion&& u) FLATBUFFERS_NOEXCEPT :
+    type(Message_NONE), value(nullptr)
+    { std::swap(type, u.type); std::swap(value, u.value); }
+  MessageUnion(const MessageUnion &);
+  MessageUnion &operator=(const MessageUnion &u)
+    { MessageUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
+  MessageUnion &operator=(MessageUnion &&u) FLATBUFFERS_NOEXCEPT
+    { std::swap(type, u.type); std::swap(value, u.value); return *this; }
+  ~MessageUnion() { Reset(); }
+
+  void Reset();
+
+#ifndef FLATBUFFERS_CPP98_STL
+  template <typename T>
+  void Set(T&& val) {
+    using RT = typename std::remove_reference<T>::type;
+    Reset();
+    type = MessageTraits<typename RT::TableType>::enum_value;
+    if (type != Message_NONE) {
+      value = new RT(std::forward<T>(val));
+    }
+  }
+#endif  // FLATBUFFERS_CPP98_STL
+
+  static void *UnPack(const void *obj, Message type, const flatbuffers::resolver_function_t *resolver);
+  flatbuffers::Offset<void> Pack(flatbuffers::FlatBufferBuilder &_fbb, const flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
+
+  EMC::OperatorErrorT *Asoperator_error() {
+    return type == Message_operator_error ?
+      reinterpret_cast<EMC::OperatorErrorT *>(value) : nullptr;
+  }
+  const EMC::OperatorErrorT *Asoperator_error() const {
+    return type == Message_operator_error ?
+      reinterpret_cast<const EMC::OperatorErrorT *>(value) : nullptr;
+  }
+  EMC::OperatorTextT *Asoperator_text() {
+    return type == Message_operator_text ?
+      reinterpret_cast<EMC::OperatorTextT *>(value) : nullptr;
+  }
+  const EMC::OperatorTextT *Asoperator_text() const {
+    return type == Message_operator_text ?
+      reinterpret_cast<const EMC::OperatorTextT *>(value) : nullptr;
+  }
+  EMC::OperatorDisplayT *Asoperator_display() {
+    return type == Message_operator_display ?
+      reinterpret_cast<EMC::OperatorDisplayT *>(value) : nullptr;
+  }
+  const EMC::OperatorDisplayT *Asoperator_display() const {
+    return type == Message_operator_display ?
+      reinterpret_cast<const EMC::OperatorDisplayT *>(value) : nullptr;
+  }
+};
+
+bool VerifyMessage(flatbuffers::Verifier &verifier, const void *obj, Message type);
+bool VerifyMessageVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
 
 struct OperatorErrorT : public flatbuffers::NativeTable {
   typedef OperatorError TableType;
@@ -212,6 +331,93 @@ inline flatbuffers::Offset<OperatorDisplay> CreateOperatorDisplayDirect(
 
 flatbuffers::Offset<OperatorDisplay> CreateOperatorDisplay(flatbuffers::FlatBufferBuilder &_fbb, const OperatorDisplayT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ErrorChannelMsgT : public flatbuffers::NativeTable {
+  typedef ErrorChannelMsg TableType;
+  EMC::MessageUnion message;
+  ErrorChannelMsgT() {
+  }
+};
+
+struct ErrorChannelMsg FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ErrorChannelMsgT NativeTableType;
+  typedef ErrorChannelMsgBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MESSAGE_TYPE = 4,
+    VT_MESSAGE = 6
+  };
+  EMC::Message message_type() const {
+    return static_cast<EMC::Message>(GetField<uint8_t>(VT_MESSAGE_TYPE, 0));
+  }
+  const void *message() const {
+    return GetPointer<const void *>(VT_MESSAGE);
+  }
+  template<typename T> const T *message_as() const;
+  const EMC::OperatorError *message_as_operator_error() const {
+    return message_type() == EMC::Message_operator_error ? static_cast<const EMC::OperatorError *>(message()) : nullptr;
+  }
+  const EMC::OperatorText *message_as_operator_text() const {
+    return message_type() == EMC::Message_operator_text ? static_cast<const EMC::OperatorText *>(message()) : nullptr;
+  }
+  const EMC::OperatorDisplay *message_as_operator_display() const {
+    return message_type() == EMC::Message_operator_display ? static_cast<const EMC::OperatorDisplay *>(message()) : nullptr;
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_MESSAGE_TYPE) &&
+           VerifyOffset(verifier, VT_MESSAGE) &&
+           VerifyMessage(verifier, message(), message_type()) &&
+           verifier.EndTable();
+  }
+  ErrorChannelMsgT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ErrorChannelMsgT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static flatbuffers::Offset<ErrorChannelMsg> Pack(flatbuffers::FlatBufferBuilder &_fbb, const ErrorChannelMsgT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+template<> inline const EMC::OperatorError *ErrorChannelMsg::message_as<EMC::OperatorError>() const {
+  return message_as_operator_error();
+}
+
+template<> inline const EMC::OperatorText *ErrorChannelMsg::message_as<EMC::OperatorText>() const {
+  return message_as_operator_text();
+}
+
+template<> inline const EMC::OperatorDisplay *ErrorChannelMsg::message_as<EMC::OperatorDisplay>() const {
+  return message_as_operator_display();
+}
+
+struct ErrorChannelMsgBuilder {
+  typedef ErrorChannelMsg Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_message_type(EMC::Message message_type) {
+    fbb_.AddElement<uint8_t>(ErrorChannelMsg::VT_MESSAGE_TYPE, static_cast<uint8_t>(message_type), 0);
+  }
+  void add_message(flatbuffers::Offset<void> message) {
+    fbb_.AddOffset(ErrorChannelMsg::VT_MESSAGE, message);
+  }
+  explicit ErrorChannelMsgBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  flatbuffers::Offset<ErrorChannelMsg> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<ErrorChannelMsg>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<ErrorChannelMsg> CreateErrorChannelMsg(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    EMC::Message message_type = EMC::Message_NONE,
+    flatbuffers::Offset<void> message = 0) {
+  ErrorChannelMsgBuilder builder_(_fbb);
+  builder_.add_message(message);
+  builder_.add_message_type(message_type);
+  return builder_.Finish();
+}
+
+flatbuffers::Offset<ErrorChannelMsg> CreateErrorChannelMsg(flatbuffers::FlatBufferBuilder &_fbb, const ErrorChannelMsgT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline OperatorErrorT *OperatorError::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
   std::unique_ptr<EMC::OperatorErrorT> _o = std::unique_ptr<EMC::OperatorErrorT>(new OperatorErrorT());
   UnPackTo(_o.get(), _resolver);
@@ -288,6 +494,188 @@ inline flatbuffers::Offset<OperatorDisplay> CreateOperatorDisplay(flatbuffers::F
   return EMC::CreateOperatorDisplay(
       _fbb,
       _display);
+}
+
+inline ErrorChannelMsgT *ErrorChannelMsg::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
+  std::unique_ptr<EMC::ErrorChannelMsgT> _o = std::unique_ptr<EMC::ErrorChannelMsgT>(new ErrorChannelMsgT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ErrorChannelMsg::UnPackTo(ErrorChannelMsgT *_o, const flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = message_type(); _o->message.type = _e; }
+  { auto _e = message(); if (_e) _o->message.value = EMC::MessageUnion::UnPack(_e, message_type(), _resolver); }
+}
+
+inline flatbuffers::Offset<ErrorChannelMsg> ErrorChannelMsg::Pack(flatbuffers::FlatBufferBuilder &_fbb, const ErrorChannelMsgT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateErrorChannelMsg(_fbb, _o, _rehasher);
+}
+
+inline flatbuffers::Offset<ErrorChannelMsg> CreateErrorChannelMsg(flatbuffers::FlatBufferBuilder &_fbb, const ErrorChannelMsgT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const ErrorChannelMsgT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _message_type = _o->message.type;
+  auto _message = _o->message.Pack(_fbb);
+  return EMC::CreateErrorChannelMsg(
+      _fbb,
+      _message_type,
+      _message);
+}
+
+inline bool VerifyMessage(flatbuffers::Verifier &verifier, const void *obj, Message type) {
+  switch (type) {
+    case Message_NONE: {
+      return true;
+    }
+    case Message_operator_error: {
+      auto ptr = reinterpret_cast<const EMC::OperatorError *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Message_operator_text: {
+      auto ptr = reinterpret_cast<const EMC::OperatorText *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Message_operator_display: {
+      auto ptr = reinterpret_cast<const EMC::OperatorDisplay *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    default: return true;
+  }
+}
+
+inline bool VerifyMessageVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types) {
+  if (!values || !types) return !values && !types;
+  if (values->size() != types->size()) return false;
+  for (flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+    if (!VerifyMessage(
+        verifier,  values->Get(i), types->GetEnum<Message>(i))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+inline void *MessageUnion::UnPack(const void *obj, Message type, const flatbuffers::resolver_function_t *resolver) {
+  switch (type) {
+    case Message_operator_error: {
+      auto ptr = reinterpret_cast<const EMC::OperatorError *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case Message_operator_text: {
+      auto ptr = reinterpret_cast<const EMC::OperatorText *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case Message_operator_display: {
+      auto ptr = reinterpret_cast<const EMC::OperatorDisplay *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    default: return nullptr;
+  }
+}
+
+inline flatbuffers::Offset<void> MessageUnion::Pack(flatbuffers::FlatBufferBuilder &_fbb, const flatbuffers::rehasher_function_t *_rehasher) const {
+  switch (type) {
+    case Message_operator_error: {
+      auto ptr = reinterpret_cast<const EMC::OperatorErrorT *>(value);
+      return CreateOperatorError(_fbb, ptr, _rehasher).Union();
+    }
+    case Message_operator_text: {
+      auto ptr = reinterpret_cast<const EMC::OperatorTextT *>(value);
+      return CreateOperatorText(_fbb, ptr, _rehasher).Union();
+    }
+    case Message_operator_display: {
+      auto ptr = reinterpret_cast<const EMC::OperatorDisplayT *>(value);
+      return CreateOperatorDisplay(_fbb, ptr, _rehasher).Union();
+    }
+    default: return 0;
+  }
+}
+
+inline MessageUnion::MessageUnion(const MessageUnion &u) : type(u.type), value(nullptr) {
+  switch (type) {
+    case Message_operator_error: {
+      value = new EMC::OperatorErrorT(*reinterpret_cast<EMC::OperatorErrorT *>(u.value));
+      break;
+    }
+    case Message_operator_text: {
+      value = new EMC::OperatorTextT(*reinterpret_cast<EMC::OperatorTextT *>(u.value));
+      break;
+    }
+    case Message_operator_display: {
+      value = new EMC::OperatorDisplayT(*reinterpret_cast<EMC::OperatorDisplayT *>(u.value));
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+inline void MessageUnion::Reset() {
+  switch (type) {
+    case Message_operator_error: {
+      auto ptr = reinterpret_cast<EMC::OperatorErrorT *>(value);
+      delete ptr;
+      break;
+    }
+    case Message_operator_text: {
+      auto ptr = reinterpret_cast<EMC::OperatorTextT *>(value);
+      delete ptr;
+      break;
+    }
+    case Message_operator_display: {
+      auto ptr = reinterpret_cast<EMC::OperatorDisplayT *>(value);
+      delete ptr;
+      break;
+    }
+    default: break;
+  }
+  value = nullptr;
+  type = Message_NONE;
+}
+
+inline const EMC::ErrorChannelMsg *GetErrorChannelMsg(const void *buf) {
+  return flatbuffers::GetRoot<EMC::ErrorChannelMsg>(buf);
+}
+
+inline const EMC::ErrorChannelMsg *GetSizePrefixedErrorChannelMsg(const void *buf) {
+  return flatbuffers::GetSizePrefixedRoot<EMC::ErrorChannelMsg>(buf);
+}
+
+inline bool VerifyErrorChannelMsgBuffer(
+    flatbuffers::Verifier &verifier) {
+  return verifier.VerifyBuffer<EMC::ErrorChannelMsg>(nullptr);
+}
+
+inline bool VerifySizePrefixedErrorChannelMsgBuffer(
+    flatbuffers::Verifier &verifier) {
+  return verifier.VerifySizePrefixedBuffer<EMC::ErrorChannelMsg>(nullptr);
+}
+
+inline void FinishErrorChannelMsgBuffer(
+    flatbuffers::FlatBufferBuilder &fbb,
+    flatbuffers::Offset<EMC::ErrorChannelMsg> root) {
+  fbb.Finish(root);
+}
+
+inline void FinishSizePrefixedErrorChannelMsgBuffer(
+    flatbuffers::FlatBufferBuilder &fbb,
+    flatbuffers::Offset<EMC::ErrorChannelMsg> root) {
+  fbb.FinishSizePrefixed(root);
+}
+
+inline std::unique_ptr<EMC::ErrorChannelMsgT> UnPackErrorChannelMsg(
+    const void *buf,
+    const flatbuffers::resolver_function_t *res = nullptr) {
+  return std::unique_ptr<EMC::ErrorChannelMsgT>(GetErrorChannelMsg(buf)->UnPack(res));
+}
+
+inline std::unique_ptr<EMC::ErrorChannelMsgT> UnPackSizePrefixedErrorChannelMsg(
+    const void *buf,
+    const flatbuffers::resolver_function_t *res = nullptr) {
+  return std::unique_ptr<EMC::ErrorChannelMsgT>(GetSizePrefixedErrorChannelMsg(buf)->UnPack(res));
 }
 
 }  // namespace EMC

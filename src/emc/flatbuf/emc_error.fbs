@@ -1,3 +1,5 @@
+include "emc_common.fbs";
+
 namespace EMC;
 
 table OperatorError {
@@ -12,3 +14,14 @@ table OperatorDisplay {
   display: string;
 }
 
+union Message {
+  operator_error: OperatorError,
+  operator_text: OperatorText,
+  operator_display: OperatorDisplay
+}
+
+table ErrorChannelMsg {
+  message: Message;
+}
+
+root_type ErrorChannelMsg;
