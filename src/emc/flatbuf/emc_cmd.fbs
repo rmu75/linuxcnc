@@ -460,22 +460,22 @@ struct SpindleBrakeEngage {
 }
 
 // gui
-struct CoolandMistOn {
+struct CoolantMistOn {
    dummy: int;
 }
 
 // gui
-struct CoolandMistOff {
+struct CoolantMistOff {
    dummy: int;
 }
 
 // gui
-struct CoolandFloodOn {
+struct CoolantFloodOn {
    dummy: int;
 }
 
 // gui
-struct CoolandFloodOff {
+struct CoolantFloodOff {
   dummy: int;
 }
 
@@ -562,10 +562,10 @@ union Command {
   spindle_constant: SpindleConstant,
   spindle_brake_release: SpindleBrakeRelease,
   spindle_brake_engage: SpindleBrakeEngage,
-  coolant_mist_on: CoolandMistOn,
-  coolant_mist_off: CoolandMistOff,
-  coolant_flood_on: CoolandFloodOn,
-  cooland_flood_off: CoolandFloodOff
+  coolant_mist_on: CoolantMistOn,
+  coolant_mist_off: CoolantMistOff,
+  coolant_flood_on: CoolantFloodOn,
+  coolant_flood_off: CoolantFloodOff
 }
 
 table CmdChannelMsg {

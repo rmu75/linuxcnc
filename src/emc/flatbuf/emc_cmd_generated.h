@@ -44,7 +44,6 @@ struct JoinOverrideLimits;
 
 struct JoinLoadComp;
 struct JoinLoadCompBuilder;
-struct JoinLoadCompT;
 
 struct TrajSetMode;
 
@@ -78,7 +77,6 @@ struct TrajLinearMove;
 
 struct TrajCircularMove;
 struct TrajCircularMoveBuilder;
-struct TrajCircularMoveT;
 
 struct TrajSetTermCond;
 
@@ -114,13 +112,11 @@ struct TaskSetState;
 
 struct TaskPlanOpen;
 struct TaskPlanOpenBuilder;
-struct TaskPlanOpenT;
 
 struct TaskPlanRun;
 
 struct TaskPlanExecute;
 struct TaskPlanExecuteBuilder;
-struct TaskPlanExecuteT;
 
 struct TaskPlanReverse;
 
@@ -156,7 +152,6 @@ struct ToolLoad;
 
 struct ToolLoadToolTable;
 struct ToolLoadToolTableBuilder;
-struct ToolLoadToolTableT;
 
 struct ToolSetOffset;
 
@@ -184,25 +179,22 @@ struct SpindleBrakeRelease;
 
 struct SpindleBrakeEngage;
 
-struct CoolandMistOn;
+struct CoolantMistOn;
 
-struct CoolandMistOff;
+struct CoolantMistOff;
 
-struct CoolandFloodOn;
+struct CoolantFloodOn;
 
-struct CoolandFloodOff;
+struct CoolantFloodOff;
 
 struct CmdChannelMsg;
 struct CmdChannelMsgBuilder;
-struct CmdChannelMsgT;
 
 struct DebugLevel;
 struct DebugLevelBuilder;
-struct DebugLevelT;
 
 struct Result;
 struct ResultBuilder;
-struct ResultT;
 
 enum Command {
   Command_NONE = 0,
@@ -291,9 +283,9 @@ enum Command {
   Command_coolant_mist_on = 83,
   Command_coolant_mist_off = 84,
   Command_coolant_flood_on = 85,
-  Command_cooland_flood_off = 86,
+  Command_coolant_flood_off = 86,
   Command_MIN = Command_NONE,
-  Command_MAX = Command_cooland_flood_off
+  Command_MAX = Command_coolant_flood_off
 };
 
 inline const Command (&EnumValuesCommand())[87] {
@@ -384,7 +376,7 @@ inline const Command (&EnumValuesCommand())[87] {
     Command_coolant_mist_on,
     Command_coolant_mist_off,
     Command_coolant_flood_on,
-    Command_cooland_flood_off
+    Command_coolant_flood_off
   };
   return values;
 }
@@ -477,14 +469,14 @@ inline const char * const *EnumNamesCommand() {
     "coolant_mist_on",
     "coolant_mist_off",
     "coolant_flood_on",
-    "cooland_flood_off",
+    "coolant_flood_off",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameCommand(Command e) {
-  if (flatbuffers::IsOutRange(e, Command_NONE, Command_cooland_flood_off)) return "";
+  if (flatbuffers::IsOutRange(e, Command_NONE, Command_coolant_flood_off)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesCommand()[index];
 }
@@ -821,742 +813,20 @@ template<> struct CommandTraits<EMC::SpindleBrakeEngage> {
   static const Command enum_value = Command_spindle_brake_engage;
 };
 
-template<> struct CommandTraits<EMC::CoolandMistOn> {
+template<> struct CommandTraits<EMC::CoolantMistOn> {
   static const Command enum_value = Command_coolant_mist_on;
 };
 
-template<> struct CommandTraits<EMC::CoolandMistOff> {
+template<> struct CommandTraits<EMC::CoolantMistOff> {
   static const Command enum_value = Command_coolant_mist_off;
 };
 
-template<> struct CommandTraits<EMC::CoolandFloodOn> {
+template<> struct CommandTraits<EMC::CoolantFloodOn> {
   static const Command enum_value = Command_coolant_flood_on;
 };
 
-template<> struct CommandTraits<EMC::CoolandFloodOff> {
-  static const Command enum_value = Command_cooland_flood_off;
-};
-
-struct CommandUnion {
-  Command type;
-  void *value;
-
-  CommandUnion() : type(Command_NONE), value(nullptr) {}
-  CommandUnion(CommandUnion&& u) FLATBUFFERS_NOEXCEPT :
-    type(Command_NONE), value(nullptr)
-    { std::swap(type, u.type); std::swap(value, u.value); }
-  CommandUnion(const CommandUnion &);
-  CommandUnion &operator=(const CommandUnion &u)
-    { CommandUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
-  CommandUnion &operator=(CommandUnion &&u) FLATBUFFERS_NOEXCEPT
-    { std::swap(type, u.type); std::swap(value, u.value); return *this; }
-  ~CommandUnion() { Reset(); }
-
-  void Reset();
-
-#ifndef FLATBUFFERS_CPP98_STL
-  template <typename T>
-  void Set(T&& val) {
-    using RT = typename std::remove_reference<T>::type;
-    Reset();
-    type = CommandTraits<typename RT::TableType>::enum_value;
-    if (type != Command_NONE) {
-      value = new RT(std::forward<T>(val));
-    }
-  }
-#endif  // FLATBUFFERS_CPP98_STL
-
-  static void *UnPack(const void *obj, Command type, const flatbuffers::resolver_function_t *resolver);
-  flatbuffers::Offset<void> Pack(flatbuffers::FlatBufferBuilder &_fbb, const flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
-
-  EMC::SetDebug *Asset_debug() {
-    return type == Command_set_debug ?
-      reinterpret_cast<EMC::SetDebug *>(value) : nullptr;
-  }
-  const EMC::SetDebug *Asset_debug() const {
-    return type == Command_set_debug ?
-      reinterpret_cast<const EMC::SetDebug *>(value) : nullptr;
-  }
-  EMC::JogCmd *Asjog_cmd() {
-    return type == Command_jog_cmd ?
-      reinterpret_cast<EMC::JogCmd *>(value) : nullptr;
-  }
-  const EMC::JogCmd *Asjog_cmd() const {
-    return type == Command_jog_cmd ?
-      reinterpret_cast<const EMC::JogCmd *>(value) : nullptr;
-  }
-  EMC::JointSetBacklash *Asjoin_set_backlash() {
-    return type == Command_join_set_backlash ?
-      reinterpret_cast<EMC::JointSetBacklash *>(value) : nullptr;
-  }
-  const EMC::JointSetBacklash *Asjoin_set_backlash() const {
-    return type == Command_join_set_backlash ?
-      reinterpret_cast<const EMC::JointSetBacklash *>(value) : nullptr;
-  }
-  EMC::JointSetMinPositionLimit *Asjoint_set_min_position_limit() {
-    return type == Command_joint_set_min_position_limit ?
-      reinterpret_cast<EMC::JointSetMinPositionLimit *>(value) : nullptr;
-  }
-  const EMC::JointSetMinPositionLimit *Asjoint_set_min_position_limit() const {
-    return type == Command_joint_set_min_position_limit ?
-      reinterpret_cast<const EMC::JointSetMinPositionLimit *>(value) : nullptr;
-  }
-  EMC::JointSetMaxPositionLimit *Asjoint_set_max_position_limit() {
-    return type == Command_joint_set_max_position_limit ?
-      reinterpret_cast<EMC::JointSetMaxPositionLimit *>(value) : nullptr;
-  }
-  const EMC::JointSetMaxPositionLimit *Asjoint_set_max_position_limit() const {
-    return type == Command_joint_set_max_position_limit ?
-      reinterpret_cast<const EMC::JointSetMaxPositionLimit *>(value) : nullptr;
-  }
-  EMC::JointSetFerror *Asjoint_set_ferror() {
-    return type == Command_joint_set_ferror ?
-      reinterpret_cast<EMC::JointSetFerror *>(value) : nullptr;
-  }
-  const EMC::JointSetFerror *Asjoint_set_ferror() const {
-    return type == Command_joint_set_ferror ?
-      reinterpret_cast<const EMC::JointSetFerror *>(value) : nullptr;
-  }
-  EMC::JointSetMinFerror *Asjoint_set_min_ferror() {
-    return type == Command_joint_set_min_ferror ?
-      reinterpret_cast<EMC::JointSetMinFerror *>(value) : nullptr;
-  }
-  const EMC::JointSetMinFerror *Asjoint_set_min_ferror() const {
-    return type == Command_joint_set_min_ferror ?
-      reinterpret_cast<const EMC::JointSetMinFerror *>(value) : nullptr;
-  }
-  EMC::JointSetHomingParams *Asjoint_set_homing_params() {
-    return type == Command_joint_set_homing_params ?
-      reinterpret_cast<EMC::JointSetHomingParams *>(value) : nullptr;
-  }
-  const EMC::JointSetHomingParams *Asjoint_set_homing_params() const {
-    return type == Command_joint_set_homing_params ?
-      reinterpret_cast<const EMC::JointSetHomingParams *>(value) : nullptr;
-  }
-  EMC::JointHome *Asjoint_home() {
-    return type == Command_joint_home ?
-      reinterpret_cast<EMC::JointHome *>(value) : nullptr;
-  }
-  const EMC::JointHome *Asjoint_home() const {
-    return type == Command_joint_home ?
-      reinterpret_cast<const EMC::JointHome *>(value) : nullptr;
-  }
-  EMC::JointUnhome *Asjoint_unhome() {
-    return type == Command_joint_unhome ?
-      reinterpret_cast<EMC::JointUnhome *>(value) : nullptr;
-  }
-  const EMC::JointUnhome *Asjoint_unhome() const {
-    return type == Command_joint_unhome ?
-      reinterpret_cast<const EMC::JointUnhome *>(value) : nullptr;
-  }
-  EMC::JointHalt *Asjoint_halt() {
-    return type == Command_joint_halt ?
-      reinterpret_cast<EMC::JointHalt *>(value) : nullptr;
-  }
-  const EMC::JointHalt *Asjoint_halt() const {
-    return type == Command_joint_halt ?
-      reinterpret_cast<const EMC::JointHalt *>(value) : nullptr;
-  }
-  EMC::JogCont *Asjog_cont() {
-    return type == Command_jog_cont ?
-      reinterpret_cast<EMC::JogCont *>(value) : nullptr;
-  }
-  const EMC::JogCont *Asjog_cont() const {
-    return type == Command_jog_cont ?
-      reinterpret_cast<const EMC::JogCont *>(value) : nullptr;
-  }
-  EMC::JogIncr *Asjog_incr() {
-    return type == Command_jog_incr ?
-      reinterpret_cast<EMC::JogIncr *>(value) : nullptr;
-  }
-  const EMC::JogIncr *Asjog_incr() const {
-    return type == Command_jog_incr ?
-      reinterpret_cast<const EMC::JogIncr *>(value) : nullptr;
-  }
-  EMC::JogAbs *Asjog_abs() {
-    return type == Command_jog_abs ?
-      reinterpret_cast<EMC::JogAbs *>(value) : nullptr;
-  }
-  const EMC::JogAbs *Asjog_abs() const {
-    return type == Command_jog_abs ?
-      reinterpret_cast<const EMC::JogAbs *>(value) : nullptr;
-  }
-  EMC::JogStop *Asjog_stop() {
-    return type == Command_jog_stop ?
-      reinterpret_cast<EMC::JogStop *>(value) : nullptr;
-  }
-  const EMC::JogStop *Asjog_stop() const {
-    return type == Command_jog_stop ?
-      reinterpret_cast<const EMC::JogStop *>(value) : nullptr;
-  }
-  EMC::JoinOverrideLimits *Asjoin_override_limits() {
-    return type == Command_join_override_limits ?
-      reinterpret_cast<EMC::JoinOverrideLimits *>(value) : nullptr;
-  }
-  const EMC::JoinOverrideLimits *Asjoin_override_limits() const {
-    return type == Command_join_override_limits ?
-      reinterpret_cast<const EMC::JoinOverrideLimits *>(value) : nullptr;
-  }
-  EMC::JoinLoadCompT *Asjoin_load_comp() {
-    return type == Command_join_load_comp ?
-      reinterpret_cast<EMC::JoinLoadCompT *>(value) : nullptr;
-  }
-  const EMC::JoinLoadCompT *Asjoin_load_comp() const {
-    return type == Command_join_load_comp ?
-      reinterpret_cast<const EMC::JoinLoadCompT *>(value) : nullptr;
-  }
-  EMC::TrajSetMode *Astraj_set_mode() {
-    return type == Command_traj_set_mode ?
-      reinterpret_cast<EMC::TrajSetMode *>(value) : nullptr;
-  }
-  const EMC::TrajSetMode *Astraj_set_mode() const {
-    return type == Command_traj_set_mode ?
-      reinterpret_cast<const EMC::TrajSetMode *>(value) : nullptr;
-  }
-  EMC::TrajSetVelocity *Astraj_set_velocity() {
-    return type == Command_traj_set_velocity ?
-      reinterpret_cast<EMC::TrajSetVelocity *>(value) : nullptr;
-  }
-  const EMC::TrajSetVelocity *Astraj_set_velocity() const {
-    return type == Command_traj_set_velocity ?
-      reinterpret_cast<const EMC::TrajSetVelocity *>(value) : nullptr;
-  }
-  EMC::TrajSetAcceleration *Astral_set_acceleration() {
-    return type == Command_tral_set_acceleration ?
-      reinterpret_cast<EMC::TrajSetAcceleration *>(value) : nullptr;
-  }
-  const EMC::TrajSetAcceleration *Astral_set_acceleration() const {
-    return type == Command_tral_set_acceleration ?
-      reinterpret_cast<const EMC::TrajSetAcceleration *>(value) : nullptr;
-  }
-  EMC::TrajSetMaxVelocity *Astraj_set_max_velocity() {
-    return type == Command_traj_set_max_velocity ?
-      reinterpret_cast<EMC::TrajSetMaxVelocity *>(value) : nullptr;
-  }
-  const EMC::TrajSetMaxVelocity *Astraj_set_max_velocity() const {
-    return type == Command_traj_set_max_velocity ?
-      reinterpret_cast<const EMC::TrajSetMaxVelocity *>(value) : nullptr;
-  }
-  EMC::TrajSetScale *Astraj_set_scale() {
-    return type == Command_traj_set_scale ?
-      reinterpret_cast<EMC::TrajSetScale *>(value) : nullptr;
-  }
-  const EMC::TrajSetScale *Astraj_set_scale() const {
-    return type == Command_traj_set_scale ?
-      reinterpret_cast<const EMC::TrajSetScale *>(value) : nullptr;
-  }
-  EMC::TrajSetRapidScale *Astraj_set_rapid_scale() {
-    return type == Command_traj_set_rapid_scale ?
-      reinterpret_cast<EMC::TrajSetRapidScale *>(value) : nullptr;
-  }
-  const EMC::TrajSetRapidScale *Astraj_set_rapid_scale() const {
-    return type == Command_traj_set_rapid_scale ?
-      reinterpret_cast<const EMC::TrajSetRapidScale *>(value) : nullptr;
-  }
-  EMC::TrajSetSpindleScale *Astraj_set_spindl_scale() {
-    return type == Command_traj_set_spindl_scale ?
-      reinterpret_cast<EMC::TrajSetSpindleScale *>(value) : nullptr;
-  }
-  const EMC::TrajSetSpindleScale *Astraj_set_spindl_scale() const {
-    return type == Command_traj_set_spindl_scale ?
-      reinterpret_cast<const EMC::TrajSetSpindleScale *>(value) : nullptr;
-  }
-  EMC::TrajSetFOEnable *Astraj_set_fo_enable() {
-    return type == Command_traj_set_fo_enable ?
-      reinterpret_cast<EMC::TrajSetFOEnable *>(value) : nullptr;
-  }
-  const EMC::TrajSetFOEnable *Astraj_set_fo_enable() const {
-    return type == Command_traj_set_fo_enable ?
-      reinterpret_cast<const EMC::TrajSetFOEnable *>(value) : nullptr;
-  }
-  EMC::TrajSetSOEnable *Astraj_set_so_enable() {
-    return type == Command_traj_set_so_enable ?
-      reinterpret_cast<EMC::TrajSetSOEnable *>(value) : nullptr;
-  }
-  const EMC::TrajSetSOEnable *Astraj_set_so_enable() const {
-    return type == Command_traj_set_so_enable ?
-      reinterpret_cast<const EMC::TrajSetSOEnable *>(value) : nullptr;
-  }
-  EMC::TrajSetFHEnable *Astraj_set_fh_enable() {
-    return type == Command_traj_set_fh_enable ?
-      reinterpret_cast<EMC::TrajSetFHEnable *>(value) : nullptr;
-  }
-  const EMC::TrajSetFHEnable *Astraj_set_fh_enable() const {
-    return type == Command_traj_set_fh_enable ?
-      reinterpret_cast<const EMC::TrajSetFHEnable *>(value) : nullptr;
-  }
-  EMC::TrajAbort *Astraj_abort() {
-    return type == Command_traj_abort ?
-      reinterpret_cast<EMC::TrajAbort *>(value) : nullptr;
-  }
-  const EMC::TrajAbort *Astraj_abort() const {
-    return type == Command_traj_abort ?
-      reinterpret_cast<const EMC::TrajAbort *>(value) : nullptr;
-  }
-  EMC::TrajPause *Astraj_pause() {
-    return type == Command_traj_pause ?
-      reinterpret_cast<EMC::TrajPause *>(value) : nullptr;
-  }
-  const EMC::TrajPause *Astraj_pause() const {
-    return type == Command_traj_pause ?
-      reinterpret_cast<const EMC::TrajPause *>(value) : nullptr;
-  }
-  EMC::TrajResume *Astraj_resume() {
-    return type == Command_traj_resume ?
-      reinterpret_cast<EMC::TrajResume *>(value) : nullptr;
-  }
-  const EMC::TrajResume *Astraj_resume() const {
-    return type == Command_traj_resume ?
-      reinterpret_cast<const EMC::TrajResume *>(value) : nullptr;
-  }
-  EMC::TrajDelay *Astraj_delay() {
-    return type == Command_traj_delay ?
-      reinterpret_cast<EMC::TrajDelay *>(value) : nullptr;
-  }
-  const EMC::TrajDelay *Astraj_delay() const {
-    return type == Command_traj_delay ?
-      reinterpret_cast<const EMC::TrajDelay *>(value) : nullptr;
-  }
-  EMC::TrajLinearMove *Astraj_linear_move() {
-    return type == Command_traj_linear_move ?
-      reinterpret_cast<EMC::TrajLinearMove *>(value) : nullptr;
-  }
-  const EMC::TrajLinearMove *Astraj_linear_move() const {
-    return type == Command_traj_linear_move ?
-      reinterpret_cast<const EMC::TrajLinearMove *>(value) : nullptr;
-  }
-  EMC::TrajCircularMoveT *Astraj_circular_move() {
-    return type == Command_traj_circular_move ?
-      reinterpret_cast<EMC::TrajCircularMoveT *>(value) : nullptr;
-  }
-  const EMC::TrajCircularMoveT *Astraj_circular_move() const {
-    return type == Command_traj_circular_move ?
-      reinterpret_cast<const EMC::TrajCircularMoveT *>(value) : nullptr;
-  }
-  EMC::TrajSetTermCond *Astraj_set_term_cond() {
-    return type == Command_traj_set_term_cond ?
-      reinterpret_cast<EMC::TrajSetTermCond *>(value) : nullptr;
-  }
-  const EMC::TrajSetTermCond *Astraj_set_term_cond() const {
-    return type == Command_traj_set_term_cond ?
-      reinterpret_cast<const EMC::TrajSetTermCond *>(value) : nullptr;
-  }
-  EMC::TrajSetSpindleSync *Astraj_set_spindle_sync() {
-    return type == Command_traj_set_spindle_sync ?
-      reinterpret_cast<EMC::TrajSetSpindleSync *>(value) : nullptr;
-  }
-  const EMC::TrajSetSpindleSync *Astraj_set_spindle_sync() const {
-    return type == Command_traj_set_spindle_sync ?
-      reinterpret_cast<const EMC::TrajSetSpindleSync *>(value) : nullptr;
-  }
-  EMC::TrajSetOffset *Astraj_set_offset() {
-    return type == Command_traj_set_offset ?
-      reinterpret_cast<EMC::TrajSetOffset *>(value) : nullptr;
-  }
-  const EMC::TrajSetOffset *Astraj_set_offset() const {
-    return type == Command_traj_set_offset ?
-      reinterpret_cast<const EMC::TrajSetOffset *>(value) : nullptr;
-  }
-  EMC::TrajSetG5x *Astraj_set_g5x() {
-    return type == Command_traj_set_g5x ?
-      reinterpret_cast<EMC::TrajSetG5x *>(value) : nullptr;
-  }
-  const EMC::TrajSetG5x *Astraj_set_g5x() const {
-    return type == Command_traj_set_g5x ?
-      reinterpret_cast<const EMC::TrajSetG5x *>(value) : nullptr;
-  }
-  EMC::TrajSetG92 *Astraj_set_g92() {
-    return type == Command_traj_set_g92 ?
-      reinterpret_cast<EMC::TrajSetG92 *>(value) : nullptr;
-  }
-  const EMC::TrajSetG92 *Astraj_set_g92() const {
-    return type == Command_traj_set_g92 ?
-      reinterpret_cast<const EMC::TrajSetG92 *>(value) : nullptr;
-  }
-  EMC::TrajSetRotation *Astraj_set_rotation() {
-    return type == Command_traj_set_rotation ?
-      reinterpret_cast<EMC::TrajSetRotation *>(value) : nullptr;
-  }
-  const EMC::TrajSetRotation *Astraj_set_rotation() const {
-    return type == Command_traj_set_rotation ?
-      reinterpret_cast<const EMC::TrajSetRotation *>(value) : nullptr;
-  }
-  EMC::TrajClearProbeTrippedFlag *Astraj_clear_probe_tripped_flag() {
-    return type == Command_traj_clear_probe_tripped_flag ?
-      reinterpret_cast<EMC::TrajClearProbeTrippedFlag *>(value) : nullptr;
-  }
-  const EMC::TrajClearProbeTrippedFlag *Astraj_clear_probe_tripped_flag() const {
-    return type == Command_traj_clear_probe_tripped_flag ?
-      reinterpret_cast<const EMC::TrajClearProbeTrippedFlag *>(value) : nullptr;
-  }
-  EMC::TrajSetTeleopEnable *Astraj_set_teleop_enable() {
-    return type == Command_traj_set_teleop_enable ?
-      reinterpret_cast<EMC::TrajSetTeleopEnable *>(value) : nullptr;
-  }
-  const EMC::TrajSetTeleopEnable *Astraj_set_teleop_enable() const {
-    return type == Command_traj_set_teleop_enable ?
-      reinterpret_cast<const EMC::TrajSetTeleopEnable *>(value) : nullptr;
-  }
-  EMC::TrajProbe *Astraj_probe() {
-    return type == Command_traj_probe ?
-      reinterpret_cast<EMC::TrajProbe *>(value) : nullptr;
-  }
-  const EMC::TrajProbe *Astraj_probe() const {
-    return type == Command_traj_probe ?
-      reinterpret_cast<const EMC::TrajProbe *>(value) : nullptr;
-  }
-  EMC::TrajRigidTap *Astraj_rigid_tap() {
-    return type == Command_traj_rigid_tap ?
-      reinterpret_cast<EMC::TrajRigidTap *>(value) : nullptr;
-  }
-  const EMC::TrajRigidTap *Astraj_rigid_tap() const {
-    return type == Command_traj_rigid_tap ?
-      reinterpret_cast<const EMC::TrajRigidTap *>(value) : nullptr;
-  }
-  EMC::MotionSetAOut *Asmotion_set_aout() {
-    return type == Command_motion_set_aout ?
-      reinterpret_cast<EMC::MotionSetAOut *>(value) : nullptr;
-  }
-  const EMC::MotionSetAOut *Asmotion_set_aout() const {
-    return type == Command_motion_set_aout ?
-      reinterpret_cast<const EMC::MotionSetAOut *>(value) : nullptr;
-  }
-  EMC::MotionSetDOut *Asmotion_set_dout() {
-    return type == Command_motion_set_dout ?
-      reinterpret_cast<EMC::MotionSetDOut *>(value) : nullptr;
-  }
-  const EMC::MotionSetDOut *Asmotion_set_dout() const {
-    return type == Command_motion_set_dout ?
-      reinterpret_cast<const EMC::MotionSetDOut *>(value) : nullptr;
-  }
-  EMC::MotionAdaptive *Asmotion_adaptive() {
-    return type == Command_motion_adaptive ?
-      reinterpret_cast<EMC::MotionAdaptive *>(value) : nullptr;
-  }
-  const EMC::MotionAdaptive *Asmotion_adaptive() const {
-    return type == Command_motion_adaptive ?
-      reinterpret_cast<const EMC::MotionAdaptive *>(value) : nullptr;
-  }
-  EMC::TaskAbort *Astask_abort() {
-    return type == Command_task_abort ?
-      reinterpret_cast<EMC::TaskAbort *>(value) : nullptr;
-  }
-  const EMC::TaskAbort *Astask_abort() const {
-    return type == Command_task_abort ?
-      reinterpret_cast<const EMC::TaskAbort *>(value) : nullptr;
-  }
-  EMC::TaskSetMode *Astask_set_mode() {
-    return type == Command_task_set_mode ?
-      reinterpret_cast<EMC::TaskSetMode *>(value) : nullptr;
-  }
-  const EMC::TaskSetMode *Astask_set_mode() const {
-    return type == Command_task_set_mode ?
-      reinterpret_cast<const EMC::TaskSetMode *>(value) : nullptr;
-  }
-  EMC::TaskSetState *Astask_set_state() {
-    return type == Command_task_set_state ?
-      reinterpret_cast<EMC::TaskSetState *>(value) : nullptr;
-  }
-  const EMC::TaskSetState *Astask_set_state() const {
-    return type == Command_task_set_state ?
-      reinterpret_cast<const EMC::TaskSetState *>(value) : nullptr;
-  }
-  EMC::TaskPlanOpenT *Astask_plan_open() {
-    return type == Command_task_plan_open ?
-      reinterpret_cast<EMC::TaskPlanOpenT *>(value) : nullptr;
-  }
-  const EMC::TaskPlanOpenT *Astask_plan_open() const {
-    return type == Command_task_plan_open ?
-      reinterpret_cast<const EMC::TaskPlanOpenT *>(value) : nullptr;
-  }
-  EMC::TaskPlanRun *Astask_plan_run() {
-    return type == Command_task_plan_run ?
-      reinterpret_cast<EMC::TaskPlanRun *>(value) : nullptr;
-  }
-  const EMC::TaskPlanRun *Astask_plan_run() const {
-    return type == Command_task_plan_run ?
-      reinterpret_cast<const EMC::TaskPlanRun *>(value) : nullptr;
-  }
-  EMC::TaskPlanExecuteT *Astask_plan_execute() {
-    return type == Command_task_plan_execute ?
-      reinterpret_cast<EMC::TaskPlanExecuteT *>(value) : nullptr;
-  }
-  const EMC::TaskPlanExecuteT *Astask_plan_execute() const {
-    return type == Command_task_plan_execute ?
-      reinterpret_cast<const EMC::TaskPlanExecuteT *>(value) : nullptr;
-  }
-  EMC::TaskPlanReverse *Astask_plan_reverse() {
-    return type == Command_task_plan_reverse ?
-      reinterpret_cast<EMC::TaskPlanReverse *>(value) : nullptr;
-  }
-  const EMC::TaskPlanReverse *Astask_plan_reverse() const {
-    return type == Command_task_plan_reverse ?
-      reinterpret_cast<const EMC::TaskPlanReverse *>(value) : nullptr;
-  }
-  EMC::TaskPlanForward *Astask_plan_forward() {
-    return type == Command_task_plan_forward ?
-      reinterpret_cast<EMC::TaskPlanForward *>(value) : nullptr;
-  }
-  const EMC::TaskPlanForward *Astask_plan_forward() const {
-    return type == Command_task_plan_forward ?
-      reinterpret_cast<const EMC::TaskPlanForward *>(value) : nullptr;
-  }
-  EMC::TaskPlanStep *Astask_plan_step() {
-    return type == Command_task_plan_step ?
-      reinterpret_cast<EMC::TaskPlanStep *>(value) : nullptr;
-  }
-  const EMC::TaskPlanStep *Astask_plan_step() const {
-    return type == Command_task_plan_step ?
-      reinterpret_cast<const EMC::TaskPlanStep *>(value) : nullptr;
-  }
-  EMC::TaskPlanResume *Astask_plan_resume() {
-    return type == Command_task_plan_resume ?
-      reinterpret_cast<EMC::TaskPlanResume *>(value) : nullptr;
-  }
-  const EMC::TaskPlanResume *Astask_plan_resume() const {
-    return type == Command_task_plan_resume ?
-      reinterpret_cast<const EMC::TaskPlanResume *>(value) : nullptr;
-  }
-  EMC::TaskPlanEnd *Astask_plan_end() {
-    return type == Command_task_plan_end ?
-      reinterpret_cast<EMC::TaskPlanEnd *>(value) : nullptr;
-  }
-  const EMC::TaskPlanEnd *Astask_plan_end() const {
-    return type == Command_task_plan_end ?
-      reinterpret_cast<const EMC::TaskPlanEnd *>(value) : nullptr;
-  }
-  EMC::TaskPlanClose *Astask_plan_close() {
-    return type == Command_task_plan_close ?
-      reinterpret_cast<EMC::TaskPlanClose *>(value) : nullptr;
-  }
-  const EMC::TaskPlanClose *Astask_plan_close() const {
-    return type == Command_task_plan_close ?
-      reinterpret_cast<const EMC::TaskPlanClose *>(value) : nullptr;
-  }
-  EMC::TaskPlanInit *Astask_plan_init() {
-    return type == Command_task_plan_init ?
-      reinterpret_cast<EMC::TaskPlanInit *>(value) : nullptr;
-  }
-  const EMC::TaskPlanInit *Astask_plan_init() const {
-    return type == Command_task_plan_init ?
-      reinterpret_cast<const EMC::TaskPlanInit *>(value) : nullptr;
-  }
-  EMC::TaskPlanSynch *Astask_plan_synch() {
-    return type == Command_task_plan_synch ?
-      reinterpret_cast<EMC::TaskPlanSynch *>(value) : nullptr;
-  }
-  const EMC::TaskPlanSynch *Astask_plan_synch() const {
-    return type == Command_task_plan_synch ?
-      reinterpret_cast<const EMC::TaskPlanSynch *>(value) : nullptr;
-  }
-  EMC::TaskPlanSetOptionalStop *Astask_plan_set_optional_stop() {
-    return type == Command_task_plan_set_optional_stop ?
-      reinterpret_cast<EMC::TaskPlanSetOptionalStop *>(value) : nullptr;
-  }
-  const EMC::TaskPlanSetOptionalStop *Astask_plan_set_optional_stop() const {
-    return type == Command_task_plan_set_optional_stop ?
-      reinterpret_cast<const EMC::TaskPlanSetOptionalStop *>(value) : nullptr;
-  }
-  EMC::TaskPlanSetBlockDelete *Astask_plan_set_block_delete() {
-    return type == Command_task_plan_set_block_delete ?
-      reinterpret_cast<EMC::TaskPlanSetBlockDelete *>(value) : nullptr;
-  }
-  const EMC::TaskPlanSetBlockDelete *Astask_plan_set_block_delete() const {
-    return type == Command_task_plan_set_block_delete ?
-      reinterpret_cast<const EMC::TaskPlanSetBlockDelete *>(value) : nullptr;
-  }
-  EMC::TaskPlanOptionalStop *Astask_plan_optional_stop() {
-    return type == Command_task_plan_optional_stop ?
-      reinterpret_cast<EMC::TaskPlanOptionalStop *>(value) : nullptr;
-  }
-  const EMC::TaskPlanOptionalStop *Astask_plan_optional_stop() const {
-    return type == Command_task_plan_optional_stop ?
-      reinterpret_cast<const EMC::TaskPlanOptionalStop *>(value) : nullptr;
-  }
-  EMC::ToolCmd *Astool_cmd() {
-    return type == Command_tool_cmd ?
-      reinterpret_cast<EMC::ToolCmd *>(value) : nullptr;
-  }
-  const EMC::ToolCmd *Astool_cmd() const {
-    return type == Command_tool_cmd ?
-      reinterpret_cast<const EMC::ToolCmd *>(value) : nullptr;
-  }
-  EMC::ToolHalt *Astool_halt() {
-    return type == Command_tool_halt ?
-      reinterpret_cast<EMC::ToolHalt *>(value) : nullptr;
-  }
-  const EMC::ToolHalt *Astool_halt() const {
-    return type == Command_tool_halt ?
-      reinterpret_cast<const EMC::ToolHalt *>(value) : nullptr;
-  }
-  EMC::ToolAbort *Astool_abort() {
-    return type == Command_tool_abort ?
-      reinterpret_cast<EMC::ToolAbort *>(value) : nullptr;
-  }
-  const EMC::ToolAbort *Astool_abort() const {
-    return type == Command_tool_abort ?
-      reinterpret_cast<const EMC::ToolAbort *>(value) : nullptr;
-  }
-  EMC::ToolPrepare *Astool_prepare() {
-    return type == Command_tool_prepare ?
-      reinterpret_cast<EMC::ToolPrepare *>(value) : nullptr;
-  }
-  const EMC::ToolPrepare *Astool_prepare() const {
-    return type == Command_tool_prepare ?
-      reinterpret_cast<const EMC::ToolPrepare *>(value) : nullptr;
-  }
-  EMC::ToolLoad *Astool_load() {
-    return type == Command_tool_load ?
-      reinterpret_cast<EMC::ToolLoad *>(value) : nullptr;
-  }
-  const EMC::ToolLoad *Astool_load() const {
-    return type == Command_tool_load ?
-      reinterpret_cast<const EMC::ToolLoad *>(value) : nullptr;
-  }
-  EMC::ToolLoadToolTableT *Astool_load_tool_table() {
-    return type == Command_tool_load_tool_table ?
-      reinterpret_cast<EMC::ToolLoadToolTableT *>(value) : nullptr;
-  }
-  const EMC::ToolLoadToolTableT *Astool_load_tool_table() const {
-    return type == Command_tool_load_tool_table ?
-      reinterpret_cast<const EMC::ToolLoadToolTableT *>(value) : nullptr;
-  }
-  EMC::ToolSetOffset *Astool_set_offset() {
-    return type == Command_tool_set_offset ?
-      reinterpret_cast<EMC::ToolSetOffset *>(value) : nullptr;
-  }
-  const EMC::ToolSetOffset *Astool_set_offset() const {
-    return type == Command_tool_set_offset ?
-      reinterpret_cast<const EMC::ToolSetOffset *>(value) : nullptr;
-  }
-  EMC::ToolSetNumber *Astool_set_number() {
-    return type == Command_tool_set_number ?
-      reinterpret_cast<EMC::ToolSetNumber *>(value) : nullptr;
-  }
-  const EMC::ToolSetNumber *Astool_set_number() const {
-    return type == Command_tool_set_number ?
-      reinterpret_cast<const EMC::ToolSetNumber *>(value) : nullptr;
-  }
-  EMC::AuxInputWait *Asaux_input_wait() {
-    return type == Command_aux_input_wait ?
-      reinterpret_cast<EMC::AuxInputWait *>(value) : nullptr;
-  }
-  const EMC::AuxInputWait *Asaux_input_wait() const {
-    return type == Command_aux_input_wait ?
-      reinterpret_cast<const EMC::AuxInputWait *>(value) : nullptr;
-  }
-  EMC::SpindleSpeed *Asspindle_speed() {
-    return type == Command_spindle_speed ?
-      reinterpret_cast<EMC::SpindleSpeed *>(value) : nullptr;
-  }
-  const EMC::SpindleSpeed *Asspindle_speed() const {
-    return type == Command_spindle_speed ?
-      reinterpret_cast<const EMC::SpindleSpeed *>(value) : nullptr;
-  }
-  EMC::SpindleOrient *Asspindle_orient() {
-    return type == Command_spindle_orient ?
-      reinterpret_cast<EMC::SpindleOrient *>(value) : nullptr;
-  }
-  const EMC::SpindleOrient *Asspindle_orient() const {
-    return type == Command_spindle_orient ?
-      reinterpret_cast<const EMC::SpindleOrient *>(value) : nullptr;
-  }
-  EMC::SpindleWaitOrient *Asspindle_wait_orient() {
-    return type == Command_spindle_wait_orient ?
-      reinterpret_cast<EMC::SpindleWaitOrient *>(value) : nullptr;
-  }
-  const EMC::SpindleWaitOrient *Asspindle_wait_orient() const {
-    return type == Command_spindle_wait_orient ?
-      reinterpret_cast<const EMC::SpindleWaitOrient *>(value) : nullptr;
-  }
-  EMC::SpindleOn *Asspindle_on() {
-    return type == Command_spindle_on ?
-      reinterpret_cast<EMC::SpindleOn *>(value) : nullptr;
-  }
-  const EMC::SpindleOn *Asspindle_on() const {
-    return type == Command_spindle_on ?
-      reinterpret_cast<const EMC::SpindleOn *>(value) : nullptr;
-  }
-  EMC::SpindleOff *Asspindle_off() {
-    return type == Command_spindle_off ?
-      reinterpret_cast<EMC::SpindleOff *>(value) : nullptr;
-  }
-  const EMC::SpindleOff *Asspindle_off() const {
-    return type == Command_spindle_off ?
-      reinterpret_cast<const EMC::SpindleOff *>(value) : nullptr;
-  }
-  EMC::SpindleIncrease *Asspindle_increase() {
-    return type == Command_spindle_increase ?
-      reinterpret_cast<EMC::SpindleIncrease *>(value) : nullptr;
-  }
-  const EMC::SpindleIncrease *Asspindle_increase() const {
-    return type == Command_spindle_increase ?
-      reinterpret_cast<const EMC::SpindleIncrease *>(value) : nullptr;
-  }
-  EMC::SpindleDecrease *Asspindle_decrease() {
-    return type == Command_spindle_decrease ?
-      reinterpret_cast<EMC::SpindleDecrease *>(value) : nullptr;
-  }
-  const EMC::SpindleDecrease *Asspindle_decrease() const {
-    return type == Command_spindle_decrease ?
-      reinterpret_cast<const EMC::SpindleDecrease *>(value) : nullptr;
-  }
-  EMC::SpindleConstant *Asspindle_constant() {
-    return type == Command_spindle_constant ?
-      reinterpret_cast<EMC::SpindleConstant *>(value) : nullptr;
-  }
-  const EMC::SpindleConstant *Asspindle_constant() const {
-    return type == Command_spindle_constant ?
-      reinterpret_cast<const EMC::SpindleConstant *>(value) : nullptr;
-  }
-  EMC::SpindleBrakeRelease *Asspindle_brake_release() {
-    return type == Command_spindle_brake_release ?
-      reinterpret_cast<EMC::SpindleBrakeRelease *>(value) : nullptr;
-  }
-  const EMC::SpindleBrakeRelease *Asspindle_brake_release() const {
-    return type == Command_spindle_brake_release ?
-      reinterpret_cast<const EMC::SpindleBrakeRelease *>(value) : nullptr;
-  }
-  EMC::SpindleBrakeEngage *Asspindle_brake_engage() {
-    return type == Command_spindle_brake_engage ?
-      reinterpret_cast<EMC::SpindleBrakeEngage *>(value) : nullptr;
-  }
-  const EMC::SpindleBrakeEngage *Asspindle_brake_engage() const {
-    return type == Command_spindle_brake_engage ?
-      reinterpret_cast<const EMC::SpindleBrakeEngage *>(value) : nullptr;
-  }
-  EMC::CoolandMistOn *Ascoolant_mist_on() {
-    return type == Command_coolant_mist_on ?
-      reinterpret_cast<EMC::CoolandMistOn *>(value) : nullptr;
-  }
-  const EMC::CoolandMistOn *Ascoolant_mist_on() const {
-    return type == Command_coolant_mist_on ?
-      reinterpret_cast<const EMC::CoolandMistOn *>(value) : nullptr;
-  }
-  EMC::CoolandMistOff *Ascoolant_mist_off() {
-    return type == Command_coolant_mist_off ?
-      reinterpret_cast<EMC::CoolandMistOff *>(value) : nullptr;
-  }
-  const EMC::CoolandMistOff *Ascoolant_mist_off() const {
-    return type == Command_coolant_mist_off ?
-      reinterpret_cast<const EMC::CoolandMistOff *>(value) : nullptr;
-  }
-  EMC::CoolandFloodOn *Ascoolant_flood_on() {
-    return type == Command_coolant_flood_on ?
-      reinterpret_cast<EMC::CoolandFloodOn *>(value) : nullptr;
-  }
-  const EMC::CoolandFloodOn *Ascoolant_flood_on() const {
-    return type == Command_coolant_flood_on ?
-      reinterpret_cast<const EMC::CoolandFloodOn *>(value) : nullptr;
-  }
-  EMC::CoolandFloodOff *Ascooland_flood_off() {
-    return type == Command_cooland_flood_off ?
-      reinterpret_cast<EMC::CoolandFloodOff *>(value) : nullptr;
-  }
-  const EMC::CoolandFloodOff *Ascooland_flood_off() const {
-    return type == Command_cooland_flood_off ?
-      reinterpret_cast<const EMC::CoolandFloodOff *>(value) : nullptr;
-  }
+template<> struct CommandTraits<EMC::CoolantFloodOff> {
+  static const Command enum_value = Command_coolant_flood_off;
 };
 
 bool VerifyCommand(flatbuffers::Verifier &verifier, const void *obj, Command type);
@@ -3469,85 +2739,75 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) SpindleBrakeEngage FLATBUFFERS_FINAL_CLAS
 };
 FLATBUFFERS_STRUCT_END(SpindleBrakeEngage, 4);
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CoolandMistOn FLATBUFFERS_FINAL_CLASS {
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CoolantMistOn FLATBUFFERS_FINAL_CLASS {
  private:
   int32_t dummy_;
 
  public:
-  CoolandMistOn()
+  CoolantMistOn()
       : dummy_(0) {
   }
-  CoolandMistOn(int32_t _dummy)
+  CoolantMistOn(int32_t _dummy)
       : dummy_(flatbuffers::EndianScalar(_dummy)) {
   }
   int32_t dummy() const {
     return flatbuffers::EndianScalar(dummy_);
   }
 };
-FLATBUFFERS_STRUCT_END(CoolandMistOn, 4);
+FLATBUFFERS_STRUCT_END(CoolantMistOn, 4);
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CoolandMistOff FLATBUFFERS_FINAL_CLASS {
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CoolantMistOff FLATBUFFERS_FINAL_CLASS {
  private:
   int32_t dummy_;
 
  public:
-  CoolandMistOff()
+  CoolantMistOff()
       : dummy_(0) {
   }
-  CoolandMistOff(int32_t _dummy)
+  CoolantMistOff(int32_t _dummy)
       : dummy_(flatbuffers::EndianScalar(_dummy)) {
   }
   int32_t dummy() const {
     return flatbuffers::EndianScalar(dummy_);
   }
 };
-FLATBUFFERS_STRUCT_END(CoolandMistOff, 4);
+FLATBUFFERS_STRUCT_END(CoolantMistOff, 4);
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CoolandFloodOn FLATBUFFERS_FINAL_CLASS {
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CoolantFloodOn FLATBUFFERS_FINAL_CLASS {
  private:
   int32_t dummy_;
 
  public:
-  CoolandFloodOn()
+  CoolantFloodOn()
       : dummy_(0) {
   }
-  CoolandFloodOn(int32_t _dummy)
+  CoolantFloodOn(int32_t _dummy)
       : dummy_(flatbuffers::EndianScalar(_dummy)) {
   }
   int32_t dummy() const {
     return flatbuffers::EndianScalar(dummy_);
   }
 };
-FLATBUFFERS_STRUCT_END(CoolandFloodOn, 4);
+FLATBUFFERS_STRUCT_END(CoolantFloodOn, 4);
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CoolandFloodOff FLATBUFFERS_FINAL_CLASS {
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) CoolantFloodOff FLATBUFFERS_FINAL_CLASS {
  private:
   int32_t dummy_;
 
  public:
-  CoolandFloodOff()
+  CoolantFloodOff()
       : dummy_(0) {
   }
-  CoolandFloodOff(int32_t _dummy)
+  CoolantFloodOff(int32_t _dummy)
       : dummy_(flatbuffers::EndianScalar(_dummy)) {
   }
   int32_t dummy() const {
     return flatbuffers::EndianScalar(dummy_);
   }
 };
-FLATBUFFERS_STRUCT_END(CoolandFloodOff, 4);
-
-struct JoinLoadCompT : public flatbuffers::NativeTable {
-  typedef JoinLoadComp TableType;
-  std::string file;
-  int32_t type;
-  JoinLoadCompT()
-      : type(0) {
-  }
-};
+FLATBUFFERS_STRUCT_END(CoolantFloodOff, 4);
 
 struct JoinLoadComp FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef JoinLoadCompT NativeTableType;
   typedef JoinLoadCompBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FILE = 4,
@@ -3566,9 +2826,6 @@ struct JoinLoadComp FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<int32_t>(verifier, VT_TYPE) &&
            verifier.EndTable();
   }
-  JoinLoadCompT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(JoinLoadCompT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<JoinLoadComp> Pack(flatbuffers::FlatBufferBuilder &_fbb, const JoinLoadCompT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct JoinLoadCompBuilder {
@@ -3613,31 +2870,7 @@ inline flatbuffers::Offset<JoinLoadComp> CreateJoinLoadCompDirect(
       type);
 }
 
-flatbuffers::Offset<JoinLoadComp> CreateJoinLoadComp(flatbuffers::FlatBufferBuilder &_fbb, const JoinLoadCompT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct TrajCircularMoveT : public flatbuffers::NativeTable {
-  typedef TrajCircularMove TableType;
-  std::unique_ptr<EMC::Pose> end;
-  std::unique_ptr<EMC::Cartesian> center;
-  std::unique_ptr<EMC::Cartesian> normal;
-  int32_t turn;
-  int32_t type;
-  double vel;
-  double ini_maxvel;
-  double acc;
-  int32_t feed_mode;
-  TrajCircularMoveT()
-      : turn(0),
-        type(0),
-        vel(0.0),
-        ini_maxvel(0.0),
-        acc(0.0),
-        feed_mode(0) {
-  }
-};
-
 struct TrajCircularMove FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef TrajCircularMoveT NativeTableType;
   typedef TrajCircularMoveBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_END = 4,
@@ -3690,9 +2923,6 @@ struct TrajCircularMove FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<int32_t>(verifier, VT_FEED_MODE) &&
            verifier.EndTable();
   }
-  TrajCircularMoveT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(TrajCircularMoveT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<TrajCircularMove> Pack(flatbuffers::FlatBufferBuilder &_fbb, const TrajCircularMoveT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct TrajCircularMoveBuilder {
@@ -3761,17 +2991,7 @@ inline flatbuffers::Offset<TrajCircularMove> CreateTrajCircularMove(
   return builder_.Finish();
 }
 
-flatbuffers::Offset<TrajCircularMove> CreateTrajCircularMove(flatbuffers::FlatBufferBuilder &_fbb, const TrajCircularMoveT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct TaskPlanOpenT : public flatbuffers::NativeTable {
-  typedef TaskPlanOpen TableType;
-  std::string file;
-  TaskPlanOpenT() {
-  }
-};
-
 struct TaskPlanOpen FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef TaskPlanOpenT NativeTableType;
   typedef TaskPlanOpenBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FILE = 4
@@ -3785,9 +3005,6 @@ struct TaskPlanOpen FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(file()) &&
            verifier.EndTable();
   }
-  TaskPlanOpenT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(TaskPlanOpenT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<TaskPlanOpen> Pack(flatbuffers::FlatBufferBuilder &_fbb, const TaskPlanOpenT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct TaskPlanOpenBuilder {
@@ -3825,17 +3042,7 @@ inline flatbuffers::Offset<TaskPlanOpen> CreateTaskPlanOpenDirect(
       file__);
 }
 
-flatbuffers::Offset<TaskPlanOpen> CreateTaskPlanOpen(flatbuffers::FlatBufferBuilder &_fbb, const TaskPlanOpenT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct TaskPlanExecuteT : public flatbuffers::NativeTable {
-  typedef TaskPlanExecute TableType;
-  std::string command;
-  TaskPlanExecuteT() {
-  }
-};
-
 struct TaskPlanExecute FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef TaskPlanExecuteT NativeTableType;
   typedef TaskPlanExecuteBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COMMAND = 4
@@ -3849,9 +3056,6 @@ struct TaskPlanExecute FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(command()) &&
            verifier.EndTable();
   }
-  TaskPlanExecuteT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(TaskPlanExecuteT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<TaskPlanExecute> Pack(flatbuffers::FlatBufferBuilder &_fbb, const TaskPlanExecuteT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct TaskPlanExecuteBuilder {
@@ -3889,17 +3093,7 @@ inline flatbuffers::Offset<TaskPlanExecute> CreateTaskPlanExecuteDirect(
       command__);
 }
 
-flatbuffers::Offset<TaskPlanExecute> CreateTaskPlanExecute(flatbuffers::FlatBufferBuilder &_fbb, const TaskPlanExecuteT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct ToolLoadToolTableT : public flatbuffers::NativeTable {
-  typedef ToolLoadToolTable TableType;
-  std::string file;
-  ToolLoadToolTableT() {
-  }
-};
-
 struct ToolLoadToolTable FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef ToolLoadToolTableT NativeTableType;
   typedef ToolLoadToolTableBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FILE = 4
@@ -3913,9 +3107,6 @@ struct ToolLoadToolTable FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(file()) &&
            verifier.EndTable();
   }
-  ToolLoadToolTableT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ToolLoadToolTableT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<ToolLoadToolTable> Pack(flatbuffers::FlatBufferBuilder &_fbb, const ToolLoadToolTableT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct ToolLoadToolTableBuilder {
@@ -3953,17 +3144,7 @@ inline flatbuffers::Offset<ToolLoadToolTable> CreateToolLoadToolTableDirect(
       file__);
 }
 
-flatbuffers::Offset<ToolLoadToolTable> CreateToolLoadToolTable(flatbuffers::FlatBufferBuilder &_fbb, const ToolLoadToolTableT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct CmdChannelMsgT : public flatbuffers::NativeTable {
-  typedef CmdChannelMsg TableType;
-  EMC::CommandUnion command;
-  CmdChannelMsgT() {
-  }
-};
-
 struct CmdChannelMsg FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef CmdChannelMsgT NativeTableType;
   typedef CmdChannelMsgBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COMMAND_TYPE = 4,
@@ -4222,17 +3403,17 @@ struct CmdChannelMsg FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const EMC::SpindleBrakeEngage *command_as_spindle_brake_engage() const {
     return command_type() == EMC::Command_spindle_brake_engage ? static_cast<const EMC::SpindleBrakeEngage *>(command()) : nullptr;
   }
-  const EMC::CoolandMistOn *command_as_coolant_mist_on() const {
-    return command_type() == EMC::Command_coolant_mist_on ? static_cast<const EMC::CoolandMistOn *>(command()) : nullptr;
+  const EMC::CoolantMistOn *command_as_coolant_mist_on() const {
+    return command_type() == EMC::Command_coolant_mist_on ? static_cast<const EMC::CoolantMistOn *>(command()) : nullptr;
   }
-  const EMC::CoolandMistOff *command_as_coolant_mist_off() const {
-    return command_type() == EMC::Command_coolant_mist_off ? static_cast<const EMC::CoolandMistOff *>(command()) : nullptr;
+  const EMC::CoolantMistOff *command_as_coolant_mist_off() const {
+    return command_type() == EMC::Command_coolant_mist_off ? static_cast<const EMC::CoolantMistOff *>(command()) : nullptr;
   }
-  const EMC::CoolandFloodOn *command_as_coolant_flood_on() const {
-    return command_type() == EMC::Command_coolant_flood_on ? static_cast<const EMC::CoolandFloodOn *>(command()) : nullptr;
+  const EMC::CoolantFloodOn *command_as_coolant_flood_on() const {
+    return command_type() == EMC::Command_coolant_flood_on ? static_cast<const EMC::CoolantFloodOn *>(command()) : nullptr;
   }
-  const EMC::CoolandFloodOff *command_as_cooland_flood_off() const {
-    return command_type() == EMC::Command_cooland_flood_off ? static_cast<const EMC::CoolandFloodOff *>(command()) : nullptr;
+  const EMC::CoolantFloodOff *command_as_coolant_flood_off() const {
+    return command_type() == EMC::Command_coolant_flood_off ? static_cast<const EMC::CoolantFloodOff *>(command()) : nullptr;
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -4241,9 +3422,6 @@ struct CmdChannelMsg FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyCommand(verifier, command(), command_type()) &&
            verifier.EndTable();
   }
-  CmdChannelMsgT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(CmdChannelMsgT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<CmdChannelMsg> Pack(flatbuffers::FlatBufferBuilder &_fbb, const CmdChannelMsgT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 template<> inline const EMC::SetDebug *CmdChannelMsg::command_as<EMC::SetDebug>() const {
@@ -4574,20 +3752,20 @@ template<> inline const EMC::SpindleBrakeEngage *CmdChannelMsg::command_as<EMC::
   return command_as_spindle_brake_engage();
 }
 
-template<> inline const EMC::CoolandMistOn *CmdChannelMsg::command_as<EMC::CoolandMistOn>() const {
+template<> inline const EMC::CoolantMistOn *CmdChannelMsg::command_as<EMC::CoolantMistOn>() const {
   return command_as_coolant_mist_on();
 }
 
-template<> inline const EMC::CoolandMistOff *CmdChannelMsg::command_as<EMC::CoolandMistOff>() const {
+template<> inline const EMC::CoolantMistOff *CmdChannelMsg::command_as<EMC::CoolantMistOff>() const {
   return command_as_coolant_mist_off();
 }
 
-template<> inline const EMC::CoolandFloodOn *CmdChannelMsg::command_as<EMC::CoolandFloodOn>() const {
+template<> inline const EMC::CoolantFloodOn *CmdChannelMsg::command_as<EMC::CoolantFloodOn>() const {
   return command_as_coolant_flood_on();
 }
 
-template<> inline const EMC::CoolandFloodOff *CmdChannelMsg::command_as<EMC::CoolandFloodOff>() const {
-  return command_as_cooland_flood_off();
+template<> inline const EMC::CoolantFloodOff *CmdChannelMsg::command_as<EMC::CoolantFloodOff>() const {
+  return command_as_coolant_flood_off();
 }
 
 struct CmdChannelMsgBuilder {
@@ -4621,18 +3799,7 @@ inline flatbuffers::Offset<CmdChannelMsg> CreateCmdChannelMsg(
   return builder_.Finish();
 }
 
-flatbuffers::Offset<CmdChannelMsg> CreateCmdChannelMsg(flatbuffers::FlatBufferBuilder &_fbb, const CmdChannelMsgT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct DebugLevelT : public flatbuffers::NativeTable {
-  typedef DebugLevel TableType;
-  int32_t debug_level;
-  DebugLevelT()
-      : debug_level(0) {
-  }
-};
-
 struct DebugLevel FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef DebugLevelT NativeTableType;
   typedef DebugLevelBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_DEBUG_LEVEL = 4
@@ -4645,9 +3812,6 @@ struct DebugLevel FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<int32_t>(verifier, VT_DEBUG_LEVEL) &&
            verifier.EndTable();
   }
-  DebugLevelT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(DebugLevelT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<DebugLevel> Pack(flatbuffers::FlatBufferBuilder &_fbb, const DebugLevelT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct DebugLevelBuilder {
@@ -4676,18 +3840,7 @@ inline flatbuffers::Offset<DebugLevel> CreateDebugLevel(
   return builder_.Finish();
 }
 
-flatbuffers::Offset<DebugLevel> CreateDebugLevel(flatbuffers::FlatBufferBuilder &_fbb, const DebugLevelT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct ResultT : public flatbuffers::NativeTable {
-  typedef Result TableType;
-  int32_t result;
-  ResultT()
-      : result(0) {
-  }
-};
-
 struct Result FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef ResultT NativeTableType;
   typedef ResultBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RESULT = 4
@@ -4700,9 +3853,6 @@ struct Result FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<int32_t>(verifier, VT_RESULT) &&
            verifier.EndTable();
   }
-  ResultT *UnPack(const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ResultT *_o, const flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static flatbuffers::Offset<Result> Pack(flatbuffers::FlatBufferBuilder &_fbb, const ResultT* _o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct ResultBuilder {
@@ -4729,246 +3879,6 @@ inline flatbuffers::Offset<Result> CreateResult(
   ResultBuilder builder_(_fbb);
   builder_.add_result(result);
   return builder_.Finish();
-}
-
-flatbuffers::Offset<Result> CreateResult(flatbuffers::FlatBufferBuilder &_fbb, const ResultT *_o, const flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-inline JoinLoadCompT *JoinLoadComp::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<EMC::JoinLoadCompT> _o = std::unique_ptr<EMC::JoinLoadCompT>(new JoinLoadCompT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void JoinLoadComp::UnPackTo(JoinLoadCompT *_o, const flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = file(); if (_e) _o->file = _e->str(); }
-  { auto _e = type(); _o->type = _e; }
-}
-
-inline flatbuffers::Offset<JoinLoadComp> JoinLoadComp::Pack(flatbuffers::FlatBufferBuilder &_fbb, const JoinLoadCompT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateJoinLoadComp(_fbb, _o, _rehasher);
-}
-
-inline flatbuffers::Offset<JoinLoadComp> CreateJoinLoadComp(flatbuffers::FlatBufferBuilder &_fbb, const JoinLoadCompT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const JoinLoadCompT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _file = _o->file.empty() ? 0 : _fbb.CreateString(_o->file);
-  auto _type = _o->type;
-  return EMC::CreateJoinLoadComp(
-      _fbb,
-      _file,
-      _type);
-}
-
-inline TrajCircularMoveT *TrajCircularMove::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<EMC::TrajCircularMoveT> _o = std::unique_ptr<EMC::TrajCircularMoveT>(new TrajCircularMoveT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void TrajCircularMove::UnPackTo(TrajCircularMoveT *_o, const flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = end(); if (_e) _o->end = std::unique_ptr<EMC::Pose>(new EMC::Pose(*_e)); }
-  { auto _e = center(); if (_e) _o->center = std::unique_ptr<EMC::Cartesian>(new EMC::Cartesian(*_e)); }
-  { auto _e = normal(); if (_e) _o->normal = std::unique_ptr<EMC::Cartesian>(new EMC::Cartesian(*_e)); }
-  { auto _e = turn(); _o->turn = _e; }
-  { auto _e = type(); _o->type = _e; }
-  { auto _e = vel(); _o->vel = _e; }
-  { auto _e = ini_maxvel(); _o->ini_maxvel = _e; }
-  { auto _e = acc(); _o->acc = _e; }
-  { auto _e = feed_mode(); _o->feed_mode = _e; }
-}
-
-inline flatbuffers::Offset<TrajCircularMove> TrajCircularMove::Pack(flatbuffers::FlatBufferBuilder &_fbb, const TrajCircularMoveT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateTrajCircularMove(_fbb, _o, _rehasher);
-}
-
-inline flatbuffers::Offset<TrajCircularMove> CreateTrajCircularMove(flatbuffers::FlatBufferBuilder &_fbb, const TrajCircularMoveT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const TrajCircularMoveT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _end = _o->end ? _o->end.get() : 0;
-  auto _center = _o->center ? _o->center.get() : 0;
-  auto _normal = _o->normal ? _o->normal.get() : 0;
-  auto _turn = _o->turn;
-  auto _type = _o->type;
-  auto _vel = _o->vel;
-  auto _ini_maxvel = _o->ini_maxvel;
-  auto _acc = _o->acc;
-  auto _feed_mode = _o->feed_mode;
-  return EMC::CreateTrajCircularMove(
-      _fbb,
-      _end,
-      _center,
-      _normal,
-      _turn,
-      _type,
-      _vel,
-      _ini_maxvel,
-      _acc,
-      _feed_mode);
-}
-
-inline TaskPlanOpenT *TaskPlanOpen::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<EMC::TaskPlanOpenT> _o = std::unique_ptr<EMC::TaskPlanOpenT>(new TaskPlanOpenT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void TaskPlanOpen::UnPackTo(TaskPlanOpenT *_o, const flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = file(); if (_e) _o->file = _e->str(); }
-}
-
-inline flatbuffers::Offset<TaskPlanOpen> TaskPlanOpen::Pack(flatbuffers::FlatBufferBuilder &_fbb, const TaskPlanOpenT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateTaskPlanOpen(_fbb, _o, _rehasher);
-}
-
-inline flatbuffers::Offset<TaskPlanOpen> CreateTaskPlanOpen(flatbuffers::FlatBufferBuilder &_fbb, const TaskPlanOpenT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const TaskPlanOpenT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _file = _o->file.empty() ? 0 : _fbb.CreateString(_o->file);
-  return EMC::CreateTaskPlanOpen(
-      _fbb,
-      _file);
-}
-
-inline TaskPlanExecuteT *TaskPlanExecute::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<EMC::TaskPlanExecuteT> _o = std::unique_ptr<EMC::TaskPlanExecuteT>(new TaskPlanExecuteT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void TaskPlanExecute::UnPackTo(TaskPlanExecuteT *_o, const flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = command(); if (_e) _o->command = _e->str(); }
-}
-
-inline flatbuffers::Offset<TaskPlanExecute> TaskPlanExecute::Pack(flatbuffers::FlatBufferBuilder &_fbb, const TaskPlanExecuteT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateTaskPlanExecute(_fbb, _o, _rehasher);
-}
-
-inline flatbuffers::Offset<TaskPlanExecute> CreateTaskPlanExecute(flatbuffers::FlatBufferBuilder &_fbb, const TaskPlanExecuteT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const TaskPlanExecuteT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _command = _o->command.empty() ? 0 : _fbb.CreateString(_o->command);
-  return EMC::CreateTaskPlanExecute(
-      _fbb,
-      _command);
-}
-
-inline ToolLoadToolTableT *ToolLoadToolTable::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<EMC::ToolLoadToolTableT> _o = std::unique_ptr<EMC::ToolLoadToolTableT>(new ToolLoadToolTableT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void ToolLoadToolTable::UnPackTo(ToolLoadToolTableT *_o, const flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = file(); if (_e) _o->file = _e->str(); }
-}
-
-inline flatbuffers::Offset<ToolLoadToolTable> ToolLoadToolTable::Pack(flatbuffers::FlatBufferBuilder &_fbb, const ToolLoadToolTableT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateToolLoadToolTable(_fbb, _o, _rehasher);
-}
-
-inline flatbuffers::Offset<ToolLoadToolTable> CreateToolLoadToolTable(flatbuffers::FlatBufferBuilder &_fbb, const ToolLoadToolTableT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const ToolLoadToolTableT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _file = _o->file.empty() ? 0 : _fbb.CreateString(_o->file);
-  return EMC::CreateToolLoadToolTable(
-      _fbb,
-      _file);
-}
-
-inline CmdChannelMsgT *CmdChannelMsg::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<EMC::CmdChannelMsgT> _o = std::unique_ptr<EMC::CmdChannelMsgT>(new CmdChannelMsgT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void CmdChannelMsg::UnPackTo(CmdChannelMsgT *_o, const flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = command_type(); _o->command.type = _e; }
-  { auto _e = command(); if (_e) _o->command.value = EMC::CommandUnion::UnPack(_e, command_type(), _resolver); }
-}
-
-inline flatbuffers::Offset<CmdChannelMsg> CmdChannelMsg::Pack(flatbuffers::FlatBufferBuilder &_fbb, const CmdChannelMsgT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateCmdChannelMsg(_fbb, _o, _rehasher);
-}
-
-inline flatbuffers::Offset<CmdChannelMsg> CreateCmdChannelMsg(flatbuffers::FlatBufferBuilder &_fbb, const CmdChannelMsgT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const CmdChannelMsgT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _command_type = _o->command.type;
-  auto _command = _o->command.Pack(_fbb);
-  return EMC::CreateCmdChannelMsg(
-      _fbb,
-      _command_type,
-      _command);
-}
-
-inline DebugLevelT *DebugLevel::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<EMC::DebugLevelT> _o = std::unique_ptr<EMC::DebugLevelT>(new DebugLevelT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void DebugLevel::UnPackTo(DebugLevelT *_o, const flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = debug_level(); _o->debug_level = _e; }
-}
-
-inline flatbuffers::Offset<DebugLevel> DebugLevel::Pack(flatbuffers::FlatBufferBuilder &_fbb, const DebugLevelT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateDebugLevel(_fbb, _o, _rehasher);
-}
-
-inline flatbuffers::Offset<DebugLevel> CreateDebugLevel(flatbuffers::FlatBufferBuilder &_fbb, const DebugLevelT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const DebugLevelT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _debug_level = _o->debug_level;
-  return EMC::CreateDebugLevel(
-      _fbb,
-      _debug_level);
-}
-
-inline ResultT *Result::UnPack(const flatbuffers::resolver_function_t *_resolver) const {
-  std::unique_ptr<EMC::ResultT> _o = std::unique_ptr<EMC::ResultT>(new ResultT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Result::UnPackTo(ResultT *_o, const flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = result(); _o->result = _e; }
-}
-
-inline flatbuffers::Offset<Result> Result::Pack(flatbuffers::FlatBufferBuilder &_fbb, const ResultT* _o, const flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateResult(_fbb, _o, _rehasher);
-}
-
-inline flatbuffers::Offset<Result> CreateResult(flatbuffers::FlatBufferBuilder &_fbb, const ResultT *_o, const flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { flatbuffers::FlatBufferBuilder *__fbb; const ResultT* __o; const flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _result = _o->result;
-  return EMC::CreateResult(
-      _fbb,
-      _result);
 }
 
 inline bool VerifyCommand(flatbuffers::Verifier &verifier, const void *obj, Command type) {
@@ -5228,16 +4138,16 @@ inline bool VerifyCommand(flatbuffers::Verifier &verifier, const void *obj, Comm
       return verifier.Verify<EMC::SpindleBrakeEngage>(static_cast<const uint8_t *>(obj), 0);
     }
     case Command_coolant_mist_on: {
-      return verifier.Verify<EMC::CoolandMistOn>(static_cast<const uint8_t *>(obj), 0);
+      return verifier.Verify<EMC::CoolantMistOn>(static_cast<const uint8_t *>(obj), 0);
     }
     case Command_coolant_mist_off: {
-      return verifier.Verify<EMC::CoolandMistOff>(static_cast<const uint8_t *>(obj), 0);
+      return verifier.Verify<EMC::CoolantMistOff>(static_cast<const uint8_t *>(obj), 0);
     }
     case Command_coolant_flood_on: {
-      return verifier.Verify<EMC::CoolandFloodOn>(static_cast<const uint8_t *>(obj), 0);
+      return verifier.Verify<EMC::CoolantFloodOn>(static_cast<const uint8_t *>(obj), 0);
     }
-    case Command_cooland_flood_off: {
-      return verifier.Verify<EMC::CoolandFloodOff>(static_cast<const uint8_t *>(obj), 0);
+    case Command_coolant_flood_off: {
+      return verifier.Verify<EMC::CoolantFloodOff>(static_cast<const uint8_t *>(obj), 0);
     }
     default: return true;
   }
@@ -5253,1495 +4163,6 @@ inline bool VerifyCommandVector(flatbuffers::Verifier &verifier, const flatbuffe
     }
   }
   return true;
-}
-
-inline void *CommandUnion::UnPack(const void *obj, Command type, const flatbuffers::resolver_function_t *resolver) {
-  switch (type) {
-    case Command_set_debug: {
-      auto ptr = reinterpret_cast<const EMC::SetDebug *>(obj);
-      return new EMC::SetDebug(*ptr);
-    }
-    case Command_jog_cmd: {
-      auto ptr = reinterpret_cast<const EMC::JogCmd *>(obj);
-      return new EMC::JogCmd(*ptr);
-    }
-    case Command_join_set_backlash: {
-      auto ptr = reinterpret_cast<const EMC::JointSetBacklash *>(obj);
-      return new EMC::JointSetBacklash(*ptr);
-    }
-    case Command_joint_set_min_position_limit: {
-      auto ptr = reinterpret_cast<const EMC::JointSetMinPositionLimit *>(obj);
-      return new EMC::JointSetMinPositionLimit(*ptr);
-    }
-    case Command_joint_set_max_position_limit: {
-      auto ptr = reinterpret_cast<const EMC::JointSetMaxPositionLimit *>(obj);
-      return new EMC::JointSetMaxPositionLimit(*ptr);
-    }
-    case Command_joint_set_ferror: {
-      auto ptr = reinterpret_cast<const EMC::JointSetFerror *>(obj);
-      return new EMC::JointSetFerror(*ptr);
-    }
-    case Command_joint_set_min_ferror: {
-      auto ptr = reinterpret_cast<const EMC::JointSetMinFerror *>(obj);
-      return new EMC::JointSetMinFerror(*ptr);
-    }
-    case Command_joint_set_homing_params: {
-      auto ptr = reinterpret_cast<const EMC::JointSetHomingParams *>(obj);
-      return new EMC::JointSetHomingParams(*ptr);
-    }
-    case Command_joint_home: {
-      auto ptr = reinterpret_cast<const EMC::JointHome *>(obj);
-      return new EMC::JointHome(*ptr);
-    }
-    case Command_joint_unhome: {
-      auto ptr = reinterpret_cast<const EMC::JointUnhome *>(obj);
-      return new EMC::JointUnhome(*ptr);
-    }
-    case Command_joint_halt: {
-      auto ptr = reinterpret_cast<const EMC::JointHalt *>(obj);
-      return new EMC::JointHalt(*ptr);
-    }
-    case Command_jog_cont: {
-      auto ptr = reinterpret_cast<const EMC::JogCont *>(obj);
-      return new EMC::JogCont(*ptr);
-    }
-    case Command_jog_incr: {
-      auto ptr = reinterpret_cast<const EMC::JogIncr *>(obj);
-      return new EMC::JogIncr(*ptr);
-    }
-    case Command_jog_abs: {
-      auto ptr = reinterpret_cast<const EMC::JogAbs *>(obj);
-      return new EMC::JogAbs(*ptr);
-    }
-    case Command_jog_stop: {
-      auto ptr = reinterpret_cast<const EMC::JogStop *>(obj);
-      return new EMC::JogStop(*ptr);
-    }
-    case Command_join_override_limits: {
-      auto ptr = reinterpret_cast<const EMC::JoinOverrideLimits *>(obj);
-      return new EMC::JoinOverrideLimits(*ptr);
-    }
-    case Command_join_load_comp: {
-      auto ptr = reinterpret_cast<const EMC::JoinLoadComp *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_traj_set_mode: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetMode *>(obj);
-      return new EMC::TrajSetMode(*ptr);
-    }
-    case Command_traj_set_velocity: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetVelocity *>(obj);
-      return new EMC::TrajSetVelocity(*ptr);
-    }
-    case Command_tral_set_acceleration: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetAcceleration *>(obj);
-      return new EMC::TrajSetAcceleration(*ptr);
-    }
-    case Command_traj_set_max_velocity: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetMaxVelocity *>(obj);
-      return new EMC::TrajSetMaxVelocity(*ptr);
-    }
-    case Command_traj_set_scale: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetScale *>(obj);
-      return new EMC::TrajSetScale(*ptr);
-    }
-    case Command_traj_set_rapid_scale: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetRapidScale *>(obj);
-      return new EMC::TrajSetRapidScale(*ptr);
-    }
-    case Command_traj_set_spindl_scale: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetSpindleScale *>(obj);
-      return new EMC::TrajSetSpindleScale(*ptr);
-    }
-    case Command_traj_set_fo_enable: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetFOEnable *>(obj);
-      return new EMC::TrajSetFOEnable(*ptr);
-    }
-    case Command_traj_set_so_enable: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetSOEnable *>(obj);
-      return new EMC::TrajSetSOEnable(*ptr);
-    }
-    case Command_traj_set_fh_enable: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetFHEnable *>(obj);
-      return new EMC::TrajSetFHEnable(*ptr);
-    }
-    case Command_traj_abort: {
-      auto ptr = reinterpret_cast<const EMC::TrajAbort *>(obj);
-      return new EMC::TrajAbort(*ptr);
-    }
-    case Command_traj_pause: {
-      auto ptr = reinterpret_cast<const EMC::TrajPause *>(obj);
-      return new EMC::TrajPause(*ptr);
-    }
-    case Command_traj_resume: {
-      auto ptr = reinterpret_cast<const EMC::TrajResume *>(obj);
-      return new EMC::TrajResume(*ptr);
-    }
-    case Command_traj_delay: {
-      auto ptr = reinterpret_cast<const EMC::TrajDelay *>(obj);
-      return new EMC::TrajDelay(*ptr);
-    }
-    case Command_traj_linear_move: {
-      auto ptr = reinterpret_cast<const EMC::TrajLinearMove *>(obj);
-      return new EMC::TrajLinearMove(*ptr);
-    }
-    case Command_traj_circular_move: {
-      auto ptr = reinterpret_cast<const EMC::TrajCircularMove *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_traj_set_term_cond: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetTermCond *>(obj);
-      return new EMC::TrajSetTermCond(*ptr);
-    }
-    case Command_traj_set_spindle_sync: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetSpindleSync *>(obj);
-      return new EMC::TrajSetSpindleSync(*ptr);
-    }
-    case Command_traj_set_offset: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetOffset *>(obj);
-      return new EMC::TrajSetOffset(*ptr);
-    }
-    case Command_traj_set_g5x: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetG5x *>(obj);
-      return new EMC::TrajSetG5x(*ptr);
-    }
-    case Command_traj_set_g92: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetG92 *>(obj);
-      return new EMC::TrajSetG92(*ptr);
-    }
-    case Command_traj_set_rotation: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetRotation *>(obj);
-      return new EMC::TrajSetRotation(*ptr);
-    }
-    case Command_traj_clear_probe_tripped_flag: {
-      auto ptr = reinterpret_cast<const EMC::TrajClearProbeTrippedFlag *>(obj);
-      return new EMC::TrajClearProbeTrippedFlag(*ptr);
-    }
-    case Command_traj_set_teleop_enable: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetTeleopEnable *>(obj);
-      return new EMC::TrajSetTeleopEnable(*ptr);
-    }
-    case Command_traj_probe: {
-      auto ptr = reinterpret_cast<const EMC::TrajProbe *>(obj);
-      return new EMC::TrajProbe(*ptr);
-    }
-    case Command_traj_rigid_tap: {
-      auto ptr = reinterpret_cast<const EMC::TrajRigidTap *>(obj);
-      return new EMC::TrajRigidTap(*ptr);
-    }
-    case Command_motion_set_aout: {
-      auto ptr = reinterpret_cast<const EMC::MotionSetAOut *>(obj);
-      return new EMC::MotionSetAOut(*ptr);
-    }
-    case Command_motion_set_dout: {
-      auto ptr = reinterpret_cast<const EMC::MotionSetDOut *>(obj);
-      return new EMC::MotionSetDOut(*ptr);
-    }
-    case Command_motion_adaptive: {
-      auto ptr = reinterpret_cast<const EMC::MotionAdaptive *>(obj);
-      return new EMC::MotionAdaptive(*ptr);
-    }
-    case Command_task_abort: {
-      auto ptr = reinterpret_cast<const EMC::TaskAbort *>(obj);
-      return new EMC::TaskAbort(*ptr);
-    }
-    case Command_task_set_mode: {
-      auto ptr = reinterpret_cast<const EMC::TaskSetMode *>(obj);
-      return new EMC::TaskSetMode(*ptr);
-    }
-    case Command_task_set_state: {
-      auto ptr = reinterpret_cast<const EMC::TaskSetState *>(obj);
-      return new EMC::TaskSetState(*ptr);
-    }
-    case Command_task_plan_open: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanOpen *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_task_plan_run: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanRun *>(obj);
-      return new EMC::TaskPlanRun(*ptr);
-    }
-    case Command_task_plan_execute: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanExecute *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_task_plan_reverse: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanReverse *>(obj);
-      return new EMC::TaskPlanReverse(*ptr);
-    }
-    case Command_task_plan_forward: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanForward *>(obj);
-      return new EMC::TaskPlanForward(*ptr);
-    }
-    case Command_task_plan_step: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanStep *>(obj);
-      return new EMC::TaskPlanStep(*ptr);
-    }
-    case Command_task_plan_resume: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanResume *>(obj);
-      return new EMC::TaskPlanResume(*ptr);
-    }
-    case Command_task_plan_end: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanEnd *>(obj);
-      return new EMC::TaskPlanEnd(*ptr);
-    }
-    case Command_task_plan_close: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanClose *>(obj);
-      return new EMC::TaskPlanClose(*ptr);
-    }
-    case Command_task_plan_init: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanInit *>(obj);
-      return new EMC::TaskPlanInit(*ptr);
-    }
-    case Command_task_plan_synch: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanSynch *>(obj);
-      return new EMC::TaskPlanSynch(*ptr);
-    }
-    case Command_task_plan_set_optional_stop: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanSetOptionalStop *>(obj);
-      return new EMC::TaskPlanSetOptionalStop(*ptr);
-    }
-    case Command_task_plan_set_block_delete: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanSetBlockDelete *>(obj);
-      return new EMC::TaskPlanSetBlockDelete(*ptr);
-    }
-    case Command_task_plan_optional_stop: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanOptionalStop *>(obj);
-      return new EMC::TaskPlanOptionalStop(*ptr);
-    }
-    case Command_tool_cmd: {
-      auto ptr = reinterpret_cast<const EMC::ToolCmd *>(obj);
-      return new EMC::ToolCmd(*ptr);
-    }
-    case Command_tool_halt: {
-      auto ptr = reinterpret_cast<const EMC::ToolHalt *>(obj);
-      return new EMC::ToolHalt(*ptr);
-    }
-    case Command_tool_abort: {
-      auto ptr = reinterpret_cast<const EMC::ToolAbort *>(obj);
-      return new EMC::ToolAbort(*ptr);
-    }
-    case Command_tool_prepare: {
-      auto ptr = reinterpret_cast<const EMC::ToolPrepare *>(obj);
-      return new EMC::ToolPrepare(*ptr);
-    }
-    case Command_tool_load: {
-      auto ptr = reinterpret_cast<const EMC::ToolLoad *>(obj);
-      return new EMC::ToolLoad(*ptr);
-    }
-    case Command_tool_load_tool_table: {
-      auto ptr = reinterpret_cast<const EMC::ToolLoadToolTable *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_tool_set_offset: {
-      auto ptr = reinterpret_cast<const EMC::ToolSetOffset *>(obj);
-      return new EMC::ToolSetOffset(*ptr);
-    }
-    case Command_tool_set_number: {
-      auto ptr = reinterpret_cast<const EMC::ToolSetNumber *>(obj);
-      return new EMC::ToolSetNumber(*ptr);
-    }
-    case Command_aux_input_wait: {
-      auto ptr = reinterpret_cast<const EMC::AuxInputWait *>(obj);
-      return new EMC::AuxInputWait(*ptr);
-    }
-    case Command_spindle_speed: {
-      auto ptr = reinterpret_cast<const EMC::SpindleSpeed *>(obj);
-      return new EMC::SpindleSpeed(*ptr);
-    }
-    case Command_spindle_orient: {
-      auto ptr = reinterpret_cast<const EMC::SpindleOrient *>(obj);
-      return new EMC::SpindleOrient(*ptr);
-    }
-    case Command_spindle_wait_orient: {
-      auto ptr = reinterpret_cast<const EMC::SpindleWaitOrient *>(obj);
-      return new EMC::SpindleWaitOrient(*ptr);
-    }
-    case Command_spindle_on: {
-      auto ptr = reinterpret_cast<const EMC::SpindleOn *>(obj);
-      return new EMC::SpindleOn(*ptr);
-    }
-    case Command_spindle_off: {
-      auto ptr = reinterpret_cast<const EMC::SpindleOff *>(obj);
-      return new EMC::SpindleOff(*ptr);
-    }
-    case Command_spindle_increase: {
-      auto ptr = reinterpret_cast<const EMC::SpindleIncrease *>(obj);
-      return new EMC::SpindleIncrease(*ptr);
-    }
-    case Command_spindle_decrease: {
-      auto ptr = reinterpret_cast<const EMC::SpindleDecrease *>(obj);
-      return new EMC::SpindleDecrease(*ptr);
-    }
-    case Command_spindle_constant: {
-      auto ptr = reinterpret_cast<const EMC::SpindleConstant *>(obj);
-      return new EMC::SpindleConstant(*ptr);
-    }
-    case Command_spindle_brake_release: {
-      auto ptr = reinterpret_cast<const EMC::SpindleBrakeRelease *>(obj);
-      return new EMC::SpindleBrakeRelease(*ptr);
-    }
-    case Command_spindle_brake_engage: {
-      auto ptr = reinterpret_cast<const EMC::SpindleBrakeEngage *>(obj);
-      return new EMC::SpindleBrakeEngage(*ptr);
-    }
-    case Command_coolant_mist_on: {
-      auto ptr = reinterpret_cast<const EMC::CoolandMistOn *>(obj);
-      return new EMC::CoolandMistOn(*ptr);
-    }
-    case Command_coolant_mist_off: {
-      auto ptr = reinterpret_cast<const EMC::CoolandMistOff *>(obj);
-      return new EMC::CoolandMistOff(*ptr);
-    }
-    case Command_coolant_flood_on: {
-      auto ptr = reinterpret_cast<const EMC::CoolandFloodOn *>(obj);
-      return new EMC::CoolandFloodOn(*ptr);
-    }
-    case Command_cooland_flood_off: {
-      auto ptr = reinterpret_cast<const EMC::CoolandFloodOff *>(obj);
-      return new EMC::CoolandFloodOff(*ptr);
-    }
-    default: return nullptr;
-  }
-}
-
-inline flatbuffers::Offset<void> CommandUnion::Pack(flatbuffers::FlatBufferBuilder &_fbb, const flatbuffers::rehasher_function_t *_rehasher) const {
-  switch (type) {
-    case Command_set_debug: {
-      auto ptr = reinterpret_cast<const EMC::SetDebug *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_jog_cmd: {
-      auto ptr = reinterpret_cast<const EMC::JogCmd *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_join_set_backlash: {
-      auto ptr = reinterpret_cast<const EMC::JointSetBacklash *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_joint_set_min_position_limit: {
-      auto ptr = reinterpret_cast<const EMC::JointSetMinPositionLimit *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_joint_set_max_position_limit: {
-      auto ptr = reinterpret_cast<const EMC::JointSetMaxPositionLimit *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_joint_set_ferror: {
-      auto ptr = reinterpret_cast<const EMC::JointSetFerror *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_joint_set_min_ferror: {
-      auto ptr = reinterpret_cast<const EMC::JointSetMinFerror *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_joint_set_homing_params: {
-      auto ptr = reinterpret_cast<const EMC::JointSetHomingParams *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_joint_home: {
-      auto ptr = reinterpret_cast<const EMC::JointHome *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_joint_unhome: {
-      auto ptr = reinterpret_cast<const EMC::JointUnhome *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_joint_halt: {
-      auto ptr = reinterpret_cast<const EMC::JointHalt *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_jog_cont: {
-      auto ptr = reinterpret_cast<const EMC::JogCont *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_jog_incr: {
-      auto ptr = reinterpret_cast<const EMC::JogIncr *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_jog_abs: {
-      auto ptr = reinterpret_cast<const EMC::JogAbs *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_jog_stop: {
-      auto ptr = reinterpret_cast<const EMC::JogStop *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_join_override_limits: {
-      auto ptr = reinterpret_cast<const EMC::JoinOverrideLimits *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_join_load_comp: {
-      auto ptr = reinterpret_cast<const EMC::JoinLoadCompT *>(value);
-      return CreateJoinLoadComp(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_traj_set_mode: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetMode *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_velocity: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetVelocity *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_tral_set_acceleration: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetAcceleration *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_max_velocity: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetMaxVelocity *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_scale: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetScale *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_rapid_scale: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetRapidScale *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_spindl_scale: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetSpindleScale *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_fo_enable: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetFOEnable *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_so_enable: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetSOEnable *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_fh_enable: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetFHEnable *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_abort: {
-      auto ptr = reinterpret_cast<const EMC::TrajAbort *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_pause: {
-      auto ptr = reinterpret_cast<const EMC::TrajPause *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_resume: {
-      auto ptr = reinterpret_cast<const EMC::TrajResume *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_delay: {
-      auto ptr = reinterpret_cast<const EMC::TrajDelay *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_linear_move: {
-      auto ptr = reinterpret_cast<const EMC::TrajLinearMove *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_circular_move: {
-      auto ptr = reinterpret_cast<const EMC::TrajCircularMoveT *>(value);
-      return CreateTrajCircularMove(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_traj_set_term_cond: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetTermCond *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_spindle_sync: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetSpindleSync *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_offset: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetOffset *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_g5x: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetG5x *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_g92: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetG92 *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_rotation: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetRotation *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_clear_probe_tripped_flag: {
-      auto ptr = reinterpret_cast<const EMC::TrajClearProbeTrippedFlag *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_set_teleop_enable: {
-      auto ptr = reinterpret_cast<const EMC::TrajSetTeleopEnable *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_probe: {
-      auto ptr = reinterpret_cast<const EMC::TrajProbe *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_traj_rigid_tap: {
-      auto ptr = reinterpret_cast<const EMC::TrajRigidTap *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_motion_set_aout: {
-      auto ptr = reinterpret_cast<const EMC::MotionSetAOut *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_motion_set_dout: {
-      auto ptr = reinterpret_cast<const EMC::MotionSetDOut *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_motion_adaptive: {
-      auto ptr = reinterpret_cast<const EMC::MotionAdaptive *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_abort: {
-      auto ptr = reinterpret_cast<const EMC::TaskAbort *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_set_mode: {
-      auto ptr = reinterpret_cast<const EMC::TaskSetMode *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_set_state: {
-      auto ptr = reinterpret_cast<const EMC::TaskSetState *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_open: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanOpenT *>(value);
-      return CreateTaskPlanOpen(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_task_plan_run: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanRun *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_execute: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanExecuteT *>(value);
-      return CreateTaskPlanExecute(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_task_plan_reverse: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanReverse *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_forward: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanForward *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_step: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanStep *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_resume: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanResume *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_end: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanEnd *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_close: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanClose *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_init: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanInit *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_synch: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanSynch *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_set_optional_stop: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanSetOptionalStop *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_set_block_delete: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanSetBlockDelete *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_task_plan_optional_stop: {
-      auto ptr = reinterpret_cast<const EMC::TaskPlanOptionalStop *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_tool_cmd: {
-      auto ptr = reinterpret_cast<const EMC::ToolCmd *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_tool_halt: {
-      auto ptr = reinterpret_cast<const EMC::ToolHalt *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_tool_abort: {
-      auto ptr = reinterpret_cast<const EMC::ToolAbort *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_tool_prepare: {
-      auto ptr = reinterpret_cast<const EMC::ToolPrepare *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_tool_load: {
-      auto ptr = reinterpret_cast<const EMC::ToolLoad *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_tool_load_tool_table: {
-      auto ptr = reinterpret_cast<const EMC::ToolLoadToolTableT *>(value);
-      return CreateToolLoadToolTable(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_tool_set_offset: {
-      auto ptr = reinterpret_cast<const EMC::ToolSetOffset *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_tool_set_number: {
-      auto ptr = reinterpret_cast<const EMC::ToolSetNumber *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_aux_input_wait: {
-      auto ptr = reinterpret_cast<const EMC::AuxInputWait *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_speed: {
-      auto ptr = reinterpret_cast<const EMC::SpindleSpeed *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_orient: {
-      auto ptr = reinterpret_cast<const EMC::SpindleOrient *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_wait_orient: {
-      auto ptr = reinterpret_cast<const EMC::SpindleWaitOrient *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_on: {
-      auto ptr = reinterpret_cast<const EMC::SpindleOn *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_off: {
-      auto ptr = reinterpret_cast<const EMC::SpindleOff *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_increase: {
-      auto ptr = reinterpret_cast<const EMC::SpindleIncrease *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_decrease: {
-      auto ptr = reinterpret_cast<const EMC::SpindleDecrease *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_constant: {
-      auto ptr = reinterpret_cast<const EMC::SpindleConstant *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_brake_release: {
-      auto ptr = reinterpret_cast<const EMC::SpindleBrakeRelease *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_spindle_brake_engage: {
-      auto ptr = reinterpret_cast<const EMC::SpindleBrakeEngage *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_coolant_mist_on: {
-      auto ptr = reinterpret_cast<const EMC::CoolandMistOn *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_coolant_mist_off: {
-      auto ptr = reinterpret_cast<const EMC::CoolandMistOff *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_coolant_flood_on: {
-      auto ptr = reinterpret_cast<const EMC::CoolandFloodOn *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    case Command_cooland_flood_off: {
-      auto ptr = reinterpret_cast<const EMC::CoolandFloodOff *>(value);
-      return _fbb.CreateStruct(*ptr).Union();
-    }
-    default: return 0;
-  }
-}
-
-inline CommandUnion::CommandUnion(const CommandUnion &u) : type(u.type), value(nullptr) {
-  switch (type) {
-    case Command_set_debug: {
-      value = new EMC::SetDebug(*reinterpret_cast<EMC::SetDebug *>(u.value));
-      break;
-    }
-    case Command_jog_cmd: {
-      value = new EMC::JogCmd(*reinterpret_cast<EMC::JogCmd *>(u.value));
-      break;
-    }
-    case Command_join_set_backlash: {
-      value = new EMC::JointSetBacklash(*reinterpret_cast<EMC::JointSetBacklash *>(u.value));
-      break;
-    }
-    case Command_joint_set_min_position_limit: {
-      value = new EMC::JointSetMinPositionLimit(*reinterpret_cast<EMC::JointSetMinPositionLimit *>(u.value));
-      break;
-    }
-    case Command_joint_set_max_position_limit: {
-      value = new EMC::JointSetMaxPositionLimit(*reinterpret_cast<EMC::JointSetMaxPositionLimit *>(u.value));
-      break;
-    }
-    case Command_joint_set_ferror: {
-      value = new EMC::JointSetFerror(*reinterpret_cast<EMC::JointSetFerror *>(u.value));
-      break;
-    }
-    case Command_joint_set_min_ferror: {
-      value = new EMC::JointSetMinFerror(*reinterpret_cast<EMC::JointSetMinFerror *>(u.value));
-      break;
-    }
-    case Command_joint_set_homing_params: {
-      value = new EMC::JointSetHomingParams(*reinterpret_cast<EMC::JointSetHomingParams *>(u.value));
-      break;
-    }
-    case Command_joint_home: {
-      value = new EMC::JointHome(*reinterpret_cast<EMC::JointHome *>(u.value));
-      break;
-    }
-    case Command_joint_unhome: {
-      value = new EMC::JointUnhome(*reinterpret_cast<EMC::JointUnhome *>(u.value));
-      break;
-    }
-    case Command_joint_halt: {
-      value = new EMC::JointHalt(*reinterpret_cast<EMC::JointHalt *>(u.value));
-      break;
-    }
-    case Command_jog_cont: {
-      value = new EMC::JogCont(*reinterpret_cast<EMC::JogCont *>(u.value));
-      break;
-    }
-    case Command_jog_incr: {
-      value = new EMC::JogIncr(*reinterpret_cast<EMC::JogIncr *>(u.value));
-      break;
-    }
-    case Command_jog_abs: {
-      value = new EMC::JogAbs(*reinterpret_cast<EMC::JogAbs *>(u.value));
-      break;
-    }
-    case Command_jog_stop: {
-      value = new EMC::JogStop(*reinterpret_cast<EMC::JogStop *>(u.value));
-      break;
-    }
-    case Command_join_override_limits: {
-      value = new EMC::JoinOverrideLimits(*reinterpret_cast<EMC::JoinOverrideLimits *>(u.value));
-      break;
-    }
-    case Command_join_load_comp: {
-      value = new EMC::JoinLoadCompT(*reinterpret_cast<EMC::JoinLoadCompT *>(u.value));
-      break;
-    }
-    case Command_traj_set_mode: {
-      value = new EMC::TrajSetMode(*reinterpret_cast<EMC::TrajSetMode *>(u.value));
-      break;
-    }
-    case Command_traj_set_velocity: {
-      value = new EMC::TrajSetVelocity(*reinterpret_cast<EMC::TrajSetVelocity *>(u.value));
-      break;
-    }
-    case Command_tral_set_acceleration: {
-      value = new EMC::TrajSetAcceleration(*reinterpret_cast<EMC::TrajSetAcceleration *>(u.value));
-      break;
-    }
-    case Command_traj_set_max_velocity: {
-      value = new EMC::TrajSetMaxVelocity(*reinterpret_cast<EMC::TrajSetMaxVelocity *>(u.value));
-      break;
-    }
-    case Command_traj_set_scale: {
-      value = new EMC::TrajSetScale(*reinterpret_cast<EMC::TrajSetScale *>(u.value));
-      break;
-    }
-    case Command_traj_set_rapid_scale: {
-      value = new EMC::TrajSetRapidScale(*reinterpret_cast<EMC::TrajSetRapidScale *>(u.value));
-      break;
-    }
-    case Command_traj_set_spindl_scale: {
-      value = new EMC::TrajSetSpindleScale(*reinterpret_cast<EMC::TrajSetSpindleScale *>(u.value));
-      break;
-    }
-    case Command_traj_set_fo_enable: {
-      value = new EMC::TrajSetFOEnable(*reinterpret_cast<EMC::TrajSetFOEnable *>(u.value));
-      break;
-    }
-    case Command_traj_set_so_enable: {
-      value = new EMC::TrajSetSOEnable(*reinterpret_cast<EMC::TrajSetSOEnable *>(u.value));
-      break;
-    }
-    case Command_traj_set_fh_enable: {
-      value = new EMC::TrajSetFHEnable(*reinterpret_cast<EMC::TrajSetFHEnable *>(u.value));
-      break;
-    }
-    case Command_traj_abort: {
-      value = new EMC::TrajAbort(*reinterpret_cast<EMC::TrajAbort *>(u.value));
-      break;
-    }
-    case Command_traj_pause: {
-      value = new EMC::TrajPause(*reinterpret_cast<EMC::TrajPause *>(u.value));
-      break;
-    }
-    case Command_traj_resume: {
-      value = new EMC::TrajResume(*reinterpret_cast<EMC::TrajResume *>(u.value));
-      break;
-    }
-    case Command_traj_delay: {
-      value = new EMC::TrajDelay(*reinterpret_cast<EMC::TrajDelay *>(u.value));
-      break;
-    }
-    case Command_traj_linear_move: {
-      FLATBUFFERS_ASSERT(false);  // EMC::TrajLinearMove not copyable.
-      break;
-    }
-    case Command_traj_circular_move: {
-      FLATBUFFERS_ASSERT(false);  // EMC::TrajCircularMoveT not copyable.
-      break;
-    }
-    case Command_traj_set_term_cond: {
-      value = new EMC::TrajSetTermCond(*reinterpret_cast<EMC::TrajSetTermCond *>(u.value));
-      break;
-    }
-    case Command_traj_set_spindle_sync: {
-      value = new EMC::TrajSetSpindleSync(*reinterpret_cast<EMC::TrajSetSpindleSync *>(u.value));
-      break;
-    }
-    case Command_traj_set_offset: {
-      FLATBUFFERS_ASSERT(false);  // EMC::TrajSetOffset not copyable.
-      break;
-    }
-    case Command_traj_set_g5x: {
-      FLATBUFFERS_ASSERT(false);  // EMC::TrajSetG5x not copyable.
-      break;
-    }
-    case Command_traj_set_g92: {
-      FLATBUFFERS_ASSERT(false);  // EMC::TrajSetG92 not copyable.
-      break;
-    }
-    case Command_traj_set_rotation: {
-      value = new EMC::TrajSetRotation(*reinterpret_cast<EMC::TrajSetRotation *>(u.value));
-      break;
-    }
-    case Command_traj_clear_probe_tripped_flag: {
-      value = new EMC::TrajClearProbeTrippedFlag(*reinterpret_cast<EMC::TrajClearProbeTrippedFlag *>(u.value));
-      break;
-    }
-    case Command_traj_set_teleop_enable: {
-      value = new EMC::TrajSetTeleopEnable(*reinterpret_cast<EMC::TrajSetTeleopEnable *>(u.value));
-      break;
-    }
-    case Command_traj_probe: {
-      FLATBUFFERS_ASSERT(false);  // EMC::TrajProbe not copyable.
-      break;
-    }
-    case Command_traj_rigid_tap: {
-      FLATBUFFERS_ASSERT(false);  // EMC::TrajRigidTap not copyable.
-      break;
-    }
-    case Command_motion_set_aout: {
-      value = new EMC::MotionSetAOut(*reinterpret_cast<EMC::MotionSetAOut *>(u.value));
-      break;
-    }
-    case Command_motion_set_dout: {
-      value = new EMC::MotionSetDOut(*reinterpret_cast<EMC::MotionSetDOut *>(u.value));
-      break;
-    }
-    case Command_motion_adaptive: {
-      value = new EMC::MotionAdaptive(*reinterpret_cast<EMC::MotionAdaptive *>(u.value));
-      break;
-    }
-    case Command_task_abort: {
-      value = new EMC::TaskAbort(*reinterpret_cast<EMC::TaskAbort *>(u.value));
-      break;
-    }
-    case Command_task_set_mode: {
-      value = new EMC::TaskSetMode(*reinterpret_cast<EMC::TaskSetMode *>(u.value));
-      break;
-    }
-    case Command_task_set_state: {
-      value = new EMC::TaskSetState(*reinterpret_cast<EMC::TaskSetState *>(u.value));
-      break;
-    }
-    case Command_task_plan_open: {
-      value = new EMC::TaskPlanOpenT(*reinterpret_cast<EMC::TaskPlanOpenT *>(u.value));
-      break;
-    }
-    case Command_task_plan_run: {
-      value = new EMC::TaskPlanRun(*reinterpret_cast<EMC::TaskPlanRun *>(u.value));
-      break;
-    }
-    case Command_task_plan_execute: {
-      value = new EMC::TaskPlanExecuteT(*reinterpret_cast<EMC::TaskPlanExecuteT *>(u.value));
-      break;
-    }
-    case Command_task_plan_reverse: {
-      value = new EMC::TaskPlanReverse(*reinterpret_cast<EMC::TaskPlanReverse *>(u.value));
-      break;
-    }
-    case Command_task_plan_forward: {
-      value = new EMC::TaskPlanForward(*reinterpret_cast<EMC::TaskPlanForward *>(u.value));
-      break;
-    }
-    case Command_task_plan_step: {
-      value = new EMC::TaskPlanStep(*reinterpret_cast<EMC::TaskPlanStep *>(u.value));
-      break;
-    }
-    case Command_task_plan_resume: {
-      value = new EMC::TaskPlanResume(*reinterpret_cast<EMC::TaskPlanResume *>(u.value));
-      break;
-    }
-    case Command_task_plan_end: {
-      value = new EMC::TaskPlanEnd(*reinterpret_cast<EMC::TaskPlanEnd *>(u.value));
-      break;
-    }
-    case Command_task_plan_close: {
-      value = new EMC::TaskPlanClose(*reinterpret_cast<EMC::TaskPlanClose *>(u.value));
-      break;
-    }
-    case Command_task_plan_init: {
-      value = new EMC::TaskPlanInit(*reinterpret_cast<EMC::TaskPlanInit *>(u.value));
-      break;
-    }
-    case Command_task_plan_synch: {
-      value = new EMC::TaskPlanSynch(*reinterpret_cast<EMC::TaskPlanSynch *>(u.value));
-      break;
-    }
-    case Command_task_plan_set_optional_stop: {
-      value = new EMC::TaskPlanSetOptionalStop(*reinterpret_cast<EMC::TaskPlanSetOptionalStop *>(u.value));
-      break;
-    }
-    case Command_task_plan_set_block_delete: {
-      value = new EMC::TaskPlanSetBlockDelete(*reinterpret_cast<EMC::TaskPlanSetBlockDelete *>(u.value));
-      break;
-    }
-    case Command_task_plan_optional_stop: {
-      value = new EMC::TaskPlanOptionalStop(*reinterpret_cast<EMC::TaskPlanOptionalStop *>(u.value));
-      break;
-    }
-    case Command_tool_cmd: {
-      value = new EMC::ToolCmd(*reinterpret_cast<EMC::ToolCmd *>(u.value));
-      break;
-    }
-    case Command_tool_halt: {
-      value = new EMC::ToolHalt(*reinterpret_cast<EMC::ToolHalt *>(u.value));
-      break;
-    }
-    case Command_tool_abort: {
-      value = new EMC::ToolAbort(*reinterpret_cast<EMC::ToolAbort *>(u.value));
-      break;
-    }
-    case Command_tool_prepare: {
-      value = new EMC::ToolPrepare(*reinterpret_cast<EMC::ToolPrepare *>(u.value));
-      break;
-    }
-    case Command_tool_load: {
-      value = new EMC::ToolLoad(*reinterpret_cast<EMC::ToolLoad *>(u.value));
-      break;
-    }
-    case Command_tool_load_tool_table: {
-      value = new EMC::ToolLoadToolTableT(*reinterpret_cast<EMC::ToolLoadToolTableT *>(u.value));
-      break;
-    }
-    case Command_tool_set_offset: {
-      FLATBUFFERS_ASSERT(false);  // EMC::ToolSetOffset not copyable.
-      break;
-    }
-    case Command_tool_set_number: {
-      value = new EMC::ToolSetNumber(*reinterpret_cast<EMC::ToolSetNumber *>(u.value));
-      break;
-    }
-    case Command_aux_input_wait: {
-      value = new EMC::AuxInputWait(*reinterpret_cast<EMC::AuxInputWait *>(u.value));
-      break;
-    }
-    case Command_spindle_speed: {
-      value = new EMC::SpindleSpeed(*reinterpret_cast<EMC::SpindleSpeed *>(u.value));
-      break;
-    }
-    case Command_spindle_orient: {
-      value = new EMC::SpindleOrient(*reinterpret_cast<EMC::SpindleOrient *>(u.value));
-      break;
-    }
-    case Command_spindle_wait_orient: {
-      value = new EMC::SpindleWaitOrient(*reinterpret_cast<EMC::SpindleWaitOrient *>(u.value));
-      break;
-    }
-    case Command_spindle_on: {
-      value = new EMC::SpindleOn(*reinterpret_cast<EMC::SpindleOn *>(u.value));
-      break;
-    }
-    case Command_spindle_off: {
-      value = new EMC::SpindleOff(*reinterpret_cast<EMC::SpindleOff *>(u.value));
-      break;
-    }
-    case Command_spindle_increase: {
-      value = new EMC::SpindleIncrease(*reinterpret_cast<EMC::SpindleIncrease *>(u.value));
-      break;
-    }
-    case Command_spindle_decrease: {
-      value = new EMC::SpindleDecrease(*reinterpret_cast<EMC::SpindleDecrease *>(u.value));
-      break;
-    }
-    case Command_spindle_constant: {
-      value = new EMC::SpindleConstant(*reinterpret_cast<EMC::SpindleConstant *>(u.value));
-      break;
-    }
-    case Command_spindle_brake_release: {
-      value = new EMC::SpindleBrakeRelease(*reinterpret_cast<EMC::SpindleBrakeRelease *>(u.value));
-      break;
-    }
-    case Command_spindle_brake_engage: {
-      value = new EMC::SpindleBrakeEngage(*reinterpret_cast<EMC::SpindleBrakeEngage *>(u.value));
-      break;
-    }
-    case Command_coolant_mist_on: {
-      value = new EMC::CoolandMistOn(*reinterpret_cast<EMC::CoolandMistOn *>(u.value));
-      break;
-    }
-    case Command_coolant_mist_off: {
-      value = new EMC::CoolandMistOff(*reinterpret_cast<EMC::CoolandMistOff *>(u.value));
-      break;
-    }
-    case Command_coolant_flood_on: {
-      value = new EMC::CoolandFloodOn(*reinterpret_cast<EMC::CoolandFloodOn *>(u.value));
-      break;
-    }
-    case Command_cooland_flood_off: {
-      value = new EMC::CoolandFloodOff(*reinterpret_cast<EMC::CoolandFloodOff *>(u.value));
-      break;
-    }
-    default:
-      break;
-  }
-}
-
-inline void CommandUnion::Reset() {
-  switch (type) {
-    case Command_set_debug: {
-      auto ptr = reinterpret_cast<EMC::SetDebug *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_jog_cmd: {
-      auto ptr = reinterpret_cast<EMC::JogCmd *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_join_set_backlash: {
-      auto ptr = reinterpret_cast<EMC::JointSetBacklash *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_joint_set_min_position_limit: {
-      auto ptr = reinterpret_cast<EMC::JointSetMinPositionLimit *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_joint_set_max_position_limit: {
-      auto ptr = reinterpret_cast<EMC::JointSetMaxPositionLimit *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_joint_set_ferror: {
-      auto ptr = reinterpret_cast<EMC::JointSetFerror *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_joint_set_min_ferror: {
-      auto ptr = reinterpret_cast<EMC::JointSetMinFerror *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_joint_set_homing_params: {
-      auto ptr = reinterpret_cast<EMC::JointSetHomingParams *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_joint_home: {
-      auto ptr = reinterpret_cast<EMC::JointHome *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_joint_unhome: {
-      auto ptr = reinterpret_cast<EMC::JointUnhome *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_joint_halt: {
-      auto ptr = reinterpret_cast<EMC::JointHalt *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_jog_cont: {
-      auto ptr = reinterpret_cast<EMC::JogCont *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_jog_incr: {
-      auto ptr = reinterpret_cast<EMC::JogIncr *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_jog_abs: {
-      auto ptr = reinterpret_cast<EMC::JogAbs *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_jog_stop: {
-      auto ptr = reinterpret_cast<EMC::JogStop *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_join_override_limits: {
-      auto ptr = reinterpret_cast<EMC::JoinOverrideLimits *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_join_load_comp: {
-      auto ptr = reinterpret_cast<EMC::JoinLoadCompT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_mode: {
-      auto ptr = reinterpret_cast<EMC::TrajSetMode *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_velocity: {
-      auto ptr = reinterpret_cast<EMC::TrajSetVelocity *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tral_set_acceleration: {
-      auto ptr = reinterpret_cast<EMC::TrajSetAcceleration *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_max_velocity: {
-      auto ptr = reinterpret_cast<EMC::TrajSetMaxVelocity *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_scale: {
-      auto ptr = reinterpret_cast<EMC::TrajSetScale *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_rapid_scale: {
-      auto ptr = reinterpret_cast<EMC::TrajSetRapidScale *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_spindl_scale: {
-      auto ptr = reinterpret_cast<EMC::TrajSetSpindleScale *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_fo_enable: {
-      auto ptr = reinterpret_cast<EMC::TrajSetFOEnable *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_so_enable: {
-      auto ptr = reinterpret_cast<EMC::TrajSetSOEnable *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_fh_enable: {
-      auto ptr = reinterpret_cast<EMC::TrajSetFHEnable *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_abort: {
-      auto ptr = reinterpret_cast<EMC::TrajAbort *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_pause: {
-      auto ptr = reinterpret_cast<EMC::TrajPause *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_resume: {
-      auto ptr = reinterpret_cast<EMC::TrajResume *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_delay: {
-      auto ptr = reinterpret_cast<EMC::TrajDelay *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_linear_move: {
-      auto ptr = reinterpret_cast<EMC::TrajLinearMove *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_circular_move: {
-      auto ptr = reinterpret_cast<EMC::TrajCircularMoveT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_term_cond: {
-      auto ptr = reinterpret_cast<EMC::TrajSetTermCond *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_spindle_sync: {
-      auto ptr = reinterpret_cast<EMC::TrajSetSpindleSync *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_offset: {
-      auto ptr = reinterpret_cast<EMC::TrajSetOffset *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_g5x: {
-      auto ptr = reinterpret_cast<EMC::TrajSetG5x *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_g92: {
-      auto ptr = reinterpret_cast<EMC::TrajSetG92 *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_rotation: {
-      auto ptr = reinterpret_cast<EMC::TrajSetRotation *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_clear_probe_tripped_flag: {
-      auto ptr = reinterpret_cast<EMC::TrajClearProbeTrippedFlag *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_set_teleop_enable: {
-      auto ptr = reinterpret_cast<EMC::TrajSetTeleopEnable *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_probe: {
-      auto ptr = reinterpret_cast<EMC::TrajProbe *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_traj_rigid_tap: {
-      auto ptr = reinterpret_cast<EMC::TrajRigidTap *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_motion_set_aout: {
-      auto ptr = reinterpret_cast<EMC::MotionSetAOut *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_motion_set_dout: {
-      auto ptr = reinterpret_cast<EMC::MotionSetDOut *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_motion_adaptive: {
-      auto ptr = reinterpret_cast<EMC::MotionAdaptive *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_abort: {
-      auto ptr = reinterpret_cast<EMC::TaskAbort *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_set_mode: {
-      auto ptr = reinterpret_cast<EMC::TaskSetMode *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_set_state: {
-      auto ptr = reinterpret_cast<EMC::TaskSetState *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_open: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanOpenT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_run: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanRun *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_execute: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanExecuteT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_reverse: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanReverse *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_forward: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanForward *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_step: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanStep *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_resume: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanResume *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_end: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanEnd *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_close: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanClose *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_init: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanInit *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_synch: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanSynch *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_set_optional_stop: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanSetOptionalStop *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_set_block_delete: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanSetBlockDelete *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_task_plan_optional_stop: {
-      auto ptr = reinterpret_cast<EMC::TaskPlanOptionalStop *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tool_cmd: {
-      auto ptr = reinterpret_cast<EMC::ToolCmd *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tool_halt: {
-      auto ptr = reinterpret_cast<EMC::ToolHalt *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tool_abort: {
-      auto ptr = reinterpret_cast<EMC::ToolAbort *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tool_prepare: {
-      auto ptr = reinterpret_cast<EMC::ToolPrepare *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tool_load: {
-      auto ptr = reinterpret_cast<EMC::ToolLoad *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tool_load_tool_table: {
-      auto ptr = reinterpret_cast<EMC::ToolLoadToolTableT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tool_set_offset: {
-      auto ptr = reinterpret_cast<EMC::ToolSetOffset *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_tool_set_number: {
-      auto ptr = reinterpret_cast<EMC::ToolSetNumber *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_aux_input_wait: {
-      auto ptr = reinterpret_cast<EMC::AuxInputWait *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_speed: {
-      auto ptr = reinterpret_cast<EMC::SpindleSpeed *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_orient: {
-      auto ptr = reinterpret_cast<EMC::SpindleOrient *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_wait_orient: {
-      auto ptr = reinterpret_cast<EMC::SpindleWaitOrient *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_on: {
-      auto ptr = reinterpret_cast<EMC::SpindleOn *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_off: {
-      auto ptr = reinterpret_cast<EMC::SpindleOff *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_increase: {
-      auto ptr = reinterpret_cast<EMC::SpindleIncrease *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_decrease: {
-      auto ptr = reinterpret_cast<EMC::SpindleDecrease *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_constant: {
-      auto ptr = reinterpret_cast<EMC::SpindleConstant *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_brake_release: {
-      auto ptr = reinterpret_cast<EMC::SpindleBrakeRelease *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_spindle_brake_engage: {
-      auto ptr = reinterpret_cast<EMC::SpindleBrakeEngage *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_coolant_mist_on: {
-      auto ptr = reinterpret_cast<EMC::CoolandMistOn *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_coolant_mist_off: {
-      auto ptr = reinterpret_cast<EMC::CoolandMistOff *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_coolant_flood_on: {
-      auto ptr = reinterpret_cast<EMC::CoolandFloodOn *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_cooland_flood_off: {
-      auto ptr = reinterpret_cast<EMC::CoolandFloodOff *>(value);
-      delete ptr;
-      break;
-    }
-    default: break;
-  }
-  value = nullptr;
-  type = Command_NONE;
 }
 
 inline const EMC::CmdChannelMsg *GetCmdChannelMsg(const void *buf) {
@@ -6772,18 +4193,6 @@ inline void FinishSizePrefixedCmdChannelMsgBuffer(
     flatbuffers::FlatBufferBuilder &fbb,
     flatbuffers::Offset<EMC::CmdChannelMsg> root) {
   fbb.FinishSizePrefixed(root);
-}
-
-inline std::unique_ptr<EMC::CmdChannelMsgT> UnPackCmdChannelMsg(
-    const void *buf,
-    const flatbuffers::resolver_function_t *res = nullptr) {
-  return std::unique_ptr<EMC::CmdChannelMsgT>(GetCmdChannelMsg(buf)->UnPack(res));
-}
-
-inline std::unique_ptr<EMC::CmdChannelMsgT> UnPackSizePrefixedCmdChannelMsg(
-    const void *buf,
-    const flatbuffers::resolver_function_t *res = nullptr) {
-  return std::unique_ptr<EMC::CmdChannelMsgT>(GetSizePrefixedCmdChannelMsg(buf)->UnPack(res));
 }
 
 }  // namespace EMC
