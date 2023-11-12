@@ -15,14 +15,468 @@ struct JointSetBacklash {
   backlash: double;
 }
 
+// gui
 struct JointSetMinPositionLimit {
   joint: int;
   limit: double;
 }
 
+// gui
 struct JointSetMaxPositionLimit {
   joint: int;
   limit: double;
+}
+
+struct JointSetFerror {
+  joint: int;
+  ferror: double;
+}
+
+struct JointSetMinFerror {
+  joint: int;
+  ferror: double;
+}
+
+struct JointSetHomingParams {
+  joint: int;
+  home: double;
+  offset: double;
+  home_final_vel: double;
+  search_vel: double;
+  latch_vel: double;
+  use_index: int;
+  encoder_does_not_reset: int;
+  ignore_limits: int;
+  home_sequence: int;
+  volatile_home: int;
+  locking_indexer: int;
+  absolute_encoder: int;
+}
+
+struct JointHalt {
+  joint: int;
+}
+
+// gui
+struct JointHome {
+  joint: int;
+}
+
+// gui
+struct JointUnhome {
+  joint: int;
+}
+
+// gui
+struct JogCont {
+  joint: int;
+  vel: double;
+  jjogmode: int;
+}
+
+// gui
+struct JogIncr {
+  joint: int;
+  incr: double;
+  vel: double;
+  jjogmode: int;
+}
+
+struct JogAbs {
+  joint: int;
+  pos: double;
+  vel: double;
+  jjogmode: int;
+}
+
+// gui
+struct JogStop {
+  joint: int;
+  jjogmode: int;
+}
+
+// gui
+struct JoinOverrideLimits {
+  joint: int;
+}
+
+table JoinLoadComp {
+  file: string;
+  type: int;
+}
+
+// gui
+struct TrajSetMode {
+  mode: int;
+}
+
+struct TrajSetVelocity {
+  velocity: double;
+  ini_maxvel: double;
+}
+
+struct TrajSetAcceleration {
+  acceleration: double;
+}
+
+// gui
+struct TrajSetMaxVelocity {
+  velocity: double;
+}
+
+// gui
+struct TrajSetScale {
+  scale: double;
+}
+
+// gui
+struct TrajSetRapidScale {
+  scale: double;
+}
+
+// gui
+struct TrajSetSpindleScale {
+  spindle: int;
+  scale: double;
+}
+
+// gui
+struct TrajSetFOEnable {
+  mode: int;
+}
+
+// gui
+struct TrajSetSOEnable {
+  spindle: int;
+  mode: int;
+}
+
+// gui
+struct TrajSetFHEnable {
+  mode: int;
+}
+
+struct TrajAbort {
+  dummy: int;
+}
+
+struct TrajPause {
+    dummy: int;
+}
+
+struct TrajResume {
+    dummy: int;
+}
+
+struct TrajDelay {
+  delay: double;
+}
+
+struct TrajLinearMove {
+  type: int;
+  end: Pose;
+  vel: double;
+  ini_maxvel: double;
+  acc: double;
+  feed_mode: int;
+  indexer_jnum: int;
+}
+
+table TrajCircularMove {
+  end: Pose;
+  center: Cartesian;
+  normal: Cartesian;
+  turn: int;
+  type: int;
+  vel: double;
+  ini_maxvel: double;
+  acc: double;
+  feed_mode: int;
+}
+
+struct TrajSetTermCond {
+  cond: int;
+  tolerance: double;
+}
+
+struct TrajSetSpindleSync {
+  spindle: int;
+  feed_per_revolution: double;
+  velocity_mode: bool;
+}
+
+struct TrajSetOffset {
+  offset: Pose;
+}
+
+struct TrajSetG5x {
+  g5x_index: int;
+  origin: Pose;
+}
+
+struct TrajSetG92 {
+  origin: Pose;
+}
+
+struct TrajSetRotation {
+  rotation: double;
+}
+
+struct TrajClearProbeTrippedFlag {
+  dummy: int;
+}
+
+// gui
+struct TrajSetTeleopEnable {
+  enable: int;
+}
+
+struct TrajProbe {
+  pos: Pose;
+  type: int;
+  vel: double;
+  ini_maxvel: double;
+  acc: double;
+  probe_type: int;
+}
+
+struct TrajRigidTap {
+  pos: Pose;
+  vel: double;
+  ini_maxvel: double;
+  acc: double;
+  scale: double;
+}
+
+// gui
+struct MotionSetAOut {
+  index: int;
+  start: double;
+  end: double;
+  now: int;
+}
+
+// gui
+struct MotionSetDOut {
+  index: int;
+  start: int;
+  end: int;
+  now: int;
+}
+
+// gui
+struct MotionAdaptive {
+  status: int;
+}
+
+struct TaskAbort {
+  dummy: int;
+}
+
+// gui
+struct TaskSetMode {
+  mode: int;
+}
+
+// gui
+struct TaskSetState {
+  state: int; // estop, estop_reset, on, off
+}
+
+// gui
+table TaskPlanOpen {
+  file: string;
+}
+
+// gui
+struct TaskPlanRun {
+  line: int;
+}
+
+// gui
+table TaskPlanExecute {
+  command: string;
+}
+
+// gui
+struct TaskPlanReverse {
+  dummy: int;
+}
+
+// gui
+struct TaskPlanForward {
+  dummy: int;
+}
+
+// gui
+struct TaskPlanStep {
+  dummy: int;
+}
+
+// gui
+struct TaskPlanResume {
+  dummy: int;
+}
+
+struct TaskPlanEnd {
+  dummy: int;
+}
+
+// gui
+struct TaskPlanClose {
+  dummy: int;
+}
+
+// gui
+struct TaskPlanInit {
+  dummy: int;
+}
+
+// gui
+struct TaskPlanSynch {
+  dummy: int;
+}
+
+// gui
+struct TaskPlanSetOptionalStop {
+  state: bool;
+}
+
+// gui
+struct TaskPlanSetBlockDelete {
+  state: bool;
+}
+
+struct TaskPlanOptionalStop {
+  dummy: int;  
+}
+
+struct ToolCmd {
+  dummy: int;  
+}
+
+struct ToolHalt {
+  dummy: int;  
+}
+
+// gui
+struct ToolAbort {
+  reason: int;
+}
+
+struct ToolPrepare {
+  tool: int;
+}
+
+struct ToolLoad {
+  dummy: int;
+}
+
+// gui
+table ToolLoadToolTable {
+  file: string;
+}
+
+// gui
+struct ToolSetOffset {
+  pocket: int;
+  toolno: int;
+  offset: Pose;
+  diameter: double;
+  frontangle: double;
+  backangle: double;
+  orientation: int;
+}
+
+struct ToolSetNumber {
+  tool: int;
+}
+
+struct AuxInputWait {
+  index: int;
+  input_type: int;
+  wait_type: int;
+  timeout: double;
+}
+
+struct SpindleSpeed {
+  spindle: int;
+  speed: double;
+  factor: double;
+  xoffset: double;
+}
+
+struct SpindleOrient {
+  spindle: int;
+  orientation: double;
+  mode: int;
+}
+
+struct SpindleWaitOrient {
+  spindle: int;
+  timeout: double;
+}
+
+// gui
+struct SpindleOn {
+  spindle: int;
+  speed: double;
+  factor: double;
+  xoffset: double;
+  wait_for_spindle_at_speed: int;
+}
+
+// gui
+struct SpindleOff {
+  spindle: int;
+}
+
+// gui
+struct SpindleIncrease {
+  spindle: int;
+  speed: double;
+}
+
+// gui
+struct SpindleDecrease {
+  spindle: int;
+  speed: double;
+}
+
+// gui
+struct SpindleConstant {
+  spindle: int;
+  speed: double;
+}
+
+// gui
+struct SpindleBrakeRelease {
+  spindle: int;
+}
+
+// gui
+struct SpindleBrakeEngage {
+  spindle: int;
+}
+
+// gui
+struct CoolandMistOn {
+   dummy: int;
+}
+
+// gui
+struct CoolandMistOff {
+   dummy: int;
+}
+
+// gui
+struct CoolandFloodOn {
+   dummy: int;
+}
+
+// gui
+struct CoolandFloodOff {
+  dummy: int;
 }
 
 union Command {
@@ -31,10 +485,99 @@ union Command {
   join_set_backlash: JointSetBacklash,
   joint_set_min_position_limit: JointSetMinPositionLimit,
   joint_set_max_position_limit: JointSetMaxPositionLimit,
+  joint_set_ferror: JointSetFerror,
+  joint_set_min_ferror: JointSetMinFerror,
+  joint_set_homing_params: JointSetHomingParams,
+  joint_home: JointHome,
+  joint_unhome: JointUnhome,
+  joint_halt: JointHalt,
+  jog_cont: JogCont,
+  jog_incr: JogIncr,
+  jog_abs: JogAbs,
+  jog_stop: JogStop,
+  join_override_limits: JoinOverrideLimits,
+  join_load_comp: JoinLoadComp,
+  traj_set_mode: TrajSetMode,
+  traj_set_velocity: TrajSetVelocity,
+  tral_set_acceleration: TrajSetAcceleration,
+  traj_set_max_velocity: TrajSetMaxVelocity,
+  traj_set_scale: TrajSetScale,
+  traj_set_rapid_scale: TrajSetRapidScale,
+  traj_set_spindl_scale: TrajSetSpindleScale,
+  traj_set_fo_enable: TrajSetFOEnable,
+  traj_set_so_enable: TrajSetSOEnable,
+  traj_set_fh_enable: TrajSetFHEnable,
+  traj_abort: TrajAbort,
+  traj_pause: TrajPause,
+  traj_resume: TrajResume,
+  traj_delay: TrajDelay,
+  traj_linear_move: TrajLinearMove,
+  traj_circular_move: TrajCircularMove,
+  traj_set_term_cond: TrajSetTermCond,
+  traj_set_spindle_sync: TrajSetSpindleSync,
+  traj_set_offset: TrajSetOffset,
+  traj_set_g5x: TrajSetG5x,
+  traj_set_g92: TrajSetG92,
+  traj_set_rotation: TrajSetRotation,
+  traj_clear_probe_tripped_flag: TrajClearProbeTrippedFlag,
+  traj_set_teleop_enable: TrajSetTeleopEnable,
+  traj_probe: TrajProbe,
+  traj_rigid_tap: TrajRigidTap,
+  motion_set_aout: MotionSetAOut,
+  motion_set_dout: MotionSetDOut,
+  motion_adaptive: MotionAdaptive,
+  task_abort: TaskAbort,
+  task_set_mode: TaskSetMode,
+  task_set_state: TaskSetState,
+  task_plan_open: TaskPlanOpen,
+  task_plan_run: TaskPlanRun,
+  task_plan_execute: TaskPlanExecute,
+  task_plan_reverse: TaskPlanReverse,
+  task_plan_forward: TaskPlanForward,
+  task_plan_step: TaskPlanStep,
+  task_plan_resume: TaskPlanResume,
+  task_plan_end: TaskPlanEnd,
+  task_plan_close: TaskPlanClose,
+  task_plan_init: TaskPlanInit,
+  task_plan_synch: TaskPlanSynch,
+  task_plan_set_optional_stop: TaskPlanSetOptionalStop,
+  task_plan_set_block_delete: TaskPlanSetBlockDelete,
+  task_plan_optional_stop: TaskPlanOptionalStop,
+  tool_cmd: ToolCmd,
+  tool_halt: ToolHalt,
+  tool_abort: ToolAbort,
+  tool_prepare: ToolPrepare,
+  tool_load: ToolLoad,
+  tool_load_tool_table: ToolLoadToolTable,
+  tool_set_offset: ToolSetOffset,
+  tool_set_number: ToolSetNumber,
+  aux_input_wait: AuxInputWait,
+  spindle_speed: SpindleSpeed,
+  spindle_orient: SpindleOrient,
+  spindle_wait_orient: SpindleWaitOrient,
+  spindle_on: SpindleOn,
+  spindle_off: SpindleOff,
+  spindle_increase: SpindleIncrease,
+  spindle_decrease: SpindleDecrease,
+  spindle_constant: SpindleConstant,
+  spindle_brake_release: SpindleBrakeRelease,
+  spindle_brake_engage: SpindleBrakeEngage,
+  coolant_mist_on: CoolandMistOn,
+  coolant_mist_off: CoolandMistOff,
+  coolant_flood_on: CoolandFloodOn,
+  cooland_flood_off: CoolandFloodOff
 }
 
 table CmdChannelMsg {
   command: Command;
+}
+
+table DebugLevel {
+  debug_level: int;
+}
+
+table Result {
+  result: int;
 }
 
 root_type CmdChannelMsg;

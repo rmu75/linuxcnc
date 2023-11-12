@@ -11,3 +11,9 @@ struct Pose {
   v: double;
   w: double;
 }
+
+struct Cartesian {
+  x: double;
+  y: double;
+  z: double;
+}

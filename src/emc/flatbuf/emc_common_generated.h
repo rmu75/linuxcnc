@@ -10,6 +10,8 @@ namespace EMC {
 
 struct Pose;
 
+struct Cartesian;
+
 FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(8) Pose FLATBUFFERS_FINAL_CLASS {
  private:
   double x_;
@@ -74,6 +76,35 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(8) Pose FLATBUFFERS_FINAL_CLASS {
   }
 };
 FLATBUFFERS_STRUCT_END(Pose, 72);
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(8) Cartesian FLATBUFFERS_FINAL_CLASS {
+ private:
+  double x_;
+  double y_;
+  double z_;
+
+ public:
+  Cartesian()
+      : x_(0),
+        y_(0),
+        z_(0) {
+  }
+  Cartesian(double _x, double _y, double _z)
+      : x_(flatbuffers::EndianScalar(_x)),
+        y_(flatbuffers::EndianScalar(_y)),
+        z_(flatbuffers::EndianScalar(_z)) {
+  }
+  double x() const {
+    return flatbuffers::EndianScalar(x_);
+  }
+  double y() const {
+    return flatbuffers::EndianScalar(y_);
+  }
+  double z() const {
+    return flatbuffers::EndianScalar(z_);
+  }
+};
+FLATBUFFERS_STRUCT_END(Cartesian, 24);
 
 }  // namespace EMC
 
