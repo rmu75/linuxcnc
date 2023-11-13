@@ -96,11 +96,11 @@ struct JogStop {
 }
 
 // gui
-struct JoinOverrideLimits {
+struct JointOverrideLimits {
   joint: int;
 }
 
-table JoinLoadComp {
+table JointLoadComp {
   file: string;
   type: int;
 }
@@ -482,7 +482,7 @@ struct CoolantFloodOff {
 union Command {
   set_debug: SetDebug,
   jog_cmd: JogCmd,
-  join_set_backlash: JointSetBacklash,
+  joint_set_backlash: JointSetBacklash,
   joint_set_min_position_limit: JointSetMinPositionLimit,
   joint_set_max_position_limit: JointSetMaxPositionLimit,
   joint_set_ferror: JointSetFerror,
@@ -495,8 +495,8 @@ union Command {
   jog_incr: JogIncr,
   jog_abs: JogAbs,
   jog_stop: JogStop,
-  join_override_limits: JoinOverrideLimits,
-  join_load_comp: JoinLoadComp,
+  joint_override_limits: JointOverrideLimits,
+  joint_load_comp: JointLoadComp,
   traj_set_mode: TrajSetMode,
   traj_set_velocity: TrajSetVelocity,
   tral_set_acceleration: TrajSetAcceleration,

@@ -805,6 +805,15 @@ static emcCommand_t check_0mq()
             return make_msg<EMC_TASK_PLAN_INIT>();
         case EMC::Command_task_plan_synch:
             return make_msg<EMC_TASK_PLAN_SYNCH>();
+        case EMC::Command_coolant_mist_on:
+            return make_msg<EMC_COOLANT_MIST_ON>();
+        case EMC::Command_coolant_mist_off:
+            return make_msg<EMC_COOLANT_MIST_OFF>();
+        case EMC::Command_coolant_flood_on:
+            return make_msg<EMC_COOLANT_FLOOD_ON>();
+        case EMC::Command_coolant_flood_off:
+            return make_msg<EMC_COOLANT_FLOOD_OFF>();
+
         case EMC::Command_NONE:
         default:
             break;
@@ -1689,7 +1698,7 @@ static int emcTaskIssueCommand(NMLmsg* cmd)
         if (emc_debug & EMC_DEBUG_TASK_ISSUE) { rcs_print("emcTaskIssueCommand() null command\n"); }
         return 0;
     }
-    if (true || emc_debug & EMC_DEBUG_TASK_ISSUE) {
+    if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
         rcs_print("Issuing %s %d -- \t (%s)\n",
                   emcSymbolLookup(cmd->type),
                   static_cast<RCS_CMD_MSG*>(cmd)->serial_number,
@@ -3246,16 +3255,17 @@ int main(int argc, char* argv[])
     status_socket = std::make_unique<zmqpp::socket>(context, zmqpp::socket_type::pub);
     error_socket = std::make_unique<zmqpp::socket>(context, zmqpp::socket_type::pub);
     command_socket->bind("inproc://linuxcnc-command");
-    command_socket->bind("ipc://linuxcnc-command");
+    command_socket->bind("ipc://@/tmp/linuxcnc-command");
     command_socket->bind("tcp://*:5027");
     status_socket->bind("inproc://linuxcnc-status");
-    status_socket->bind("ipc://linuxcnc-status");
+    status_socket->bind("ipc://@/tmp/linuxcnc-status");
     status_socket->bind("tcp://*:5028");
     // only keep last status update
     // att, conflate is not compatible with subscription filters
-    //status_socket->set(zmqpp::socket_option::conflate, 1);
+    status_socket->set(zmqpp::socket_option::conflate, 1);
+    status_socket->set(zmqpp::socket_option::send_high_water_mark, 1);
     error_socket->bind("inproc://linuxcnc-error");
-    error_socket->bind("ipc://linuxcnc-error");
+    error_socket->bind("ipc://@/tmp/linuxcnc-error");
     error_socket->bind("tcp://*:5029");
 
     // get our status data structure
@@ -3524,7 +3534,10 @@ int main(int argc, char* argv[])
                                             task_.task_paused,
                                             task_.delayLeft,
                                             task_.queuedMDIcommands);
-            builder.Finish(task_stat);
+            auto motion_stat = EMC::CreateMotionStat(builder);
+            auto io_stat = EMC::CreateIOStat(builder);
+            auto emc_stat = EMC::CreateEmcStat(builder, task_stat, motion_stat, io_stat);
+            builder.Finish(emc_stat);
             zmqpp::message message;
             message.add_raw(builder.GetBufferPointer(), builder.GetSize());
             status_socket->send(message);

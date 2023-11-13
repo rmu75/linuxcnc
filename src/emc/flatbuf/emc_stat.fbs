@@ -172,3 +172,5 @@ table EmcStat {
   motion: MotionStat;
   io: IOStat;
 }
+
+root_type EmcStat;

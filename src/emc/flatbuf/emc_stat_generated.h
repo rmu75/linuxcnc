@@ -2877,6 +2877,48 @@ inline flatbuffers::Offset<EmcStat> CreateEmcStat(flatbuffers::FlatBufferBuilder
       _io);
 }
 
+inline const EMC::EmcStat *GetEmcStat(const void *buf) {
+  return flatbuffers::GetRoot<EMC::EmcStat>(buf);
+}
+
+inline const EMC::EmcStat *GetSizePrefixedEmcStat(const void *buf) {
+  return flatbuffers::GetSizePrefixedRoot<EMC::EmcStat>(buf);
+}
+
+inline bool VerifyEmcStatBuffer(
+    flatbuffers::Verifier &verifier) {
+  return verifier.VerifyBuffer<EMC::EmcStat>(nullptr);
+}
+
+inline bool VerifySizePrefixedEmcStatBuffer(
+    flatbuffers::Verifier &verifier) {
+  return verifier.VerifySizePrefixedBuffer<EMC::EmcStat>(nullptr);
+}
+
+inline void FinishEmcStatBuffer(
+    flatbuffers::FlatBufferBuilder &fbb,
+    flatbuffers::Offset<EMC::EmcStat> root) {
+  fbb.Finish(root);
+}
+
+inline void FinishSizePrefixedEmcStatBuffer(
+    flatbuffers::FlatBufferBuilder &fbb,
+    flatbuffers::Offset<EMC::EmcStat> root) {
+  fbb.FinishSizePrefixed(root);
+}
+
+inline std::unique_ptr<EMC::EmcStatT> UnPackEmcStat(
+    const void *buf,
+    const flatbuffers::resolver_function_t *res = nullptr) {
+  return std::unique_ptr<EMC::EmcStatT>(GetEmcStat(buf)->UnPack(res));
+}
+
+inline std::unique_ptr<EMC::EmcStatT> UnPackSizePrefixedEmcStat(
+    const void *buf,
+    const flatbuffers::resolver_function_t *res = nullptr) {
+  return std::unique_ptr<EMC::EmcStatT>(GetSizePrefixedEmcStat(buf)->UnPack(res));
+}
+
 }  // namespace EMC
 
 #endif  // FLATBUFFERS_GENERATED_EMCSTAT_EMC_H_
