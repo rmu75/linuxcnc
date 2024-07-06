@@ -3,7 +3,7 @@ component sim_spindle "Simulated spindle with index pulse";
 pin in float velocity-cmd "Commanded speed";
 pin out float position-fb "Feedback position, in revolutions";
 pin io bit index-enable "Reset \\fBposition-fb\\fP to 0 at the next full rotation";
-param rw float scale = 1.0 
+pin in float scale = 1.0 
 """factor applied to \\fBvelocity-cmd\\fP.
 
 The result of '\\fBvelocity-cmd\\fP * \\fBscale\\fP' be in revolutions per second.

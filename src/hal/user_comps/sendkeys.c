@@ -185,7 +185,7 @@ int init(int argc, char* argv[]){
         param->num_events = codes[i] + pins[i];
         hal->event = hal_malloc(param->num_events  * sizeof(hal_u32_t*));
         for (j = 0; j < param->num_codes; j++){
-            if (hal_param_u32_newf(HAL_RW, &(hal->event[j]), comp_id,
+            if (hal_pin_u32_newf(HAL_OUT, &(hal->event[j]), comp_id,
                     "sendkeys.%i.scan-event-%02i", i, j) < 0) {
                 free(codes);
                 free(pins);
@@ -193,7 +193,7 @@ int init(int argc, char* argv[]){
                 return -ENOMEM;}
         }
         for (j = 0; j < param->num_triggers; j++){
-            if (hal_param_u32_newf(HAL_RW, &(hal->event[j + param->num_codes]), comp_id,
+            if (hal_pin_u32_newf(HAL_OUT, &(hal->event[j + param->num_codes]), comp_id,
                     "sendkeys.%i.pin-event-%02i", i, j) < 0) {
                 free(codes);
                 free(pins);

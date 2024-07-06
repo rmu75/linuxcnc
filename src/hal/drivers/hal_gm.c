@@ -628,12 +628,12 @@ ExportEncoder(void *arg, int comp_id, int version)
 		if(error == 0) error = hal_pin_bit_newf(HAL_IO, &(device->encoder[i].index_enable), comp_id, "gm.%1d.encoder.%1d.index-enable", boardId, i);
 			
 	      //Export Parameters
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->encoder[i].counter_mode), comp_id, "gm.%1d.encoder.%1d.counter-mode", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->encoder[i].index_mode), comp_id, "gm.%1d.encoder.%1d.index-mode", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->encoder[i].index_invert), comp_id, "gm.%1d.encoder.%1d.index-invert", boardId, i);
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->encoder[i].counts_per_rev), comp_id, "gm.%1d.encoder.%1d.counts-per-rev", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->encoder[i].position_scale), comp_id, "gm.%1d.encoder.%1d.position-scale", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->encoder[i].min_speed_estimate), comp_id, "gm.%1d.encoder.%1d.min-speed-estimate", boardId, i);
+		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->encoder[i].counter_mode), comp_id, "gm.%1d.encoder.%1d.counter-mode", boardId, i);
+		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->encoder[i].index_mode), comp_id, "gm.%1d.encoder.%1d.index-mode", boardId, i);
+		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->encoder[i].index_invert), comp_id, "gm.%1d.encoder.%1d.index-invert", boardId, i);
+		if(error == 0) error = hal_pin_u32_newf(HAL_OUT, &(device->encoder[i].counts_per_rev), comp_id, "gm.%1d.encoder.%1d.counts-per-rev", boardId, i);
+		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->encoder[i].position_scale), comp_id, "gm.%1d.encoder.%1d.position-scale", boardId, i);
+		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->encoder[i].min_speed_estimate), comp_id, "gm.%1d.encoder.%1d.min-speed-estimate", boardId, i);
 		
 	      //Init parameters
 		device->encoder[i].raw_offset = pCard->ENC_counter[i];
@@ -682,16 +682,16 @@ ExportStepgen(void *arg, int comp_id, int version)
 		if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->stepgen[i].enable), comp_id, "gm.%1d.stepgen.%1d.enable", boardId, i);
 
 		//Export Parameters.
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->stepgen[i].control_type), comp_id, "gm.%1d.stepgen.%1d.control-type", boardId, i); //0: StepDir, 1: UpDown, 2: Quadrature
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->stepgen[i].step_type), comp_id, "gm.%1d.stepgen.%1d.step-type", boardId, i); //0: position, 1: velocity		
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->stepgen[i].steplen), comp_id, "gm.%1d.stepgen.%1d.steplen", boardId, i);
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->stepgen[i].stepspace), comp_id, "gm.%1d.stepgen.%1d.stepspace", boardId, i);
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->stepgen[i].dirdelay), comp_id, "gm.%1d.stepgen.%1d.dirdelay", boardId, i);	
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->stepgen[i].maxaccel), comp_id, "gm.%1d.stepgen.%1d.maxaccel", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->stepgen[i].maxvel), comp_id, "gm.%1d.stepgen.%1d.maxvel", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->stepgen[i].polarity_A), comp_id, "gm.%1d.stepgen.%1d.invert-step1", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->stepgen[i].polarity_B), comp_id, "gm.%1d.stepgen.%1d.invert-step2", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->stepgen[i].position_scale), comp_id, "gm.%1d.stepgen.%1d.position-scale", boardId, i);
+		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->stepgen[i].control_type), comp_id, "gm.%1d.stepgen.%1d.control-type", boardId, i); //0: StepDir, 1: UpDown, 2: Quadrature
+		if(error == 0) error = hal_pin_u32_newf(HAL_OUT, &(device->stepgen[i].step_type), comp_id, "gm.%1d.stepgen.%1d.step-type", boardId, i); //0: position, 1: velocity		
+		if(error == 0) error = hal_pin_u32_newf(HAL_OUT, &(device->stepgen[i].steplen), comp_id, "gm.%1d.stepgen.%1d.steplen", boardId, i);
+		if(error == 0) error = hal_pin_u32_newf(HAL_OUT, &(device->stepgen[i].stepspace), comp_id, "gm.%1d.stepgen.%1d.stepspace", boardId, i);
+		if(error == 0) error = hal_pin_u32_newf(HAL_OUT, &(device->stepgen[i].dirdelay), comp_id, "gm.%1d.stepgen.%1d.dirdelay", boardId, i);	
+		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->stepgen[i].maxaccel), comp_id, "gm.%1d.stepgen.%1d.maxaccel", boardId, i);
+		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->stepgen[i].maxvel), comp_id, "gm.%1d.stepgen.%1d.maxvel", boardId, i);
+		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->stepgen[i].polarity_A), comp_id, "gm.%1d.stepgen.%1d.invert-step1", boardId, i);
+		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->stepgen[i].polarity_B), comp_id, "gm.%1d.stepgen.%1d.invert-step2", boardId, i);
+		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->stepgen[i].position_scale), comp_id, "gm.%1d.stepgen.%1d.position-scale", boardId, i);
                 if(error != 0) break;
 
 		//Init parameters
@@ -749,10 +749,10 @@ ExportDAC(void *arg, int comp_id, int version)
 		if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->axisdac[i].value), comp_id, "gm.%1d.dac.%1d.value", boardId, i);
 
 		//Export Parameters.
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->axisdac[i].min), comp_id, "gm.%1d.dac.%1d.low-limit", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->axisdac[i].max), comp_id, "gm.%1d.dac.%1d.high-limit", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->axisdac[i].offset), comp_id, "gm.%1d.dac.%1d.offset", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->axisdac[i].invert_serial), comp_id, "gm.%1d.dac.%1d.invert-serial", boardId, i);
+		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->axisdac[i].min), comp_id, "gm.%1d.dac.%1d.low-limit", boardId, i);
+		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->axisdac[i].max), comp_id, "gm.%1d.dac.%1d.high-limit", boardId, i);
+		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->axisdac[i].offset), comp_id, "gm.%1d.dac.%1d.offset", boardId, i);
+		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->axisdac[i].invert_serial), comp_id, "gm.%1d.dac.%1d.invert-serial", boardId, i);
 		
 		//Init Parameters
 		device->axisdac[i].max = 10;
@@ -847,14 +847,14 @@ ExportRS485(void *arg, int comp_id, int version)
 			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_6), comp_id, "gm.%1d.rs485.%02d.relay-6", boardId, i);
 			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_7), comp_id, "gm.%1d.rs485.%02d.relay-7", boardId, i);
 			
-		    	if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_0), comp_id, "gm.%1d.rs485.%02d.invert-relay-0", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_1), comp_id, "gm.%1d.rs485.%02d.invert-relay-1", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_2), comp_id, "gm.%1d.rs485.%02d.invert-relay-2", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_3), comp_id, "gm.%1d.rs485.%02d.invert-relay-3", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_4), comp_id, "gm.%1d.rs485.%02d.invert-relay-4", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_5), comp_id, "gm.%1d.rs485.%02d.invert-relay-5", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_6), comp_id, "gm.%1d.rs485.%02d.invert-relay-6", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_7), comp_id, "gm.%1d.rs485.%02d.invert-relay-7", boardId, i);
+		    	if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8output[i].invertOut_0), comp_id, "gm.%1d.rs485.%02d.invert-relay-0", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8output[i].invertOut_1), comp_id, "gm.%1d.rs485.%02d.invert-relay-1", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8output[i].invertOut_2), comp_id, "gm.%1d.rs485.%02d.invert-relay-2", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8output[i].invertOut_3), comp_id, "gm.%1d.rs485.%02d.invert-relay-3", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8output[i].invertOut_4), comp_id, "gm.%1d.rs485.%02d.invert-relay-4", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8output[i].invertOut_5), comp_id, "gm.%1d.rs485.%02d.invert-relay-5", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8output[i].invertOut_6), comp_id, "gm.%1d.rs485.%02d.invert-relay-6", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8output[i].invertOut_7), comp_id, "gm.%1d.rs485.%02d.invert-relay-7", boardId, i);
 
 		  break;
 		  case RS485MODUL_ID_DACADC:
@@ -877,34 +877,34 @@ ExportRS485(void *arg, int comp_id, int version)
 			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_5), comp_id, "gm.%1d.rs485.%02d.adc-5", boardId, i);      
 			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_6), comp_id, "gm.%1d.rs485.%02d.adc-6", boardId, i);      
 			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_7), comp_id, "gm.%1d.rs485.%02d.adc-7", boardId, i);      
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_0_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_1_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_2_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_3_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-3", boardId, i);	      
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_0_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_1_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_2_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_3_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_0_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_1_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_2_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_3_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_0_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_1_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_2_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_3_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_4_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_5_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_6_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-6", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_7_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-7", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_0_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_1_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_2_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_3_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_4_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_5_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_6_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-6", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_7_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-7", boardId, i);	
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_0_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-0", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_1_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-1", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_2_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-2", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_3_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-3", boardId, i);	      
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_0_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-0", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_1_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-1", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_2_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-2", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_3_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-3", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_0_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-0", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_1_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-1", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_2_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-2", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].DAC_3_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-3", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_0_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_1_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_2_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_3_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_4_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_5_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_6_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-6", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_7_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-7", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_0_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_1_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_2_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_3_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_4_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_5_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_6_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-6", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_7_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-7", boardId, i);	
 			
 			device->RS485_DacAdc[i].DAC_0_max = 10;
 			device->RS485_DacAdc[i].DAC_0_min = -10;
@@ -951,25 +951,25 @@ ExportRS485(void *arg, int comp_id, int version)
 			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_4), comp_id, "gm.%1d.rs485.%02d.adc-4", boardId, i);
 			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_5), comp_id, "gm.%1d.rs485.%02d.adc-5", boardId, i);  
 			
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_0_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_1_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_2_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_3_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_4_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_5_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_0_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_1_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_2_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_3_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_4_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_5_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
 			
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_0_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_1_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_2_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_3_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_4_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_5_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_0_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_1_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_2_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_3_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_4_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_5_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
 			
 			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_TeachPad[i].enc_reset), comp_id, "gm.%1d.rs485.%02d.enc-reset", boardId, i);
 			if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_counts), comp_id, "gm.%1d.rs485.%02d.enc-counts", boardId, i);
 			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_position), comp_id, "gm.%1d.rs485.%02d.enc-position", boardId, i);
 			if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_rawcounts), comp_id, "gm.%1d.rs485.%02d.enc-rawcounts", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].enc_position_scale), comp_id, "gm.%1d.rs485.%02d.enc-position-scale", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_position_scale), comp_id, "gm.%1d.rs485.%02d.enc-position-scale", boardId, i);
 			
 			device->RS485_TeachPad[i].ADC_0_scale = 1;
 			device->RS485_TeachPad[i].ADC_1_scale = 1;
@@ -1027,7 +1027,7 @@ ExportCAN(void *arg, int comp_id, int version)
 		  if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->CAN_GM[i].position_fb), comp_id, "gm.%1d.can-gm.%1d.position-fb", boardId, i);
 		  
 	       //Export Parameters
-		  if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->CAN_GM[i].position_scale), comp_id, "gm.%1d.can-gm.%1d.position-scale", boardId, i);
+		  if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->CAN_GM[i].position_scale), comp_id, "gm.%1d.can-gm.%1d.position-scale", boardId, i);
 	    }
 	    
 	    //Export Pins and Parameters for CANopen Servo Controllers
@@ -1064,8 +1064,8 @@ ExportMixed(void *arg, int comp_id)
 	if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->cardMgr.power_fault), comp_id, "gm.%1d.power-fault", boardId);
 	
 	//Watchdog pins and parameters
-	if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->cardMgr.watchdog_enable), comp_id, "gm.%1d.watchdog-enable", boardId);
-	if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->cardMgr.watchdog_timeout_ns), comp_id, "gm.%1d.watchdog-timeout-ns", boardId);
+	if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->cardMgr.watchdog_enable), comp_id, "gm.%1d.watchdog-enable", boardId);
+	if(error == 0) error = hal_pin_u32_newf(HAL_OUT, &(device->cardMgr.watchdog_timeout_ns), comp_id, "gm.%1d.watchdog-timeout-ns", boardId);
 	if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->cardMgr.watchdog_expired), comp_id, "gm.%1d.watchdog-expired", boardId);
 		      
 	//Export pins and parameters for parallel IOs
@@ -1076,8 +1076,8 @@ ExportMixed(void *arg, int comp_id)
 			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->gpio[i*8+j].in), comp_id, "gm.%1d.gpio.%1d.in-%1d", boardId, i, j);	
 			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->gpio[i*8+j].inNot), comp_id, "gm.%1d.gpio.%1d.in-not-%1d", boardId, i, j);		
 			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->gpio[i*8+j].out), comp_id, "gm.%1d.gpio.%1d.out-%1d", boardId, i, j);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->gpio[i*8+j].isOut), comp_id, "gm.%1d.gpio.%1d.is-out-%1d", boardId, i, j);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->gpio[i*8+j].invertOut), comp_id, "gm.%1d.gpio.%1d.invert-out-%1d", boardId, i, j);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->gpio[i*8+j].isOut), comp_id, "gm.%1d.gpio.%1d.is-out-%1d", boardId, i, j);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->gpio[i*8+j].invertOut), comp_id, "gm.%1d.gpio.%1d.invert-out-%1d", boardId, i, j);
 		}
 	}
 

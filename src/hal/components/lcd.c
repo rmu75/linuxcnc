@@ -223,7 +223,7 @@ int rtapi_app_main(void){
         if (retval != 0) {
             return retval;
         }
-        retval = hal_param_u32_newf(HAL_RW, &(lcd->insts[i].dp), comp_id,
+        retval = hal_pin_u32_newf(HAL_OUT, &(lcd->insts[i].dp), comp_id,
                                     "lcd.%02i.decimal-separator",i);
         lcd->insts[i].dp = '.';
         if (retval != 0) {

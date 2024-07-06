@@ -144,7 +144,6 @@ RTAPI_BEGIN_DECLS
 #define HAL_LOCK_NONE     0     /* no locking done, any command is permitted */
 #define HAL_LOCK_LOAD     1     /* loading rt components is not permitted */
 #define HAL_LOCK_CONFIG   2     /* locking of link and addf related commands */
-#define HAL_LOCK_PARAMS   4     /* locking of parameter set commands */
 #define HAL_LOCK_RUN      8     /* locking of start/stop of HAL threads */
 
 /* locks required for the 'tune' command */
@@ -257,8 +256,8 @@ extern char* hal_comp_name(int comp_id);
 /* The hal enums are arranged as distinct powers-of-two, so
    that accidental confusion of one type with another (which ought
    to be diagnosed by the type system) can be diagnosed as unexpected
-   values.  Note how HAL_RW is an exception to the powers-of-two rule,
-   as it is the bitwise OR of HAL_RO and the (nonexistent and nonsensical)
+   values.  Note how HAL_OUT is an exception to the powers-of-two rule,
+   as it is the bitwise OR of HAL_IN and the (nonexistent and nonsensical)
    HAL_WO param direction.
  */
 
@@ -302,14 +301,14 @@ typedef enum {
 
 /** HAL parameters also have a direction attribute.  For parameters,
     the attribute determines whether the user can write the value
-    of the parameter, or simply read it.  HAL_RO parameters are
-    read-only, and HAL_RW ones are writable with 'halcmd setp'.
+    of the parameter, or simply read it.  HAL_IN parameters are
+    read-only, and HAL_OUT ones are writable with 'halcmd setp'.
 */
 
-typedef enum {
-    HAL_RO = 64,
-    HAL_RW = HAL_RO | 128 /* HAL_WO */,
-} hal_param_dir_t;
+// typedef enum {
+//     HAL_IN = 64,
+//     HAL_OUT = HAL_IN | 128 /* HAL_WO */,
+// } hal_param_dir_t;
 
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
@@ -527,143 +526,6 @@ extern int hal_link(const char *pin_name, const char *sig_name);
 extern int hal_unlink(const char *pin_name);
 
 /***********************************************************************
-*                     "PARAMETER" FUNCTIONS                            *
-************************************************************************/
-
-/** The 'hal_param_xxx_new()' functions create a new 'parameter' object.
-    A parameter is a value that is only used inside a component, but may
-    need to be initialized or adjusted from outside the component to set
-    up the system properly.
-    Once a parameter has been created, it's value can be changed using
-    the 'hal_param_xxx_set()' functions.
-    There are eight functions, one for each of the data types that
-    the HAL supports.  Pins may only be linked to signals of the same
-    type.
-    'name' is the name of the new parameter.  It must be no longer than
-    .HAL_NAME_LEN.  If there is already a parameter with the same
-    name the call will fail.
-    'dir' is the parameter direction.  HAL_RO parameters are read only from
-    outside, and are written to by the component itself, typically to provide a
-    view "into" the component for testing or troubleshooting.  HAL_RW
-    parameters are writable from outside and also sometimes modified by the
-    component itself as well.
-    'data_addr' is the address where the value of the parameter is to be
-    stored.  'data_addr' must point to memory allocated by hal_malloc().
-    Typically the component allocates space for a data structure with
-    hal_malloc(), and 'data_addr' is the address of a member of that
-    structure.  Creating the parameter does not initialize or modify the
-    value at *data_addr - the component should load a reasonable default
-    value.
-    'comp_id' is the ID of the component that will 'own' the parameter.
-    Normally it should be the ID of the caller, but in some cases, a
-    user mode component may be doing setup for a realtime component, so
-    the ID should be that of the realtime component that will actually
-    be using the parameter.
-    If successful, the hal_param_xxx_new() functions return 0.
-    On failure they return a negative error code.
-*/
-extern int hal_param_bit_new(const char *name, hal_param_dir_t dir,
-    hal_bit_t * data_addr, int comp_id);
-extern int hal_param_float_new(const char *name, hal_param_dir_t dir,
-    hal_float_t * data_addr, int comp_id);
-extern int hal_param_u32_new(const char *name, hal_param_dir_t dir,
-    hal_u32_t * data_addr, int comp_id);
-extern int hal_param_s32_new(const char *name, hal_param_dir_t dir,
-    hal_s32_t * data_addr, int comp_id);
-extern int hal_param_u64_new(const char *name, hal_param_dir_t dir,
-    hal_u64_t * data_addr, int comp_id);
-extern int hal_param_s64_new(const char *name, hal_param_dir_t dir,
-    hal_s64_t * data_addr, int comp_id);
-
-/** printf_style-style versions of hal_param_XXX_new */
-extern int hal_param_bit_newf(hal_param_dir_t dir, 
-    hal_bit_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
-extern int hal_param_float_newf(hal_param_dir_t dir,
-    hal_float_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
-extern int hal_param_u32_newf(hal_param_dir_t dir,
-    hal_u32_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
-extern int hal_param_s32_newf(hal_param_dir_t dir,
-    hal_s32_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
-extern int hal_param_u64_newf(hal_param_dir_t dir,
-    hal_u64_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
-extern int hal_param_s64_newf(hal_param_dir_t dir,
-    hal_s64_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
-
-
-/** 'hal_param_new()' creates a new 'parameter' object.  It is a generic
-    version of the eight functions above.  It is provided ONLY for those
-    special cases where a generic function is needed.  It is STRONGLY
-    recommended that the functions above be used instead, because they
-    check the type of 'data_addr' against the parameter type at compile
-    time.  Using this function requires a cast of the 'data_addr' argument
-    that defeats type checking and can cause subtle bugs.
-    'name', 'data_addr' and 'comp_id' are the same as in the
-    functions above.
-    'type' is the hal type of the new parameter - the type of data
-    that will be stored in the parameter.
-    'dir' is the parameter direction.  HAL_RO parameters are read only from
-    outside, and are written to by the component itself, typically to provide a
-    view "into" the component for testing or troubleshooting.  HAL_RW
-    parameters are writable from outside and also sometimes modified by the
-    component itself as well.
-    If successful, hal_param_new() returns 0.  On failure
-    it returns a negative error code.
-*/
-extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
-    void *data_addr, int comp_id);
-
-/** There is no 'hal_param_delete()' function.  Once a component has
-    created a parameter, that parameter remains as long as the
-    component exists.  All parameters belonging to a component are
-    removed when the component calls 'hal_exit()'.
-*/
-
-/** The 'hal_param_xxx_set()' functions modify the value of a parameter.
-    'name' is the name of the parameter that is to be set.  The
-    parameter type must match the function type, and the parameter
-    must not be read-only.
-    'value' is the value to be loaded into the parameter.
-    On success, the hal_param_xxx_set() functions return 0,
-    and on failure they return a negative error code.
-*/
-extern int hal_param_bit_set(const char *name, int value);
-extern int hal_param_float_set(const char *name, double value);
-extern int hal_param_u32_set(const char *name, unsigned long value);
-extern int hal_param_s32_set(const char *name, signed long value);
-extern int hal_param_u64_set(const char *name, unsigned long value);
-extern int hal_param_s64_set(const char *name, signed long value);
-
-/** 'hal_param_alias()' assigns an alternate name, aka an alias, to
-    a parameter.  Once assigned, the parameter can be referred to by
-    either its original name or the alias.  Calling this function
-    with 'alias' set to NULL will remove any existing alias.
-*/
-extern int hal_param_alias(const char *pin_name, const char *alias);
-
-/** 'hal_param_set()' is a generic function that sets the value of a
-    parameter.  It is provided ONLY for those special cases where a
-    generic function is needed.  It is STRONGLY recommended that the
-    functions above be used instead, because they are simpler and less
-    prone to errors.
-    'name', is the same as in the functions above.
-    'type' is the hal type of the the data at *value_addr, and must
-    match the type of the parameter.  The parameter must not be
-    read only.
-    'value_addr' is a pointer to the new value of the parameter.
-    The data at that location will be interpreted according to the
-    type of the parameter.
-    If successful, hal_param_set() returns 0.  On failure
-    it returns a negative error code.
-*/
-extern int hal_param_set(const char *name, hal_type_t type, void *value_addr);
-
-/***********************************************************************
 *                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
 ************************************************************************/
 
@@ -688,16 +550,6 @@ extern int hal_get_pin_value_by_name(
 
 extern int hal_get_signal_value_by_name(
     const char *name, hal_type_t *type, hal_data_u **data, bool *has_writers);
-
-/** 'hal_get_param_value_by_name()' returns the value of any arbitrary HAL
- * parameter by parameter name.
- *
- * The 'type' and 'data' args are pointers to the returned values.  The function
- * returns 0 if successful, or -1 on error.
- */
-
-extern int hal_get_param_value_by_name(
-    const char *name, hal_type_t *type, hal_data_u **data);
 
 /***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *

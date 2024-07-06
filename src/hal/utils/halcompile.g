@@ -144,7 +144,7 @@ def parse(filename):
             raise SystemExit("%s:0: License not specified" % filename)
     return a, b
 
-dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
+dirmap = {'r': 'HAL_IN', 'rw': 'HAL_OUT', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
 typemap = {'signed': 's32', 'unsigned': 'u32'}
 deprmap = {'s32': 'signed', 'u32': 'unsigned'}
 deprecated = ['s32', 'u32']
@@ -453,7 +453,7 @@ static int comp_id;
                 print("    }", file=f)
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
-            print("        r = hal_param_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
+            print("        r = hal_pin_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
@@ -461,7 +461,7 @@ static int comp_id;
                 print("    inst->%s_p[j] = %s;" % (to_c(name), value), file=f)
             print("    }", file=f)
         else:
-            print("    r = hal_param_%s_newf(%s, &(inst->%s_p), comp_id," % (
+            print("    r = hal_pin_%s_newf(%s, &(inst->%s_p), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             if value is not None:

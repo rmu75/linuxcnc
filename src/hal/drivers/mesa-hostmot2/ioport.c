@@ -279,8 +279,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             || (hm2->pin[i].direction_at_start == HM2_PIN_DIR_IS_OUTPUT)
         ) {
 
-            r = hal_param_bit_newf(
-                HAL_RW,
+            r = hal_pin_bit_newf(
+                HAL_OUT,
                 &(hm2->pin[i].instance->hal.param.invert_output),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.invert_output",
@@ -292,8 +292,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 return -EINVAL;
             }
 
-            r = hal_param_bit_newf(
-                HAL_RW,
+            r = hal_pin_bit_newf(
+                HAL_OUT,
                 &(hm2->pin[i].instance->hal.param.is_opendrain),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.is_opendrain",
@@ -332,8 +332,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             *(hm2->pin[i].instance->hal.pin.out) = 0;
 
             // parameters
-            r = hal_param_bit_newf(
-                HAL_RW,
+            r = hal_pin_bit_newf(
+                HAL_OUT,
                 &(hm2->pin[i].instance->hal.param.is_output),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.is_output",
@@ -391,13 +391,13 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 		if (ret >= sizeof(alias_base)) return -EINVAL;
 	    }
             r = do_alias(orig_base, alias_base, ".invert_output",
-                hal_param_alias);
+                hal_pin_alias);
             if (r < 0) {
                 HM2_ERR("Failed to add %s.invert_output alias, continuing\n",
                     orig_base);
             }
             r = do_alias(orig_base, alias_base, ".is_opendrain",
-                hal_param_alias);
+                hal_pin_alias);
             if (r < 0) {
                 HM2_ERR("Failed to add %s.is_opendrain alias, continuing\n",
                     orig_base);

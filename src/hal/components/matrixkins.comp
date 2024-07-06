@@ -201,15 +201,15 @@ static int matrixkins_setup(void) {
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
 
-    res |= hal_param_float_new("matrixkins.C_xx", HAL_RW, &haldata->C_xx, comp_id);
-    res |= hal_param_float_new("matrixkins.C_xy", HAL_RW, &haldata->C_xy, comp_id);
-    res |= hal_param_float_new("matrixkins.C_xz", HAL_RW, &haldata->C_xz, comp_id);
-    res |= hal_param_float_new("matrixkins.C_yx", HAL_RW, &haldata->C_yx, comp_id);
-    res |= hal_param_float_new("matrixkins.C_yy", HAL_RW, &haldata->C_yy, comp_id);
-    res |= hal_param_float_new("matrixkins.C_yz", HAL_RW, &haldata->C_yz, comp_id);
-    res |= hal_param_float_new("matrixkins.C_zx", HAL_RW, &haldata->C_zx, comp_id);
-    res |= hal_param_float_new("matrixkins.C_zy", HAL_RW, &haldata->C_zy, comp_id);
-    res |= hal_param_float_new("matrixkins.C_zz", HAL_RW, &haldata->C_zz, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_xx", HAL_OUT, &haldata->C_xx, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_xy", HAL_OUT, &haldata->C_xy, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_xz", HAL_OUT, &haldata->C_xz, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_yx", HAL_OUT, &haldata->C_yx, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_yy", HAL_OUT, &haldata->C_yy, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_yz", HAL_OUT, &haldata->C_yz, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_zx", HAL_OUT, &haldata->C_zx, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_zy", HAL_OUT, &haldata->C_zy, comp_id);
+    res |= hal_pin_float_new("matrixkins.C_zz", HAL_OUT, &haldata->C_zz, comp_id);
 
     haldata->C_xx = haldata->C_yy = haldata->C_zz = 1.0;
     haldata->C_xy = haldata->C_xz = 0.0;

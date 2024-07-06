@@ -62,16 +62,13 @@ static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
 static void print_pin_info(int type, char **patterns);
 static void print_pin_aliases(char **patterns);
-static void print_param_aliases(char **patterns);
 static void print_sig_info(int type, char **patterns);
 static void print_script_sig_info(int type, char **patterns);
-static void print_param_info(int type, char **patterns);
 static void print_funct_info(char **patterns);
 static void print_thread_info(char **patterns);
 static void print_comp_names(char **patterns);
 static void print_pin_names(char **patterns);
 static void print_sig_names(char **patterns);
-static void print_param_names(char **patterns);
 static void print_funct_names(char **patterns);
 static void print_thread_names(char **patterns);
 static void print_lock_status();
@@ -79,7 +76,6 @@ static void print_mem_status();
 static const char *data_type(int type);
 static const char *data_type2(int type);
 static const char *pin_data_dir(int dir);
-static const char *param_data_dir(int dir);
 static const char *data_arrow1(int dir);
 static const char *data_arrow2(int dir);
 static const char *data_value(int type, void *valptr);
@@ -89,7 +85,6 @@ static void save_aliases(FILE *dst);
 static void save_signals(FILE *dst, int only_unlinked);
 static void save_links(FILE *dst, int arrows);
 static void save_nets(FILE *dst, int arrows);
-static void save_params(FILE *dst);
 static void save_unconnected_input_pin_values(FILE *dst);
 static void save_threads(FILE *dst);
 static void print_help_commands(void);
@@ -337,8 +332,6 @@ int do_alias_cmd(char *pinparam, char *name, char *alias) {
 
     if ( strcmp (pinparam, "pin" ) == 0 ) {
 	retval = hal_pin_alias(name, alias);
-    } else if ( strcmp (pinparam, "param" ) == 0 ) {
-	retval = hal_param_alias(name, alias);
     } else {
 	retval = -EINVAL;
     }
@@ -355,8 +348,6 @@ int do_unalias_cmd(char *pinparam, char *name) {
     int retval;
     if (strcmp(pinparam, "pin") == 0) {
         retval = hal_pin_alias(name, NULL);
-    } else if ( strcmp (pinparam, "param" ) == 0 ) {
-      retval = hal_param_alias(name, NULL);
     } else {
         return -EINVAL;
     };
@@ -742,7 +733,6 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 int do_setp_cmd(char *name, char *value)
 {
     int retval;
-    hal_param_t *param;
     hal_pin_t *pin;
     hal_type_t type;
     void *d_ptr;
@@ -751,39 +741,27 @@ int do_setp_cmd(char *name, char *value)
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param == 0) {
-        pin = halpr_find_pin_by_name(name);
-        if(pin == 0) {
-            rtapi_mutex_give(&(hal_data->mutex));
-            halcmd_error("parameter or pin '%s' not found\n", name);
-            return -EINVAL;
-        } else {
-            /* found it */
-            type = pin->type;
-            if(pin->dir == HAL_OUT) {
-                rtapi_mutex_give(&(hal_data->mutex));
-                halcmd_error("pin '%s' is not writable\n", name);
-                return -EINVAL;
-            }
-            if(pin->signal != 0) {
-                rtapi_mutex_give(&(hal_data->mutex));
-                halcmd_error("pin '%s' is connected to a signal\n", name);
-                return -EINVAL;
-            }
-            // d_ptr = (void*)SHMPTR(pin->dummysig);
-            d_ptr = (void*)&pin->dummysig;
-        }
+
+    pin = halpr_find_pin_by_name(name);
+    if(pin == 0) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        halcmd_error("parameter or pin '%s' not found\n", name);
+        return -EINVAL;
     } else {
         /* found it */
-        type = param->type;
-        /* is it read only? */
-        if (param->dir == HAL_RO) {
+        type = pin->type;
+        if(pin->dir == HAL_OUT) {
             rtapi_mutex_give(&(hal_data->mutex));
-            halcmd_error("param '%s' is not writable\n", name);
+            halcmd_error("pin '%s' is not writable\n", name);
             return -EINVAL;
         }
-        d_ptr = SHMPTR(param->data_ptr);
+        if(pin->signal != 0) {
+            rtapi_mutex_give(&(hal_data->mutex));
+            halcmd_error("pin '%s' is connected to a signal\n", name);
+            return -EINVAL;
+        }
+        // d_ptr = (void*)SHMPTR(pin->dummysig);
+        d_ptr = (void*)&pin->dummysig;
     }
 
     retval = set_common(type, d_ptr, value);
@@ -791,11 +769,7 @@ int do_setp_cmd(char *name, char *value)
     rtapi_mutex_give(&(hal_data->mutex));
     if (retval == 0) {
 	/* print success message */
-        if(param) {
-            halcmd_info("Parameter '%s' set to %s\n", name, value);
-        } else {
-            halcmd_info("Pin '%s' set to %s\n", name, value);
-	}
+    halcmd_info("Pin '%s' set to %s\n", name, value);
     } else {
 	halcmd_error("setp failed\n");
     }
@@ -811,22 +785,12 @@ int do_print_cmd(char *value)
 
 int do_ptype_cmd(char *name)
 {
-    hal_param_t *param;
     hal_pin_t *pin;
     hal_type_t type;
     
     rtapi_print_msg(RTAPI_MSG_DBG, "getting parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param) {
-        /* found it */
-        type = param->type;
-        halcmd_output("%s\n", data_type2(type));
-        rtapi_mutex_give(&(hal_data->mutex));
-        return 0;
-    }
         
     /* not found, search pin list for name */
     pin = halpr_find_pin_by_name(name);
@@ -846,7 +810,6 @@ int do_ptype_cmd(char *name)
 
 int do_getp_cmd(char *name)
 {
-    hal_param_t *param;
     hal_pin_t *pin;
     hal_sig_t *sig;
     hal_type_t type;
@@ -855,16 +818,6 @@ int do_getp_cmd(char *name)
     rtapi_print_msg(RTAPI_MSG_DBG, "getting parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param) {
-        /* found it */
-        type = param->type;
-        d_ptr = SHMPTR(param->data_ptr);
-        halcmd_output("%s\n", data_value2((int) type, d_ptr));
-        rtapi_mutex_give(&(hal_data->mutex));
-        return 0;
-    }
         
     /* not found, search pin list for name */
     pin = halpr_find_pin_by_name(name);
@@ -1010,8 +963,6 @@ int do_show_cmd(char *type, char **patterns)
 	print_pin_info(-1, NULL);
 	print_pin_aliases(NULL);
 	print_sig_info(-1, NULL);
-	print_param_info(-1, NULL);
-	print_param_aliases(NULL);
 	print_funct_info(NULL);
 	print_thread_info(NULL);
     } else if (strcmp(type, "all") == 0) {
@@ -1020,8 +971,6 @@ int do_show_cmd(char *type, char **patterns)
 	print_pin_info(-1, patterns);
 	print_pin_aliases(patterns);
 	print_sig_info(-1, patterns);
-	print_param_info(-1, patterns);
-	print_param_aliases(patterns);
 	print_funct_info(patterns);
 	print_thread_info(patterns);
     } else if (strcmp(type, "comp") == 0) {
@@ -1035,12 +984,6 @@ int do_show_cmd(char *type, char **patterns)
     } else if (strcmp(type, "signal") == 0) {
 	int type = get_type(&patterns);
 	print_sig_info(type, patterns);
-    } else if (strcmp(type, "param") == 0) {
-	int type = get_type(&patterns);
-	print_param_info(type, patterns);
-    } else if (strcmp(type, "parameter") == 0) {
-	int type = get_type(&patterns);
-	print_param_info(type, patterns);
     } else if (strcmp(type, "funct") == 0) {
 	print_funct_info(patterns);
     } else if (strcmp(type, "function") == 0) {
@@ -1049,7 +992,6 @@ int do_show_cmd(char *type, char **patterns)
 	print_thread_info(patterns);
     } else if (strcmp(type, "alias") == 0) {
 	print_pin_aliases(patterns);
-	print_param_aliases(patterns);
     } else {
 	halcmd_error("Unknown 'show' type '%s'\n", type);
 	return -1;
@@ -1075,10 +1017,6 @@ int do_list_cmd(char *type, char **patterns)
 	print_sig_names(patterns);
     } else if (strcmp(type, "signal") == 0) {
 	print_sig_names(patterns);
-    } else if (strcmp(type, "param") == 0) {
-	print_param_names(patterns);
-    } else if (strcmp(type, "parameter") == 0) {
-	print_param_names(patterns);
     } else if (strcmp(type, "funct") == 0) {
 	print_funct_names(patterns);
     } else if (strcmp(type, "function") == 0) {
@@ -1875,73 +1813,6 @@ static void print_script_sig_info(int type, char **patterns)
     halcmd_output("\n");
 }
 
-static void print_param_info(int type, char **patterns)
-{
-    SHMFIELD(hal_param_t) next;
-    hal_param_t *param;
-    hal_comp_t *comp;
-
-    if (scriptmode == 0) {
-	halcmd_output("Parameters:\n");
-	halcmd_output("Owner   Type  Dir                 Value  Name\n");
-    }
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( tmatch(type, param->type), match(patterns, param->name) ) {
-	    comp = SHMPTR(param->owner_ptr);
-	    if (scriptmode == 0) {
-		halcmd_output(" %5d  %5s %-3s  %9s  %s\n",
-		    comp->comp_id, data_type((int) param->type),
-		    param_data_dir((int) param->dir),
-		    data_value((int) param->type, SHMPTR(param->data_ptr)),
-		    param->name);
-	    } else {
-		halcmd_output("%s %s %s %s %s\n",
-		    comp->name, data_type((int) param->type),
-		    param_data_dir((int) param->dir),
-		    data_value2((int) param->type, SHMPTR(param->data_ptr)),
-		    param->name);
-	    } 
-	}
-	next = param->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
-static void print_param_aliases(char **patterns)
-{
-    SHMFIELD(hal_param_t) next;
-    hal_oldname_t *oldname;
-    hal_param_t *param;
-
-    if (scriptmode == 0) {
-	halcmd_output("Parameter Aliases:\n");
-	halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
-    }
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( param->oldname != 0 ) {
-	    /* name is an alias */
-	    oldname = SHMPTR(param->oldname);
-	    if ( match(patterns, param->name) || match(patterns, oldname->name) ) {
-		if (scriptmode == 0) {
-		    halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, param->name, oldname->name);
-		} else {
-		    halcmd_output(" %s  %s\n", param->name, oldname->name);
-		}
-	    }
-	}
-	next = param->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
 static void print_funct_info(char **patterns)
 {
     SHMFIELD(hal_funct_t) next;
@@ -2024,7 +1895,7 @@ static void print_thread_info(char **patterns)
                               (tptr->uses_fp ? "YES" : "NO"),
                               tptr->name,
                               (long)*(long*)dptr,
-                              (long)tptr->maxtime);
+                              (long)*tptr->maxtime);
             } else {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                      "unexpected: cannot find time pin for %s thread",tptr->name);
@@ -2113,24 +1984,6 @@ static void print_sig_names(char **patterns)
     halcmd_output("\n");
 }
 
-static void print_param_names(char **patterns)
-{
-    SHMFIELD(hal_param_t) next;
-    hal_param_t *param;
-
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( match(patterns, param->name) ) {
-	    halcmd_output("%s ", param->name);
-	}
-	next = param->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
 static void print_funct_names(char **patterns)
 {
     SHMFIELD(hal_funct_t) next;
@@ -2182,8 +2035,6 @@ static void print_lock_status()
 	halcmd_output("  HAL_LOCK_LOAD    - loading of new components is locked\n");
     if (lock & HAL_LOCK_CONFIG) 
 	halcmd_output("  HAL_LOCK_CONFIG  - link and addf is locked\n");
-    if (lock & HAL_LOCK_PARAMS) 
-	halcmd_output("  HAL_LOCK_PARAMS  - setting params is locked\n");
     if (lock & HAL_LOCK_RUN) 
 	halcmd_output("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
 }
@@ -2209,7 +2060,6 @@ static void print_mem_status()
 {
     int active, recycled;
     hal_pin_t *pin;
-    hal_param_t *param;
 
     halcmd_output("HAL memory status\n");
     halcmd_output("  used/total shared memory:   %ld/%d\n", (long)(HAL_SIZE - hal_data->shmem_avail), HAL_SIZE);
@@ -2221,10 +2071,6 @@ static void print_mem_status()
     active = count_list(hal_data->pin_list_ptr);
     recycled = count_list(hal_data->pin_free_ptr);
     halcmd_output("  active/recycled pins:       %d/%d\n", active, recycled);
-    // count parameters
-    active = count_list(hal_data->param_list_ptr);
-    recycled = count_list(hal_data->param_free_ptr);
-    halcmd_output("  active/recycled parameters: %d/%d\n", active, recycled);
     // count aliases
     rtapi_mutex_get(&(hal_data->mutex));
     {
@@ -2234,14 +2080,6 @@ static void print_mem_status()
 	pin = SHMPTR(next);
 	if ( pin->oldname != 0 ) active++;
 	next = pin->next_ptr;
-    }
-    }
-    {
-    SHMFIELD(hal_param_t) next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( param->oldname != 0 ) active++;
-	next = param->next_ptr;
     }
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -2348,25 +2186,6 @@ static const char *pin_data_dir(int dir)
 	pin_dir = "???";
     }
     return pin_dir;
-}
-
-/* Switch function for param direction for the print_*_list functions  */
-static const char *param_data_dir(int dir)
-{
-    const char *param_dir;
-
-    switch (dir) {
-    case HAL_RO:
-	param_dir = "RO";
-	break;
-    case HAL_RW:
-	param_dir = "RW";
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	param_dir = "??";
-    }
-    return param_dir;
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
@@ -2533,7 +2352,6 @@ int do_save_cmd(const char *type, char *filename)
 	save_aliases(dst);
 	save_signals(dst, 1);
 	save_nets(dst, 3);
-	save_params(dst);
 	if (strcmp(type,"allu") == 0) {
 	    save_unconnected_input_pin_values(dst);
 	}
@@ -2560,10 +2378,6 @@ int do_save_cmd(const char *type, char *filename)
 	save_nets(dst, 2);
     } else if (strcmp(type, "netla") == 0 || strcmp(type, "netal") == 0) {
 	save_nets(dst, 3);
-    } else if (strcmp(type, "param") == 0) {
-	save_params(dst);
-    } else if (strcmp(type, "parameter") == 0) {
-	save_params(dst);
     } else if (strcmp(type, "thread") == 0) {
 	save_threads(dst);
     } else if (strcmp(type, "unconnectedinpins") == 0) {
@@ -2636,7 +2450,6 @@ static void save_comps(FILE *dst)
 static void save_aliases(FILE *dst)
 {
     hal_pin_t *pin;
-    hal_param_t *param;
     hal_oldname_t *oldname;
 
     fprintf(dst, "# pin aliases\n");
@@ -2652,20 +2465,6 @@ static void save_aliases(FILE *dst)
 	    fprintf(dst, "alias pin %s %s\n", oldname->name, pin->name);
 	}
 	next = pin->next_ptr;
-    }
-    }
-    fprintf(dst, "# param aliases\n");
-    {
-    SHMFIELD(hal_param_t) next;
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( param->oldname != 0 ) {
-	    /* name is an alias */
-	    oldname = SHMPTR(param->oldname);
-	    fprintf(dst, "alias param %s %s\n", oldname->name, param->name);
-	}
-	next = param->next_ptr;
     }
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -2792,26 +2591,6 @@ static void save_nets(FILE *dst, int arrow)
                 pin = halpr_find_pin_by_sig(sig, pin);
             }
         }
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-}
-
-static void save_params(FILE *dst)
-{
-    SHMFIELD(hal_param_t) next;
-    hal_param_t *param;
-
-    fprintf(dst, "# parameter values\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if (param->dir != HAL_RO) {
-	    /* param is writable, save its value */
-	    fprintf(dst, "setp %s %s\n", param->name,
-		data_value((int) param->type, SHMPTR(param->data_ptr)));
-	}
-	next = param->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }

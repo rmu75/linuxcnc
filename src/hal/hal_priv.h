@@ -230,7 +230,6 @@ typedef struct hal_oldname_t {
 typedef struct hal_comp_t hal_comp_t;
 typedef struct hal_pin_t hal_pin_t;
 typedef struct hal_sig_t hal_sig_t;
-typedef struct hal_param_t hal_param_t;
 typedef struct hal_funct_t hal_funct_t;
 typedef struct hal_funct_entry_t hal_funct_entry_t;
 typedef struct hal_thread_t hal_thread_t;
@@ -258,7 +257,6 @@ typedef struct hal_data_t {
     SHMFIELD(hal_comp_t) comp_list_ptr;		/* root of linked list of components */
     SHMFIELD(hal_pin_t) pin_list_ptr;		/* root of linked list of pins */
     SHMFIELD(hal_sig_t) sig_list_ptr;		/* root of linked list of signals */
-    SHMFIELD(hal_param_t) param_list_ptr;		/* root of linked list of parameters */
     SHMFIELD(hal_funct_t) funct_list_ptr;		/* root of linked list of functions */
     SHMFIELD(hal_thread_t) thread_list_ptr;	/* root of linked list of threads */
     long base_period;		/* timer period for realtime tasks */
@@ -267,7 +265,6 @@ typedef struct hal_data_t {
     SHMFIELD(hal_comp_t) comp_free_ptr;		/* list of free component structs */
     SHMFIELD(hal_pin_t) pin_free_ptr;		/* list of free pin structs */
     SHMFIELD(hal_sig_t) sig_free_ptr;		/* list of free signal structs */
-    SHMFIELD(hal_param_t) param_free_ptr;		/* list of free parameter structs */
     SHMFIELD(hal_funct_t) funct_free_ptr;		/* list of free function structs */
     hal_list_t funct_entry_free;	/* list of free funct entry structs */
     SHMFIELD(hal_thread_t) thread_free_ptr;	/* list of free thread structs */
@@ -332,19 +329,6 @@ struct hal_sig_t {
     char name[HAL_NAME_LEN + 1];	/* signal name */
 };
 
-/** HAL 'parameter' data structure.
-    This structure contains information about a 'parameter' object.
-*/
-struct hal_param_t {
-    SHMFIELD(hal_param_t) next_ptr;		/* next parameter in linked list */
-    SHMFIELD(void*) data_ptr;		/* offset of parameter value */
-    SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this signal */
-    SHMFIELD(hal_oldname_t) oldname;		/* old name if aliased, else zero */
-    hal_type_t type;		/* data type */
-    hal_param_dir_t dir;	/* data direction */
-    char name[HAL_NAME_LEN + 1];	/* parameter name */
-};
-
 /** the HAL uses functions and threads to handle synchronization of
     code.  In general, most control systems need to read inputs,
     perform control calculations, and write outputs, in that order.
@@ -370,8 +354,8 @@ struct hal_funct_t {
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
     hal_s32_t* runtime;	/* (pin) duration of last run, in CPU cycles */
-    hal_s32_t maxtime;	/* (param) duration of longest run, in CPU cycles */
-    hal_bit_t maxtime_increased;	/* on last call, maxtime increased */
+    hal_s32_t* maxtime;	/* (param) duration of longest run, in CPU cycles */
+    hal_bit_t* maxtime_increased;	/* on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
 };
 
@@ -391,7 +375,7 @@ struct hal_thread_t {
     int priority;		/* priority of the thread */
     int task_id;		/* ID of the task that runs this thread */
     hal_s32_t* runtime;	/* (pin) duration of last run, in CPU cycles */
-    hal_s32_t maxtime;	/* (param) duration of longest run, in CPU cycles */
+    hal_s32_t* maxtime;	/* (param) duration of longest run, in CPU cycles */
     hal_list_t funct_list;	/* list of functions to run */
     char name[HAL_NAME_LEN + 1];	/* thread name */
     int comp_id;
@@ -446,7 +430,6 @@ hal_list_t *list_remove_entry(hal_list_t * entry);
 extern hal_comp_t *halpr_find_comp_by_name(const char *name);
 extern hal_pin_t *halpr_find_pin_by_name(const char *name);
 extern hal_sig_t *halpr_find_sig_by_name(const char *name);
-extern hal_param_t *halpr_find_param_by_name(const char *name);
 extern hal_thread_t *halpr_find_thread_by_name(const char *name);
 extern hal_funct_t *halpr_find_funct_by_name(const char *name);
 
@@ -468,8 +451,6 @@ extern hal_comp_t *halpr_find_comp_by_id(int id);
 */
 extern hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner,
     hal_pin_t * start);
-extern hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
-    hal_param_t * start);
 extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     hal_funct_t * start);
 

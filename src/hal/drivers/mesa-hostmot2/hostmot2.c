@@ -1454,11 +1454,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             r = -ENOMEM;
             goto fail0;
         }
-
-        (*llio->io_error) = 0;
-
         rtapi_snprintf(name, sizeof(name), "%s.io_error", llio->name);
-        r = hal_param_bit_new(name, HAL_RW, llio->io_error, llio->comp_id);
+        r = hal_pin_bit_new(name, HAL_OUT, &llio->io_error, llio->comp_id);
+        *llio->io_error = 0;
         if (r < 0) {
             HM2_ERR("error adding param '%s', aborting\n", name);
             r = -EINVAL;
@@ -1771,7 +1769,7 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
         // if there's a watchdog, set it to safe the board right away
         if (hm2->watchdog.num_instances > 0) {
             hm2->watchdog.instance[0].enable = 1;
-            hm2->watchdog.instance[0].hal.param.timeout_ns = 1;
+            *hm2->watchdog.instance[0].hal.param.timeout_ns = 1;
             hm2_watchdog_force_write(hm2);
         }
 

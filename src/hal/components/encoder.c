@@ -680,13 +680,13 @@ static int export_encoder(counter_t * addr,char * prefix)
     }
 
 /* uncomment to debug missing tooth
-    retval = hal_param_s32_newf(HAL_RO, &(addr->dt), comp_id,
+    retval = hal_pin_s32_newf(HAL_IN, &(addr->dt), comp_id,
             "%s.dt", prefix);
     if (retval != 0) {
 	return retval;
     }
 
-    retval = hal_param_s32_newf(HAL_RO, &(addr->limit_dt), comp_id,
+    retval = hal_pin_s32_newf(HAL_IN, &(addr->limit_dt), comp_id,
             "%s.limit_dt", prefix);
     if (retval != 0) {
 	return retval;

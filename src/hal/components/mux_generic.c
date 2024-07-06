@@ -235,12 +235,12 @@ int rtapi_app_main(void){
         if (retval != 0) {
             goto fail0;
         }
-        retval = hal_param_u32_newf(HAL_RO, &inst->timer, comp_id,
+        retval = hal_pin_u32_newf(HAL_IN, &inst->timer, comp_id,
                 "mux-gen.%02i.elapsed", i);
         if (retval != 0) {
             goto fail0;
         }
-        retval = hal_param_u32_newf(HAL_RO, &inst->selection, comp_id,
+        retval = hal_pin_u32_newf(HAL_IN, &inst->selection, comp_id,
                 "mux-gen.%02i.selected", i);
         if (retval != 0) {
             goto fail0;

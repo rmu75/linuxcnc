@@ -873,13 +873,13 @@ static bool record_soft_error(hm2_eth_t *board) {
     board->llio.needs_soft_reset = 1;
     *board->hal->packet_error = 1;
     *board->hal->packet_error_total += 1;
-    int32_t increment = board->hal->packet_error_increment;
+    int32_t increment = *board->hal->packet_error_increment;
     if(increment < 1) increment = 1;
     board->comm_error_counter += increment;
-    if(board->comm_error_counter < 0 || board->comm_error_counter > board->hal->packet_error_limit)
-        board->comm_error_counter = board->hal->packet_error_limit;
+    if(board->comm_error_counter < 0 || board->comm_error_counter > *board->hal->packet_error_limit)
+        board->comm_error_counter = *board->hal->packet_error_limit;
     *board->hal->packet_error_level = board->comm_error_counter;
-    bool result = board->comm_error_counter < board->hal->packet_error_limit;
+    bool result = board->comm_error_counter < *board->hal->packet_error_limit;
     if(!result) *board->llio.io_error = true;
     *board->hal->packet_error_exceeded = !result;
     return result;
@@ -887,7 +887,7 @@ static bool record_soft_error(hm2_eth_t *board) {
 
 static void decrement_soft_error(hm2_eth_t *board) {
     if(!board->hal) return; // still early in hm2_eth_probe
-    int32_t decrement = board->hal->packet_error_decrement;
+    int32_t decrement = *board->hal->packet_error_decrement;
     if(decrement < 1) decrement = 1;
     board->comm_error_counter -= decrement;
     if(board->comm_error_counter < 0) board->comm_error_counter = 0;
@@ -907,11 +907,11 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
     // pin (or they did something else like fiddle with the error limit
     // during a run, in which case we don't care if we reset the counter
     // or not)
-    if(board->hal && board->comm_error_counter == board->hal->packet_error_limit && !*board->llio.io_error) {
+    if(board->hal && board->comm_error_counter == *board->hal->packet_error_limit && !*board->llio.io_error) {
         board->comm_error_counter = 0;
     }
 
-    long read_timeout = board->hal ? board->hal->read_timeout : 1600000;
+    long read_timeout = board->hal ? *board->hal->read_timeout : 1600000;
     if(read_timeout <= 0)//less than or equal to 0, use 80% of the thread period.
         read_timeout = 80;
     if(read_timeout < 100)//less than 100 is interpreted as a percentage of the thread period.
@@ -1515,37 +1515,37 @@ static int hm2_eth_items(hm2_eth_t *board) {
     board->hal = hal_malloc(sizeof(*board->hal));
     if(!board->hal) return -ENOMEM;
 
-    if((r = hal_param_s32_newf(HAL_RW,
+    if((r = hal_pin_s32_newf(HAL_OUT,
             &board->hal->read_timeout,
             board->llio.comp_id,
             "%s.packet-read-timeout",
             board->llio.name)) < 0)
         return r;
-    board->hal->read_timeout = 80;
+    *board->hal->read_timeout = 80;
 
-    if((r = hal_param_s32_newf(HAL_RW,
+    if((r = hal_pin_s32_newf(HAL_OUT,
             &board->hal->packet_error_limit,
             board->llio.comp_id,
             "%s.packet-error-limit",
             board->llio.name)) < 0)
         return r;
-    board->hal->packet_error_limit = 10;
+    *board->hal->packet_error_limit = 10;
 
-    if((r = hal_param_s32_newf(HAL_RW,
+    if((r = hal_pin_s32_newf(HAL_OUT,
             &board->hal->packet_error_increment,
             board->llio.comp_id,
             "%s.packet-error-increment",
             board->llio.name)) < 0)
         return r;
-    board->hal->packet_error_increment = 2;
+    *board->hal->packet_error_increment = 2;
 
-    if((r = hal_param_s32_newf(HAL_RO,
+    if((r = hal_pin_s32_newf(HAL_IN,
             &board->hal->packet_error_decrement,
             board->llio.comp_id,
             "%s.packet-error-decrement",
             board->llio.name)) < 0)
         return r;
-    board->hal->packet_error_decrement = 1;
+    *board->hal->packet_error_decrement = 1;
 
     if((r = hal_pin_bit_newf(HAL_OUT,
             &board->hal->packet_error,

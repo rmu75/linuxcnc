@@ -695,11 +695,11 @@ static int export_port(int portnum, parport_t * port)
 	    port->data_out, port->data_inv, port->data_reset, 6);
 	retval += export_output_pin(portnum, 9,
 	    port->data_out, port->data_inv, port->data_reset, 7);
-	retval += hal_param_u32_newf(HAL_RW, &port->reset_time, comp_id, 
+	retval += hal_pin_u32_newf(HAL_OUT, &port->reset_time, comp_id, 
 			"parport.%d.reset-time", portnum);
-	retval += hal_param_u32_newf(HAL_RW, &port->debug1, comp_id, 
+	retval += hal_pin_u32_newf(HAL_OUT, &port->debug1, comp_id, 
 			"parport.%d.debug1", portnum);
-	retval += hal_param_u32_newf(HAL_RW, &port->debug2, comp_id, 
+	retval += hal_pin_u32_newf(HAL_OUT, &port->debug2, comp_id, 
 			"parport.%d.debug2", portnum);
 	port->write_time = 0;
     }
@@ -754,14 +754,14 @@ static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
 	return retval;
     }
     /* export parameter for polarity */
-    retval = hal_param_bit_newf(HAL_RW, pbase + n, comp_id,
+    retval = hal_pin_bit_newf(HAL_OUT, pbase + n, comp_id,
             "parport.%d.pin-%02d-out-invert", portnum, pin);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for reset */
     if (rbase)
-	retval = hal_param_bit_newf(HAL_RW, rbase + n, comp_id,
+	retval = hal_pin_bit_newf(HAL_OUT, rbase + n, comp_id,
 		"parport.%d.pin-%02d-out-reset", portnum, pin);
     return retval;
 }

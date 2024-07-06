@@ -54,11 +54,11 @@
 #include "hal.h"
 
 struct haldata {
-    hal_float_t basex[NUM_STRUTS];
-    hal_float_t basey[NUM_STRUTS];
-    hal_float_t basez[NUM_STRUTS];
-    hal_float_t effectorr[NUM_STRUTS];
-    hal_float_t effectorz[NUM_STRUTS];
+    hal_float_t *basex[NUM_STRUTS];
+    hal_float_t *basey[NUM_STRUTS];
+    hal_float_t *basez[NUM_STRUTS];
+    hal_float_t *effectorr[NUM_STRUTS];
+    hal_float_t *effectorz[NUM_STRUTS];
     hal_u32_t *last_iter;
     hal_u32_t *max_iter;
     hal_u32_t *iter_limit;
@@ -188,11 +188,11 @@ int pentakins_read_hal_pins(void) {
 
   /* set the base and effector coordinates from hal pin values */
     for (t = 0; t < NUM_STRUTS; t++) {
-        b[t].x = haldata->basex[t];
-        b[t].y = haldata->basey[t];
-        b[t].z = haldata->basez[t] + *haldata->tool_offset;
-        ra[t] = haldata->effectorr[t];
-        za[t] = haldata->effectorz[t] + *haldata->tool_offset;
+        b[t].x = *haldata->basex[t];
+        b[t].y = *haldata->basey[t];
+        b[t].z = *haldata->basez[t] + *haldata->tool_offset;
+        ra[t] = *haldata->effectorr[t];
+        za[t] = *haldata->effectorz[t] + *haldata->tool_offset;
     }
     return 0;
 }
@@ -423,23 +423,23 @@ int rtapi_app_main(void)
 
     for (i = 0; i < 6; i++) {
 
-        if ((res = hal_param_float_newf(HAL_RW, &(haldata->basex[i]), comp_id,
+        if ((res = hal_pin_float_newf(HAL_OUT, &(haldata->basex[i]), comp_id,
             "pentakins.base.%d.x", i)) < 0)
         goto error;
 
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->basey[i], comp_id,
+        if ((res = hal_pin_float_newf(HAL_OUT, &haldata->basey[i], comp_id,
             "pentakins.base.%d.y", i)) < 0)
         goto error;
 
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->basez[i], comp_id,
+        if ((res = hal_pin_float_newf(HAL_OUT, &haldata->basez[i], comp_id,
             "pentakins.base.%d.z", i)) < 0)
         goto error;
 
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->effectorr[i], comp_id,
+        if ((res = hal_pin_float_newf(HAL_OUT, &haldata->effectorr[i], comp_id,
             "pentakins.effector.%d.r", i)) < 0)
         goto error;
 
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->effectorz[i], comp_id,
+        if ((res = hal_pin_float_newf(HAL_OUT, &haldata->effectorz[i], comp_id,
             "pentakins.effector.%d.z", i)) < 0)
         goto error;
     }
@@ -474,33 +474,33 @@ int rtapi_app_main(void)
     goto error;
     *haldata->tool_offset = 0.0;
 
-    haldata->basex[0] = DEFAULT_BASE_0_X;
-    haldata->basey[0] = DEFAULT_BASE_0_Y;
-    haldata->basez[0] = DEFAULT_BASE_0_Z;
-    haldata->basex[1] = DEFAULT_BASE_1_X;
-    haldata->basey[1] = DEFAULT_BASE_1_Y;
-    haldata->basez[1] = DEFAULT_BASE_1_Z;
-    haldata->basex[2] = DEFAULT_BASE_2_X;
-    haldata->basey[2] = DEFAULT_BASE_2_Y;
-    haldata->basez[2] = DEFAULT_BASE_2_Z;
-    haldata->basex[3] = DEFAULT_BASE_3_X;
-    haldata->basey[3] = DEFAULT_BASE_3_Y;
-    haldata->basez[3] = DEFAULT_BASE_3_Z;
-    haldata->basex[4] = DEFAULT_BASE_4_X;
-    haldata->basey[4] = DEFAULT_BASE_4_Y;
-    haldata->basez[4] = DEFAULT_BASE_4_Z;
+    *haldata->basex[0] = DEFAULT_BASE_0_X;
+    *haldata->basey[0] = DEFAULT_BASE_0_Y;
+    *haldata->basez[0] = DEFAULT_BASE_0_Z;
+    *haldata->basex[1] = DEFAULT_BASE_1_X;
+    *haldata->basey[1] = DEFAULT_BASE_1_Y;
+    *haldata->basez[1] = DEFAULT_BASE_1_Z;
+    *haldata->basex[2] = DEFAULT_BASE_2_X;
+    *haldata->basey[2] = DEFAULT_BASE_2_Y;
+    *haldata->basez[2] = DEFAULT_BASE_2_Z;
+    *haldata->basex[3] = DEFAULT_BASE_3_X;
+    *haldata->basey[3] = DEFAULT_BASE_3_Y;
+    *haldata->basez[3] = DEFAULT_BASE_3_Z;
+    *haldata->basex[4] = DEFAULT_BASE_4_X;
+    *haldata->basey[4] = DEFAULT_BASE_4_Y;
+    *haldata->basez[4] = DEFAULT_BASE_4_Z;
 
-    haldata->effectorz[0] = DEFAULT_EFFECTOR_0_Z;
-    haldata->effectorz[1] = DEFAULT_EFFECTOR_1_Z;
-    haldata->effectorz[2] = DEFAULT_EFFECTOR_2_Z;
-    haldata->effectorz[3] = DEFAULT_EFFECTOR_3_Z;
-    haldata->effectorz[4] = DEFAULT_EFFECTOR_4_Z;
+    *haldata->effectorz[0] = DEFAULT_EFFECTOR_0_Z;
+    *haldata->effectorz[1] = DEFAULT_EFFECTOR_1_Z;
+    *haldata->effectorz[2] = DEFAULT_EFFECTOR_2_Z;
+    *haldata->effectorz[3] = DEFAULT_EFFECTOR_3_Z;
+    *haldata->effectorz[4] = DEFAULT_EFFECTOR_4_Z;
 
-    haldata->effectorr[0] = DEFAULT_EFFECTOR_0_R;
-    haldata->effectorr[1] = DEFAULT_EFFECTOR_1_R;
-    haldata->effectorr[2] = DEFAULT_EFFECTOR_2_R;
-    haldata->effectorr[3] = DEFAULT_EFFECTOR_3_R;
-    haldata->effectorr[4] = DEFAULT_EFFECTOR_4_R;
+    *haldata->effectorr[0] = DEFAULT_EFFECTOR_0_R;
+    *haldata->effectorr[1] = DEFAULT_EFFECTOR_1_R;
+    *haldata->effectorr[2] = DEFAULT_EFFECTOR_2_R;
+    *haldata->effectorr[3] = DEFAULT_EFFECTOR_3_R;
+    *haldata->effectorr[4] = DEFAULT_EFFECTOR_4_R;
 
     hal_ready(comp_id);
     return 0;

@@ -546,30 +546,30 @@ static int init_hal_io(void)
     CALL_CHECK(hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->program_line), mot_comp_id, "motion.program-line"));
     CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->jog_is_active), mot_comp_id, "motion.jog-is-active"));
 
-    /* export debug parameters */
-    /* these can be used to view any internal variable, simply change a line
-       in control.c:output_to_hal() and recompile */
-    CALL_CHECK(hal_param_bit_newf(HAL_RO, &(emcmot_hal_data->debug_bit_0), mot_comp_id, "motion.debug-bit-0"));
-    CALL_CHECK(hal_param_bit_newf(HAL_RO, &(emcmot_hal_data->debug_bit_1), mot_comp_id, "motion.debug-bit-1"));
-    CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->debug_float_0), mot_comp_id, "motion.debug-float-0"));
-    CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->debug_float_1), mot_comp_id, "motion.debug-float-1"));
-    CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->debug_float_2), mot_comp_id, "motion.debug-float-2"));
-    CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->debug_float_3), mot_comp_id, "motion.debug-float-3"));
-    CALL_CHECK(hal_param_s32_newf(HAL_RO, &(emcmot_hal_data->debug_s32_0), mot_comp_id, "motion.debug-s32-0"));
-    CALL_CHECK(hal_param_s32_newf(HAL_RO, &(emcmot_hal_data->debug_s32_1), mot_comp_id, "motion.debug-s32-1"));
+    // /* export debug parameters */
+    // /* these can be used to view any internal variable, simply change a line
+    //    in control.c:output_to_hal() and recompile */
+    // CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->debug_bit_0), mot_comp_id, "motion.debug-bit-0"));
+    // CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->debug_bit_1), mot_comp_id, "motion.debug-bit-1"));
+    // CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->debug_float_0), mot_comp_id, "motion.debug-float-0"));
+    // CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->debug_float_1), mot_comp_id, "motion.debug-float-1"));
+    // CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->debug_float_2), mot_comp_id, "motion.debug-float-2"));
+    // CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->debug_float_3), mot_comp_id, "motion.debug-float-3"));
+    // CALL_CHECK(hal_pin_s32_newf(HAL_IN, &(emcmot_hal_data->debug_s32_0), mot_comp_id, "motion.debug-s32-0"));
+    // CALL_CHECK(hal_pin_s32_newf(HAL_IN, &(emcmot_hal_data->debug_s32_1), mot_comp_id, "motion.debug-s32-1"));
 
-    // FIXME - debug only, remove later
-    // export HAL parameters for some trajectory planner internal variables
-    // so they can be scoped
-    CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->traj_pos_out), mot_comp_id, "traj.pos_out"));
-    CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->traj_vel_out), mot_comp_id, "traj.vel_out"));
-    CALL_CHECK(hal_param_u32_newf(HAL_RO, &(emcmot_hal_data->traj_active_tc), mot_comp_id, "traj.active_tc"));
+    // // FIXME - debug only, remove later
+    // // export HAL parameters for some trajectory planner internal variables
+    // // so they can be scoped
+    // CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->traj_pos_out), mot_comp_id, "traj.pos_out"));
+    // CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->traj_vel_out), mot_comp_id, "traj.vel_out"));
+    // CALL_CHECK(hal_pin_u32_newf(HAL_IN, &(emcmot_hal_data->traj_active_tc), mot_comp_id, "traj.active_tc"));
 
-    for (n = 0; n < 4; n++) {
-        CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->tc_pos[n]), mot_comp_id, "tc.%d.pos", n));
-        CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->tc_vel[n]), mot_comp_id, "tc.%d.vel", n));
-        CALL_CHECK(hal_param_float_newf(HAL_RO, &(emcmot_hal_data->tc_acc[n]), mot_comp_id, "tc.%d.acc", n));
-    }
+    // for (n = 0; n < 4; n++) {
+    //     CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->tc_pos[n]), mot_comp_id, "tc.%d.pos", n));
+    //     CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->tc_vel[n]), mot_comp_id, "tc.%d.vel", n));
+    //     CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->tc_acc[n]), mot_comp_id, "tc.%d.acc", n));
+    // }
     // end of exporting trajectory planner internals
 
     // export timing related HAL pins so they can be scoped and/or connected
@@ -633,12 +633,12 @@ static int init_hal_io(void)
     *(emcmot_hal_data->on_soft_limit) = 0;
 
     /* init debug parameters */
-    emcmot_hal_data->debug_bit_0 = 0;
-    emcmot_hal_data->debug_bit_1 = 0;
-    emcmot_hal_data->debug_float_0 = 0.0;
-    emcmot_hal_data->debug_float_1 = 0.0;
-    emcmot_hal_data->debug_float_2 = 0.0;
-    emcmot_hal_data->debug_float_3 = 0.0;
+    // *(emcmot_hal_data->debug_bit_0) = 0;
+    // *(emcmot_hal_data->debug_bit_1) = 0;
+    // *(emcmot_hal_data->debug_float_0) = 0.0;
+    // *(emcmot_hal_data->debug_float_1) = 0.0;
+    // *(emcmot_hal_data->debug_float_2) = 0.0;
+    // *(emcmot_hal_data->debug_float_3) = 0.0;
 
     *(emcmot_hal_data->last_period) = 0;
 

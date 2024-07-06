@@ -38,7 +38,7 @@ class _ItemWrap(object):
         return self._item_wrap(item)
 
     def _item_wrap(self, item):
-        for f in ['get', 'set', 'get_type', 'get_name', 'get_dir', 'is_pin', '__repr__']:
+        for f in ['get', 'set', 'get_type', 'get_name', 'get_dir', '__repr__']:
             setattr(self, f, getattr(item, f))
         return self
 
@@ -54,14 +54,7 @@ class _ItemWrap(object):
 class Pin(_ItemWrap):
     def __init__(self, item):
         _ItemWrap.__init__(self, item)
-        if not item.is_pin():
-            raise TypeError("Must be constructed from pin object")
 
-class Param(_ItemWrap):
-    def __init__(self, item):
-        _ItemWrap.__init__(self, item)
-        if item.is_pin():
-            raise TypeError("Must be constructed from param object")
 
 class component(_hal.component):
     def newpin(self, *a, **kw): return Pin(_hal.component.newpin(self, *a, **kw))

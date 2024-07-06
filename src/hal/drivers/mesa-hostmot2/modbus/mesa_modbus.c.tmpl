@@ -213,13 +213,13 @@ int rtapi_app_main(void){
             goto fail0;
         }
 
-        retval =  hal_param_s32_newf(HAL_RW, &(inst->hal->address), comp_id, COMP_NAME".%02i.address", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->baudrate), comp_id, COMP_NAME".%02i.baudrate", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->parity), comp_id, COMP_NAME".%02i.parity", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->txdelay), comp_id, COMP_NAME".%02i.txdelay", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->rxdelay), comp_id, COMP_NAME".%02i.rxdelay", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->drive_delay), comp_id, COMP_NAME".%02i.drive-delay", i);
-        retval += hal_param_float_newf(HAL_RW, &(inst->hal->rate), comp_id, COMP_NAME".%02i.update-hz", i);
+        retval =  hal_pin_s32_newf(HAL_OUT, &(inst->hal->address), comp_id, COMP_NAME".%02i.address", i);
+        retval += hal_pin_s32_newf(HAL_OUT, &(inst->hal->baudrate), comp_id, COMP_NAME".%02i.baudrate", i);
+        retval += hal_pin_s32_newf(HAL_OUT, &(inst->hal->parity), comp_id, COMP_NAME".%02i.parity", i);
+        retval += hal_pin_s32_newf(HAL_OUT, &(inst->hal->txdelay), comp_id, COMP_NAME".%02i.txdelay", i);
+        retval += hal_pin_s32_newf(HAL_OUT, &(inst->hal->rxdelay), comp_id, COMP_NAME".%02i.rxdelay", i);
+        retval += hal_pin_s32_newf(HAL_OUT, &(inst->hal->drive_delay), comp_id, COMP_NAME".%02i.drive-delay", i);
+        retval += hal_pin_float_newf(HAL_OUT, &(inst->hal->rate), comp_id, COMP_NAME".%02i.update-hz", i);
         retval += hal_pin_bit_newf(HAL_OUT, &(inst->hal->fault), comp_id, COMP_NAME".%02i.fault", i);
         retval += hal_pin_u32_newf(HAL_OUT, &(inst->hal->last_err), comp_id, COMP_NAME".%02i.last-error", i);
         if (retval < 0) {

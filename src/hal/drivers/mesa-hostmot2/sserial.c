@@ -354,30 +354,30 @@ int hm2_sserial_get_param_value(hostmot2_t *hm2,
             r = hm2_sserial_get_bytes(hm2, chan, (void*)&(p->u32_written),
                                       g->ParmAddr, g->DataLength/8);
             if (r < 0) {HM2_ERR("SSerial Parameter read error\n") ; return -EINVAL;}
-            if (set_hal) p->u32_param = p->u32_written;
-            HM2_DBG("LBP_UNSIGNED %i %i \n", p->u32_param, p->u32_written);
-            if ((strcmp(g->NameString, "swrevision") == 0) && (p->u32_param < 14)) {
+            if (set_hal) *p->u32_param = p->u32_written;
+            HM2_DBG("LBP_UNSIGNED %i %i \n", *p->u32_param, p->u32_written);
+            if ((strcmp(g->NameString, "swrevision") == 0) && (*p->u32_param < 14)) {
                 HM2_ERR("Warning: sserial remote device %s channel %d has old firmware that should be updated\n", chan->raw_name, chan->index);
             }
             break;
         case LBP_SIGNED:
             r = hm2_sserial_get_bytes(hm2, chan, (void*)&(p->s32_written),
                                       g->ParmAddr, g->DataLength/8);
-            if (set_hal) p->s32_param = p->s32_written;
-            HM2_DBG("LBP_SIGNED %i %i \n", p->s32_param, p->s32_written);
+            if (set_hal) *p->s32_param = p->s32_written;
+            HM2_DBG("LBP_SIGNED %i %i \n", *p->s32_param, p->s32_written);
             break;
         case LBP_NONVOL_UNSIGNED:
             r = hm2_sserial_read_nvram_word(hm2, chan, (void*)&(p->u32_written),
                                                 g->ParmAddr,
                                                 g->DataLength/8);
-            if (set_hal) p->u32_param = p->u32_written;
-            HM2_DBG("LBP_NONVOL_UNSIGNED %i %i \n", p->u32_param, p->u32_written);
+            if (set_hal) *p->u32_param = p->u32_written;
+            HM2_DBG("LBP_NONVOL_UNSIGNED %i %i \n", *p->u32_param, p->u32_written);
             break;
         case LBP_NONVOL_SIGNED:
             r = hm2_sserial_read_nvram_word(hm2, chan, (void*)&(p->s32_written),
                                                 g->ParmAddr,
                                                 g->DataLength/8);
-            if (set_hal) p->s32_param = p->s32_written;
+            if (set_hal) *p->s32_param = p->s32_written;
         case LBP_STREAM:
             break; // Have not seen a stream type yet
         case LBP_BOOLEAN:
@@ -400,8 +400,8 @@ int hm2_sserial_get_param_value(hostmot2_t *hm2,
                     HM2_ERR("sserial get param value: LBP_FLOAT of bit-length %i not handled\n", g->DataLength);
                 }
             }
-            if (set_hal) p->float_param = p->float_written;
-            HM2_DBG("LBP_FLOAT %f %f \n", p->float_param, p->float_written);
+            if (set_hal) *p->float_param = p->float_written;
+            HM2_DBG("LBP_FLOAT %f %f \n", *p->float_param, p->float_written);
             break;
         case LBP_ENCODER_H:
         case LBP_ENCODER_L:
@@ -424,7 +424,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
 
         r = 0;
 
-        hal_dir = (global.DataDir == LBP_IN) ? HAL_RO : HAL_RW;
+        hal_dir = (global.DataDir == LBP_IN) ? HAL_IN : HAL_OUT;
 
         chan->params[i].type = global.DataType;
         switch (chan->params[i].type) {
@@ -432,7 +432,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_UNSIGNED:
             case LBP_NONVOL_UNSIGNED:
-                r = hal_param_u32_newf(hal_dir,
+                r = hal_pin_u32_newf(hal_dir,
                                        &(chan->params[i].u32_param),
                                        hm2->llio->comp_id,
                                        "%s.%s",
@@ -442,7 +442,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_SIGNED:
             case LBP_NONVOL_SIGNED:
-                r = hal_param_s32_newf(hal_dir,
+                r = hal_pin_s32_newf(hal_dir,
                                        &(chan->params[i].s32_param),
                                        hm2->llio->comp_id,
                                        "%s.%s",
@@ -452,7 +452,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_FLOAT:
             case LBP_NONVOL_FLOAT:
-                r = hal_param_float_newf(hal_dir,
+                r = hal_pin_float_newf(hal_dir,
                                        &(chan->params[i].float_param),
                                        hm2->llio->comp_id,
                                        "%s.%s",
@@ -902,7 +902,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
                 hm2->llio->name, index);
         return -EINVAL;
     }
-    r = hal_param_u32_newf(HAL_RW, &(inst->fault_inc),
+    r = hal_pin_u32_newf(HAL_OUT, &(inst->fault_inc),
                            hm2->llio->comp_id,
                            "%s.sserial.port-%1d.fault-inc",
                            hm2->llio->name, index);
@@ -912,7 +912,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
         return -EINVAL;
     }
 
-    r = hal_param_u32_newf(HAL_RW, &(inst->fault_dec),
+    r = hal_pin_u32_newf(HAL_OUT, &(inst->fault_dec),
                            hm2->llio->comp_id,
                            "%s.sserial.port-%1d.fault-dec",
                            hm2->llio->name, index);
@@ -922,7 +922,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
         return -EINVAL;
     }
 
-    r = hal_param_u32_newf(HAL_RW, &(inst->fault_lim),
+    r = hal_pin_u32_newf(HAL_OUT, &(inst->fault_lim),
                            hm2->llio->comp_id,
                            "%s.sserial.port-%1d.fault-lim",
                            hm2->llio->name, index);
@@ -932,9 +932,9 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
         return -EINVAL;
     }
     //parameter defaults;
-    inst->fault_dec = 1;
-    inst->fault_inc = 10;
-    inst->fault_lim = 200;
+    *inst->fault_dec = 1;
+    *inst->fault_inc = 10;
+    *inst->fault_lim = 200;
 
     // setup read-back in all modes
 
@@ -1152,15 +1152,15 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
         }
 
         if (chan->confs[i].Flags & 0x01){
-            chan->pins[i].graycode = 1;
+            *chan->pins[i].graycode = 1;
         } else {
-            chan->pins[i].graycode = 0;
+            *chan->pins[i].graycode = 0;
         }
 
         if (chan->confs[i].Flags & 0x02){
-            chan->pins[i].nowrap = 1;
+            *chan->pins[i].nowrap = 1;
         } else {
-            chan->pins[i].nowrap = 0;
+            *chan->pins[i].nowrap = 0;
         }
 
 
@@ -1207,8 +1207,8 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                                        chan->name,
                                        chan->confs[i].NameString,
                                        j);
-                        r = hal_param_bit_new(name,
-                                              HAL_RW,
+                        r = hal_pin_bit_new(name,
+                                              HAL_OUT,
                                               &(chan->pins[i].invert[j]),
                                               hm2->llio->comp_id);
                         if (r < 0) {
@@ -1234,40 +1234,40 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 rtapi_snprintf(name, sizeof(name), "%s.%s-scalemax",
                                chan->name,
                                chan->confs[i].NameString);
-                r = hal_param_float_new(name,
-                                        HAL_RW,
+                r = hal_pin_float_new(name,
+                                        HAL_OUT,
                                         &(chan->pins[i].fullscale),
                                         hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     return r;
                 }
-                chan->pins[i].fullscale = chan->confs[i].ParmMax;
+                *chan->pins[i].fullscale = chan->confs[i].ParmMax;
                 if (data_dir == HAL_OUT) {break;}
                 rtapi_snprintf(name, sizeof(name), "%s.%s-maxlim",
                                chan->name,
                                chan->confs[i].NameString);
-                r = hal_param_float_new(name,
-                                        HAL_RW,
+                r = hal_pin_float_new(name,
+                                        HAL_OUT,
                                         &(chan->pins[i].maxlim),
                                         hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     return r;
                 }
-                chan->pins[i].maxlim = chan->confs[i].ParmMax;
+                *chan->pins[i].maxlim = chan->confs[i].ParmMax;
                 rtapi_snprintf(name, sizeof(name), "%s.%s-minlim",
                                chan->name,
                                chan->confs[i].NameString);
-                r = hal_param_float_new(name,
-                                        HAL_RW,
+                r = hal_pin_float_new(name,
+                                        HAL_OUT,
                                         &(chan->pins[i].minlim),
                                         hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     return r;
                 }
-                chan->pins[i].minlim = chan->confs[i].ParmMin;
+                *chan->pins[i].minlim = chan->confs[i].ParmMin;
                 break;
             case LBP_NONVOL_UNSIGNED:
             case LBP_NONVOL_SIGNED:
@@ -1317,9 +1317,9 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                     rtapi_snprintf(name, sizeof(name), "%s.%s-invert",
                                    chan->name,
                                    chan->confs[i].NameString);
-                    r = hal_param_bit_new(name,
-                                          HAL_RW,
-                                          chan->pins[i].invert,
+                    r = hal_pin_bit_new(name,
+                                          HAL_OUT,
+                                          &chan->pins[i].invert,
                                           hm2->llio->comp_id);
                     if (r < 0) {
                         HM2_ERR("error adding pin '%s', aborting\n", name);
@@ -1389,8 +1389,8 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 rtapi_snprintf(name, sizeof(name), "%s.%s.scale",
                                chan->name,
                                chan->confs[i].NameString);
-                r = hal_param_float_new(name,
-                                    HAL_RW,
+                r = hal_pin_float_new(name,
+                                    HAL_OUT,
                                     &(chan->pins[i].fullscale),
                                     hm2->llio->comp_id);
                 if (r < 0) {
@@ -1401,16 +1401,16 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 rtapi_snprintf(name, sizeof(name), "%s.%s.counts-per-rev",
                                chan->name,
                                chan->confs[i].NameString);
-                r = hal_param_u32_new(name,
-                                    HAL_RW,
+                r = hal_pin_u32_new(name,
+                                    HAL_OUT,
                                     &(chan->pins[i].u32_param),
                                     hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     return -EINVAL;
                 }
-                chan->pins[i].fullscale = chan->confs[i].ParmMax;
-                chan->pins[i].u32_param = 256;
+                *chan->pins[i].fullscale = chan->confs[i].ParmMax;
+                *chan->pins[i].u32_param = 256;
                 break;
             case LBP_ENCODER_L:
                 //No pins for encoder L
@@ -1521,12 +1521,12 @@ fail1:
                     switch (p->type){
                         case LBP_SIGNED:
                         case LBP_NONVOL_SIGNED:
-                            if (p->s32_param != p->s32_written) break;
+                            if (*p->s32_param != p->s32_written) break;
                             *inst->state2 = 2; // increment indices
                             return *inst->state2;
                         case LBP_UNSIGNED:
                         case LBP_NONVOL_UNSIGNED:
-                            if (p->u32_param != p->u32_written) break;
+                            if (*p->u32_param != p->u32_written) break;
                             *inst->state2 = 2; // increment indices
                             return *inst->state2;
                         case LBP_FLOAT:
@@ -1547,7 +1547,7 @@ fail1:
                                 case 64:
                                     shift = 0;
                                 }
-                            if (abs(((int)(p->s64_param) - (int)(p->s64_written)) >> shift) > 2) break;
+                            if (abs(((int)(*p->s64_param) - (int)(p->s64_written)) >> shift) > 2) break;
                             *inst->state2 = 2; // increment indices
                             return *inst->state2;
                         default:
@@ -1597,19 +1597,19 @@ fail1:
                     switch (p->type){
                         case LBP_SIGNED:
                         case LBP_NONVOL_SIGNED:
-                            *r->write[0] = (rtapi_u32) p->s32_param;
+                            *r->write[0] = (rtapi_u32) *p->s32_param;
                             break;
                         case LBP_UNSIGNED:
                         case LBP_NONVOL_UNSIGNED:
-                            *r->write[0] = p->u32_param;
+                            *r->write[0] = *p->u32_param;
                             break;
                         case LBP_FLOAT:
                         case LBP_NONVOL_FLOAT:
                             if (g->DataLength == sizeof(float) * 8 ){
-                                float temp = p->float_param;
+                                float temp = *p->float_param;
                                 memcpy(r->write[0], &temp, sizeof(float));    // Data Value
                             } else if (g->DataLength == sizeof(double) * 8){
-                                double temp = p->float_param;
+                                double temp = *p->float_param;
                                 memcpy(r->write[0], &temp, sizeof(double));
                             } else {
                                 HM2_ERR("sserial write: LBP_FLOAT of bit-length %i not handled\n", g->DataLength);
@@ -1646,15 +1646,15 @@ fail1:
                     switch (p->type){
                         case LBP_SIGNED:
                         case LBP_NONVOL_SIGNED:
-                            p->s32_written = p->s32_param;
+                            p->s32_written = *p->s32_param;
                             break;
                         case LBP_UNSIGNED:
                         case LBP_NONVOL_UNSIGNED:
-                            p->u32_written = p->u32_param;
+                            p->u32_written = *p->u32_param;
                             break;
                         case LBP_FLOAT:
                         case LBP_NONVOL_FLOAT:
-                            p->float_written = p->float_param;
+                            p->float_written = *p->float_param;
                             break;
                         default:
                             break;
@@ -1726,7 +1726,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     // the side effect of reporting this error will suffice
     (void)hm2_sserial_check_remote_errors(hm2, inst);
 
-    if (*inst->fault_count > inst->fault_lim) {
+    if (*inst->fault_count > *inst->fault_lim) {
         // If there have been a large percentage of misses, for quite
         // a long time, it's time to take it seriously.
         hm2_sserial_check_local_errors(hm2, inst);
@@ -1734,9 +1734,9 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                 "There have been more than %i errors in %i "
                 "thread executions at least %i times. "
                 "See other error messages for details.\n",
-                inst->fault_dec,
-                inst->fault_inc,
-                inst->fault_lim);
+                *inst->fault_dec,
+                *inst->fault_inc,
+                *inst->fault_lim);
         HM2_ERR("***Smart Serial Port %i will be stopped***\n",inst->index);
         static bool printed;
         if(!inst->ever_read && !printed) {
@@ -1760,16 +1760,16 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                     "if this is happening frequently.\n",
                     inst->index, hm2->llio->name, inst->index);
         }
-        *inst->fault_count += inst->fault_inc;
+        *inst->fault_count += *inst->fault_inc;
         *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
         return; // give the register chance to clear
     }
     if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
-        *inst->fault_count += inst->fault_inc;
+        *inst->fault_count += *inst->fault_inc;
     }
 
-    if (*inst->fault_count > inst->fault_dec) {
-        *inst->fault_count -= inst->fault_dec;
+    if (*inst->fault_count > *inst->fault_dec) {
+        *inst->fault_count -= *inst->fault_dec;
     }
     else
     {
@@ -1804,17 +1804,17 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                         break;
                     case LBP_UNSIGNED:
                         val = *pin->float_pin;
-                        if (val > pin->maxlim) val = pin->maxlim;
-                        if (val < pin->minlim) val = pin->minlim;
-                        buff = (rtapi_u64)((val / pin->fullscale)
+                        if (val > *pin->maxlim) val = *pin->maxlim;
+                        if (val < *pin->minlim) val = *pin->minlim;
+                        buff = (rtapi_u64)((val / *pin->fullscale)
                                      * (~0ull >> (64 - conf->DataLength)));
                         break;
                     case LBP_SIGNED:
                         //this only works if DataLength <= 32
                         val = *pin->float_pin;
-                        if (val > pin->maxlim) val = pin->maxlim;
-                        if (val < pin->minlim) val = pin->minlim;
-                        buff = (((rtapi_s32)(val / pin->fullscale * 2147483647))
+                        if (val > *pin->maxlim) val = *pin->maxlim;
+                        if (val < *pin->minlim) val = *pin->minlim;
+                        buff = (((rtapi_s32)(val / *pin->fullscale * 2147483647))
                                 >> (32 - conf->DataLength))
                         & (~0ull >> (64 - conf->DataLength));
                         break;
@@ -1954,13 +1954,13 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                     }
                 }
 
-                *pin->float_pin = (buff * pin->fullscale)
+                *pin->float_pin = (buff * *pin->fullscale)
                 / ((1 << conf->DataLength) - 1);
                 break;
             case LBP_SIGNED:
                 buff32 = (buff & 0xFFFFFFFFL) << (32 - conf->DataLength);
                 *pin->float_pin = (buff32 / 2147483647.0 )
-                                    * pin->fullscale;
+                                    * *pin->fullscale;
                 break;
             case LBP_STREAM:
                 *pin->u32_pin = buff & (~0ull >> (64 - conf->DataLength));
@@ -1991,7 +1991,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 int bitlength;
                 rtapi_s32 rem1, rem2;
                 rtapi_s64 previous;
-                rtapi_u32 ppr = pin->u32_param;
+                rtapi_u32 ppr = *pin->u32_param;
 
                 if (conf->DataType == LBP_ENCODER){
                     bitlength = conf->DataLength;
@@ -2056,7 +2056,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 pin->oldval = buff64;
                 *pin->s32_pin = pin->accum - pin->offset;
                 *pin->s32_pin2 = pin->accum;
-                *pin->float_pin = (double)(pin->accum - pin->offset) / pin->fullscale ;
+                *pin->float_pin = (double)(pin->accum - pin->offset) / *pin->fullscale ;
                 break;
             case LBP_FLOAT:
                 if (conf->DataLength == sizeof(float) * 8){

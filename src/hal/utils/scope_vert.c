@@ -216,7 +216,6 @@ int set_channel_source(int chan_num, int type, char *name)
     scope_chan_t *chan;
     hal_pin_t *pin;
     hal_sig_t *sig;
-    hal_param_t *param;
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
@@ -243,17 +242,6 @@ int set_channel_source(int chan_num, int type, char *name)
 	chan->data_source = SHMOFF(sig);
 	chan->data_type = sig->type;
 	chan->name = sig->name;
-    } else if (type == 2) {
-	/* search the parameter list */
-	param = halpr_find_param_by_name(name);
-	if (param == NULL) {
-	    /* parameter not found */
-	    return -1;
-	}
-	chan->data_source_type = 2;
-	chan->data_source = SHMOFF(param);
-	chan->data_type = param->type;
-	chan->name = param->name;
     }
     switch (chan->data_type) {
     case HAL_BIT:
@@ -895,7 +883,6 @@ static gboolean dialog_select_source(int chan_num)
 
     hal_pin_t *pin;
     hal_sig_t *sig;
-    hal_param_t *param;
 
     char *tab_label_text[3];
     char *name[HAL_NAME_LEN + 1];
@@ -998,22 +985,6 @@ static gboolean dialog_select_source(int chan_num)
             match_row = row;
         }
         next = sig->next_ptr;
-        row++;
-    }
-
-    next = hal_data->param_list_ptr;
-    row = 0;
-    tab = 2;
-    while (next != 0) {
-        param = SHMPTR(next);
-        *name = param->name;
-
-        add_to_list(vert->lists[tab], name, NUM_COLS);
-        if (chan->name == *name) {
-            match_tab = tab;
-            match_row = row;
-        }
-        next = param->next_ptr;
         row++;
     }
 

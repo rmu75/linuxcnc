@@ -110,8 +110,8 @@ class HalInputDevice:
                 comp.newpin("%s.%s-offset" % (idx, name), HAL_FLOAT, HAL_IN)
                 comp.newpin("%s.%s-fuzz" % (idx, name), HAL_S32, HAL_IN)
                 comp.newpin("%s.%s-flat" % (idx, name), HAL_S32, HAL_IN)
-                comp.newparam("%s.%s-min" % (idx, name), HAL_S32, HAL_RO)
-                comp.newparam("%s.%s-max" % (idx, name), HAL_S32, HAL_RO)
+                comp.newparam("%s.%s-min" % (idx, name), HAL_S32, HAL_IN)
+                comp.newparam("%s.%s-max" % (idx, name), HAL_S32, HAL_IN)
                 center = (absinfo.minimum + absinfo.maximum)/2.
                 halfrange = (absinfo.maximum - absinfo.minimum)/2. or 1
                 self.set(name + "-counts", absinfo.value)

@@ -511,7 +511,7 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	    break;
 
 	// Parameters.
-	if((halError = hal_param_float_newf(HAL_RW, &(this->encoder[channel].scale),
+	if((halError = hal_pin_float_newf(HAL_OUT, &(this->encoder[channel].scale),
 	  componentId, "motenc.%d.enc-%02d-scale", boardId, channel)) != 0)
 	    break;
 
@@ -554,11 +554,11 @@ Device_ExportDacPinsParametersFunctions(Device *this, int componentId, int board
 	    break;
 
 	// Parameters.
-	if((halError = hal_param_float_newf(HAL_RW, &(this->dac[channel].offset),
+	if((halError = hal_pin_float_newf(HAL_OUT, &(this->dac[channel].offset),
 	  componentId, "motenc.%d.dac-%02d-offset", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_param_float_newf(HAL_RW, &(this->dac[channel].gain),
+	if((halError = hal_pin_float_newf(HAL_OUT, &(this->dac[channel].gain),
 	  componentId, "motenc.%d.dac-%02d-gain", boardId, channel)) != 0)
 	    break;
 
@@ -596,11 +596,11 @@ Device_ExportAdcPinsParametersFunctions(Device *this, int componentId, int board
 	    break;
 
 	// Parameters.
-	if((halError = hal_param_float_newf(HAL_RW, &(this->adc[channel].offset),
+	if((halError = hal_pin_float_newf(HAL_OUT, &(this->adc[channel].offset),
 	  componentId, "motenc.%d.adc-%02d-offset", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_param_float_newf(HAL_RW, &(this->adc[channel].gain),
+	if((halError = hal_pin_float_newf(HAL_OUT, &(this->adc[channel].gain),
 	  componentId, "motenc.%d.adc-%02d-gain", boardId, channel)) != 0)
 	    break;
 
@@ -674,7 +674,7 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
 	    break;
 
 	// Parameters.
-	if((halError = hal_param_bit_newf(HAL_RW, &(this->out[channel].invert),
+	if((halError = hal_pin_bit_newf(HAL_OUT, &(this->out[channel].invert),
 	  componentId, "motenc.%d.out-%02d-invert", boardId, channel)) != 0)
 	    break;
 
@@ -719,7 +719,7 @@ Device_ExportMiscPinsParametersFunctions(Device *this, int componentId, int boar
 
     // Export Parameters.
     if(!halError){
-	halError = hal_param_u32_newf(HAL_RW, &(this->misc.watchdogControl), componentId,
+	halError = hal_pin_u32_newf(HAL_OUT, &(this->misc.watchdogControl), componentId,
 				      "motenc.%d.watchdog-control", boardId);
     }
 

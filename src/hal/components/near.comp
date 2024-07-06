@@ -1,8 +1,8 @@
 component near "Determine whether two values are roughly equal.";
 pin in float in1_;
 pin in float in2_;
-param rw float scale=1;
-param rw float difference=0;
+pin in float scale=1;
+pin in float difference=0;
 pin out bit out """
 \\fBout\\fR is true if \\fBin1\\fR and \\fBin2\\fR are within a factor of
 \\fBscale\\fR (i.e., for in1 positive, in1/scale <= in2 <= in1*scale), OR

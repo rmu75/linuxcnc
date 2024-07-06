@@ -1448,7 +1448,7 @@ static int export_counter(int num, stg_struct *addr)
 	return retval;
     }
     /* export parameter for scaling */
-    retval = hal_param_float_newf(HAL_RW, &addr->pos_scale[num],
+    retval = hal_pin_float_newf(HAL_OUT, &addr->pos_scale[num],
 				  comp_id, "stg.%d.position-scale", num);
     if (retval != 0) {
 	return retval;
@@ -1508,13 +1508,13 @@ static int export_dac(int num, stg_struct *addr)
 	return retval;
     }
     /* export parameter for offset */
-    retval = hal_param_float_newf(HAL_RW, &addr->dac_offset[num],
+    retval = hal_pin_float_newf(HAL_OUT, &addr->dac_offset[num],
 				  comp_id, "stg.%d.dac-offset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
-    retval = hal_param_float_newf(HAL_RW, &addr->dac_gain[num],
+    retval = hal_pin_float_newf(HAL_OUT, &addr->dac_gain[num],
 				  comp_id, "stg.%d.dac-gain", num);
     if (retval != 0) {
 	return retval;
@@ -1543,13 +1543,13 @@ static int export_adc(int num, stg_struct *addr)
 	return retval;
     }
     /* export parameter for offset */
-    retval = hal_param_float_newf(HAL_RW, &addr->adc_offset[num],
+    retval = hal_pin_float_newf(HAL_OUT, &addr->adc_offset[num],
 				  comp_id, "stg.%d.adc-offset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
-    retval = hal_param_float_newf(HAL_RW, &addr->adc_gain[num],
+    retval = hal_pin_float_newf(HAL_OUT, &addr->adc_gain[num],
 				  comp_id, "stg.%d.adc-gain", num);
     if (retval != 0) {
 	return retval;
@@ -1638,7 +1638,7 @@ static int export_output_pin(int pinnum, io_pin * pin)
 	return retval;
     }
     /* export parameter for polarity */
-    retval = hal_param_bit_newf(HAL_RW, &(pin->io.invert),
+    retval = hal_pin_bit_newf(HAL_OUT, &(pin->io.invert),
 				comp_id, "stg.out-%02d-invert", pinnum);
     /* initialize HAL pin and param */
     *(pin->data) = 0;

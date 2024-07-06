@@ -194,9 +194,9 @@ typedef struct {
         } pin;
 
         struct {
-            hal_bit_t is_output;
-            hal_bit_t is_opendrain;
-            hal_bit_t invert_output;
+            hal_bit_t *is_output;
+            hal_bit_t *is_opendrain;
+            hal_bit_t *invert_output;
         } param;
 
     } hal;
@@ -296,13 +296,13 @@ typedef struct {
         } pin;
 
         struct {
-            hal_float_t scale;
-            hal_bit_t index_invert;
-            hal_bit_t index_mask;
-            hal_bit_t index_mask_invert;
-            hal_bit_t counter_mode;
-            hal_bit_t filter;
-            hal_float_t vel_timeout;
+            hal_float_t *scale;
+            hal_bit_t *index_invert;
+            hal_bit_t *index_mask;
+            hal_bit_t *index_mask_invert;
+            hal_bit_t *counter_mode;
+            hal_bit_t *filter;
+            hal_float_t *vel_timeout;
 
 
         } param;
@@ -441,10 +441,10 @@ typedef struct {
         } pin;
 
         struct {
-            hal_float_t scale;
-            hal_float_t vel_scale;
-            hal_u32_t index_div;
-            hal_bit_t use_abs;
+            hal_float_t *scale;
+            hal_float_t *vel_scale;
+            hal_u32_t *index_div;
+            hal_bit_t *use_abs;
         } param;
 
     } hal;
@@ -458,7 +458,7 @@ typedef struct {
 
 typedef struct {
     struct {
-        hal_float_t excitation_khz;
+        hal_float_t *excitation_khz;
     } param;
 } hm2_resolver_global_t;
 
@@ -512,10 +512,10 @@ typedef struct {
         } pin;
 
         struct {
-            hal_float_t scale;
-            hal_bit_t offset_mode;
-            hal_s32_t output_type; 
-            hal_bit_t dither;            
+            hal_float_t *scale;
+            hal_bit_t *offset_mode;
+            hal_s32_t *output_type; 
+            hal_bit_t *dither;            
         } param;
 
     } hal;
@@ -542,8 +542,8 @@ typedef struct {
 // these hal params affect all pwmgen instances
 typedef struct {
     struct {
-        hal_u32_t pwm_frequency;
-        hal_u32_t pdm_frequency;
+        hal_u32_t *pwm_frequency;
+        hal_u32_t *pdm_frequency;
     } param;
 } hm2_pwmgen_module_global_t;
 
@@ -787,14 +787,14 @@ typedef struct {
         } pin;
 
         struct {
-            hal_u32_t scan_rate;
-            hal_u32_t slow_scans; 
-            hal_u32_t fast_scans; 		
-            hal_bit_t enc0_mode; 
-            hal_bit_t enc1_mode; 
-            hal_bit_t enc2_mode; 
-            hal_bit_t enc3_mode; 
-            hal_u32_t scan_width; 	    	
+            hal_u32_t *scan_rate;
+            hal_u32_t *slow_scans; 
+            hal_u32_t *fast_scans; 		
+            hal_bit_t *enc0_mode; 
+            hal_bit_t *enc1_mode; 
+            hal_bit_t *enc2_mode; 
+            hal_bit_t *enc3_mode; 
+            hal_u32_t *scan_width; 	    	
         } param;
 
     } hal;
@@ -881,14 +881,14 @@ typedef struct {
         } pin;
 
         struct {
-            hal_u32_t scan_rate;
-            hal_u32_t slow_scans; 
-            hal_u32_t fast_scans; 		
-            hal_bit_t enc0_mode; 
-            hal_bit_t enc1_mode; 
-            hal_bit_t enc2_mode; 
-            hal_bit_t enc3_mode; 
-            hal_u32_t scan_width; 	    	
+            hal_u32_t *scan_rate;
+            hal_u32_t *slow_scans; 
+            hal_u32_t *fast_scans; 		
+            hal_bit_t *enc0_mode; 
+            hal_bit_t *enc1_mode; 
+            hal_bit_t *enc2_mode; 
+            hal_bit_t *enc3_mode; 
+            hal_u32_t *scan_width; 	    	
         } param;
 
     } hal;
@@ -1086,10 +1086,10 @@ typedef struct {
         } pin;
 
         struct {
-            hal_float_t scale;
-            hal_float_t deadzone;
-            hal_bit_t faultpolarity;
-            hal_float_t sampletime;
+            hal_float_t *scale;
+            hal_float_t *deadzone;
+            hal_bit_t *faultpolarity;
+            hal_float_t *sampletime;
         } param;
 
     } hal;
@@ -1105,7 +1105,7 @@ typedef struct {
 
 typedef struct {
     struct {
-        hal_u32_t pwm_frequency; // One PWM rate for all instances
+        hal_u32_t *pwm_frequency; // One PWM rate for all instances
     } param;
 } hm2_tp_pwmgen_global_hal_t;
 
@@ -1215,18 +1215,18 @@ typedef struct {
         } pin;
 
         struct {
-            hal_float_t position_scale;
-            hal_float_t maxvel;
-            hal_float_t maxaccel;
+            hal_float_t *position_scale;
+            hal_float_t *maxvel;
+            hal_float_t *maxaccel;
 
-            hal_u32_t steplen;
-            hal_u32_t stepspace;
-            hal_u32_t dirsetup;
-            hal_u32_t dirhold;
+            hal_u32_t *steplen;
+            hal_u32_t *stepspace;
+            hal_u32_t *dirsetup;
+            hal_u32_t *dirhold;
 
-            hal_u32_t step_type;
-            hal_bit_t swap_step_dir;
-            hal_u32_t table[5]; // the Fifth Element is used as a very crude hash
+            hal_u32_t *step_type;
+            hal_bit_t *swap_step_dir;
+            hal_u32_t *table[5]; // the Fifth Element is used as a very crude hash
         } param;
 
     } hal;
@@ -1460,7 +1460,7 @@ typedef struct {
         } pin;
 
         struct {
-            hal_u32_t timeout_ns;
+            hal_u32_t *timeout_ns;
         } param;
 
     } hal;

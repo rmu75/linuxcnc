@@ -114,8 +114,8 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
     HAL_IN = hal.HAL_IN
     HAL_OUT = hal.HAL_OUT
     HAL_IO = hal.HAL_IO
-    HAL_RO = hal.HAL_RO
-    HAL_RW = hal.HAL_RW
+    HAL_IN = hal.HAL_IN
+    HAL_OUT = hal.HAL_OUT
 
     PINS = 1
     SIGS = SIGNALS = 2
@@ -127,7 +127,7 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
         self.PINDIRECTION = [self.HAL_IN, self.HAL_OUT]
         self.SIGTYPE = [self.HAL_BIT,self.HAL_FLOAT,self.HAL_S32,self.HAL_U32]
         self.SIGDRIVEN = [True, False]
-        self.PARAMTYPE = [self.HAL_RO, self.HAL_RW]
+        self.PARAMTYPE = [self.HAL_IN, self.HAL_OUT]
         self.SHOWTYPES = [self.PINS]
 
     def _hal_init(self):

@@ -287,9 +287,6 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 		logOword("%s: signal has no writer", hal_name);
 	    goto assign;
 	}
-        if (hal_get_param_value_by_name(hal_name, &type, &ptr) == 0) {
-	    goto assign;
-	}
 	*status = 0;
 	ERS("Named hal parameter #<%s> not found", nameBuf);
     }

@@ -120,7 +120,7 @@ int rtapi_app_main(void)
 	      "WATCHDOG: ERROR: couldn't create input pin watchdog.input-%d\n", n);
 	  goto err;
       }
-      retval=hal_param_float_newf(HAL_RW, &(inputs[n].timeout), comp_id, "watchdog.timeout-%d", n);
+      retval=hal_pin_float_newf(HAL_OUT, &(inputs[n].timeout), comp_id, "watchdog.timeout-%d", n);
       if (retval != 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "WATCHDOG: ERROR: couldn't create input parameter watchdog.timeout-%d\n", n);

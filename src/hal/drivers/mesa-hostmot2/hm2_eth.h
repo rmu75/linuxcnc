@@ -61,10 +61,10 @@ typedef struct {
     struct arpreq req;
 
     struct {
-        hal_s32_t read_timeout;
-        hal_s32_t packet_error_limit;
-        hal_s32_t packet_error_increment;
-        hal_s32_t packet_error_decrement;
+        hal_s32_t *read_timeout;
+        hal_s32_t *packet_error_limit;
+        hal_s32_t *packet_error_increment;
+        hal_s32_t *packet_error_decrement;
         hal_bit_t *packet_error;
         hal_u32_t *packet_error_total;
         hal_s32_t *packet_error_level;

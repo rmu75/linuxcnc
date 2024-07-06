@@ -304,7 +304,7 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 			    break;
 
 			// Parameters.
-			if((halError = hal_param_bit_newf(HAL_RW, &(this->port[portnum].io[channel].invert),
+			if((halError = hal_pin_bit_newf(HAL_OUT, &(this->port[portnum].io[channel].invert),
 			  comp_id, "opto-ac5.%d.port%d.out-%02d-invert", boardId, portnum, channel)) != 0)
 			    break;
 

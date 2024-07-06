@@ -308,7 +308,7 @@ int rtapi_app_main(void){
                 return -1;
             }
             
-            retval = hal_param_bit_newf(HAL_RW,
+            retval = hal_pin_bit_newf(HAL_OUT,
                                       &(inst->param.invert), comp_id,
                                       "%s.negative-logic",inst->name);
             if (retval != 0) {
@@ -319,7 +319,7 @@ int rtapi_app_main(void){
             }
             
             
-            retval = hal_param_u32_newf(HAL_RW,
+            retval = hal_pin_u32_newf(HAL_OUT,
                                       &(inst->param.rollover), comp_id,
                                       "%s.key_rollover",inst->name);
             if (retval != 0) {

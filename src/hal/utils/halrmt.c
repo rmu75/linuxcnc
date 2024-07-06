@@ -333,7 +333,6 @@ static void save_comps(FILE *dst);
 static void save_signals(FILE *dst);
 static void save_links(FILE *dst, int arrows);
 static void save_nets(FILE *dst, int arrows);
-static void save_params(FILE *dst);
 static void save_threads(FILE *dst);
 static void print_help_general(int showR);
 
@@ -963,16 +962,12 @@ static int doSetp(char *name, char *value, connectionRecType *context)
 {
     const char *nakStr = "SET SETP NAK";
     int retval;
-    hal_param_t *param;
     hal_pin_t *pin;
     hal_type_t type;
     void *d_ptr;
 
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param == 0) {
         pin = halpr_find_pin_by_name(name);
         if(pin == 0) {
             rtapi_mutex_give(&(hal_data->mutex));
@@ -1000,18 +995,7 @@ static int doSetp(char *name, char *value, connectionRecType *context)
             // d_ptr = (void*)SHMPTR(pin->dummysig);
             d_ptr = (void*)&pin->dummysig;
         }
-    } else {
-        /* found it */
-        type = param->type;
-        /* is it read only? */
-        if (param->dir == HAL_RO) {
-            rtapi_mutex_give(&(hal_data->mutex));
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "HAL:%d: ERROR: param '%s' is not writable\n", linenumber, name);
-            return -EINVAL;
-        }
-        d_ptr = SHMPTR(param->data_ptr);
-    }
+
 
     retval = set_common(type, d_ptr, value, context);
 
@@ -1773,37 +1757,6 @@ static void getSigInfo(char *pattern, int valuesOnly, connectionRecType *context
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void getParamInfo(char *pattern, int valuesOnly, connectionRecType *context)
-{
-    int next, len;
-    hal_param_t *param;
-    hal_comp_t *comp;
-
-    rtapi_mutex_get(&(hal_data->mutex));
-    len = strlen(pattern);
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-      param = SHMPTR(next);
-      if ( strncmp(pattern, param->name, len) == 0 ) {
-        comp = SHMPTR(param->owner_ptr);
-	if (valuesOnly == 0)
-          snprintf(context->outBuf, sizeof(context->outBuf), "PARAM %s %s %02d %s %s",
-	    param->name,
-            data_value((int) param->type, SHMPTR(param->data_ptr)),
-            comp->comp_id, 
-	    data_type((int) param->type),
-            param_data_dir((int) param->dir));
-	else
-	  snprintf(context->outBuf, sizeof(context->outBuf), "PARAMVAL %s %s",
-	    param->name,
-	    data_value((int) param->type, SHMPTR(param->data_ptr)));
-	sockWrite(context);
-	}
-      next = param->next_ptr;
-      }
-    rtapi_mutex_give(&(hal_data->mutex));
-}
-
 static void getFunctInfo(char *pattern, connectionRecType *context)
 {
     int next, len;
@@ -1879,7 +1832,7 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
 	  (unsigned int)tptr->period, 
 	  (tptr->uses_fp ? "YES" : "NO "),  
 	  runtime_pin_value,
-	  (unsigned int)tptr->maxtime);
+	  (unsigned int)*tptr->maxtime);
 	sockWrite(context);
         list_root = &(tptr->funct_list);
         list_entry = list_next(list_root);
@@ -1955,10 +1908,10 @@ static const char *param_data_dir(int dir)
     const char *param_dir;
 
     switch (dir) {
-    case HAL_RO:
+    case HAL_IN:
 	param_dir = "RO";
 	break;
-    case HAL_RW:
+    case HAL_OUT:
 	param_dir = "RW";
 	break;
     default:
@@ -2104,7 +2057,6 @@ static int doSave(char *type, char *filename, connectionRecType *context)
 	save_comps(dst);
 	save_signals(dst);
 	save_links(dst, 0);
-	save_params(dst);
 	save_threads(dst);
       } 
     else 
@@ -2126,8 +2078,9 @@ static int doSave(char *type, char *filename, connectionRecType *context)
 	        if (strcmp(type, "neta") == 0)
 	          save_nets(dst, 1);
                 else 
-		  if (strcmp(type, "param") == 0)
-	            save_params(dst);
+		  if (strcmp(type, "param") == 0){
+
+      }
                   else 
 		    if (strcmp(type, "thread") == 0)
 	              save_threads(dst);
@@ -2232,26 +2185,6 @@ static void save_nets(FILE *dst, int arrow)
 	    pin = halpr_find_pin_by_sig(sig, pin);
 	}
 	next = sig->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-}
-
-static void save_params(FILE *dst)
-{
-    int next;
-    hal_param_t *param;
-
-    fprintf(dst, "# parameter values\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if (param->dir != HAL_RO) {
-	    /* param is writable, save it's value */
-	    fprintf(dst, "setp %s %s\n", param->name,
-		data_value((int) param->type, SHMPTR(param->data_ptr)));
-	}
-	next = param->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }
@@ -2584,24 +2517,6 @@ static cmdResponseType getSignalVals(char *s, connectionRecType *context)
   return rtHandledNoError;
 }
 
-static cmdResponseType getParams(char *s, connectionRecType *context)
-{
-  if (s == NULL)
-    getParamInfo("", 0, context);
-  else
-    getParamInfo(s, 0, context);
-  return rtHandledNoError;
-}
-
-static cmdResponseType getParamVals(char *s, connectionRecType *context)
-{
-  if (s == NULL) 
-    getParamInfo("", 1, context);
-  else
-    getParamInfo(s, 1, context);
-  return rtHandledNoError;
-}
-
 static cmdResponseType getFuncts(char *s, connectionRecType *context)
 {
   if (s == NULL)
@@ -2655,20 +2570,6 @@ static cmdResponseType getSignalVal(char *s, connectionRecType *context)
   return rtHandledNoError;
 }
 
-static cmdResponseType getParam(char *s, connectionRecType *context)
-{
-  if (s == NULL) return rtStandardError;
-  getParamInfo(s, 0, context);
-  return rtHandledNoError;
-}
-
-static cmdResponseType getParamVal(char *s, connectionRecType *context)
-{
-  if (s == NULL) return rtStandardError;
-  getParamInfo(s, 1, context);
-  return rtHandledNoError;
-}
-
 static cmdResponseType getFunct(char *s, connectionRecType *context)
 {
   if (s == NULL) return rtStandardError;
@@ -2709,8 +2610,6 @@ int commandGet(connectionRecType *context)
     case hcPinVals: ret = getPinVals(pch, context); break;
     case hcSigs: ret = getSignals(strtok(NULL, delims), context); break;
     case hcSigVals: ret = getSignalVals(strtok(NULL, delims), context); break;
-    case hcParams: ret = getParams(strtok(NULL, delims), context); break;
-    case hcParamVals: ret = getParamVals(strtok(NULL, delims), context); break;
     case hcFuncts: ret = getFuncts(strtok(NULL, delims), context); break;
     case hcThreads: ret = getThreads(strtok(NULL, delims), context); break;
     case hcComp: ret = getComp(strtok(NULL, delims), context); break;
@@ -2718,8 +2617,6 @@ int commandGet(connectionRecType *context)
     case hcPinVal: ret = getPinVal(strtok(NULL, delims), context); break;
     case hcSig: ret = getSignal(strtok(NULL, delims), context); break;
     case hcSigVal: ret = getSignalVal(strtok(NULL, delims), context); break;
-    case hcParam: ret = getParam(strtok(NULL, delims), context); break;
-    case hcParamVal: ret = getParamVal(strtok(NULL, delims), context); break;
     case hcFunct: ret = getFunct(strtok(NULL, delims), context); break;
     case hcThread: ret = getThread(strtok(NULL, delims), context); break;
     case hcLoadRt: ;

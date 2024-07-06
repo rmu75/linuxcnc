@@ -159,12 +159,12 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
-            //if (0 != hal_param_float_newf(HAL_RW, mb_tx->scale + pin_counter, gbl.hal_mod_id,
+            //if (0 != hal_pin_float_newf(HAL_OUT, mb_tx->scale + pin_counter, gbl.hal_mod_id,
             //                              "%s.scale", hal_pin_name)) {
             //    ERR(gbl.init_dbg, "[%d] [%s] [%s]", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
             //    return retERR;
             //}
-            //if (0 != hal_param_float_newf(HAL_RW, mb_tx->offset + pin_counter, gbl.hal_mod_id,
+            //if (0 != hal_pin_float_newf(HAL_OUT, mb_tx->offset + pin_counter, gbl.hal_mod_id,
             //                              "%s.offset", hal_pin_name)) {
             //    ERR(gbl.init_dbg, "[%d] [%s] [%s]", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
             //    return retERR;
@@ -197,12 +197,12 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
-                //if (0 != hal_param_float_newf(HAL_RW, mb_tx->scale + pin_counter, gbl.hal_mod_id,
+                //if (0 != hal_pin_float_newf(HAL_OUT, mb_tx->scale + pin_counter, gbl.hal_mod_id,
                 //                              "%s.scale", hal_pin_name)) {
                 //    ERR(gbl.init_dbg, "[%d] [%s] [%s]", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 //    return retERR;
                 //}
-                //if (0 != hal_param_float_newf(HAL_RW, mb_tx->offset + pin_counter, gbl.hal_mod_id,
+                //if (0 != hal_pin_float_newf(HAL_OUT, mb_tx->offset + pin_counter, gbl.hal_mod_id,
                 //                              "%s.offset", hal_pin_name)) {
                 //    ERR(gbl.init_dbg, "[%d] [%s]", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name);
                 //    return retERR;

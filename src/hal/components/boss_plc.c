@@ -625,12 +625,12 @@ Plc_ExportLimits(Plc *this, int compId, int id)
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            error = hal_param_u32_newf(HAL_RO, &this->xLimit.state, compId,
+            error = hal_pin_u32_newf(HAL_IN, &this->xLimit.state, compId,
 				       "boss_plc.%d.%c-limit-state", id, axisNames[0]);
         }
 
         if(!error){
-            error = hal_param_u32_newf(HAL_RO, &this->yLimit.state, compId,
+            error = hal_pin_u32_newf(HAL_IN, &this->yLimit.state, compId,
 				       "boss_plc.%d.%c-limit-state", id, axisNames[1]);
         }
     }
@@ -679,7 +679,7 @@ Plc_ExportSpindle(Plc *this, int compId, int id)
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            error = hal_param_u32_newf(HAL_RO, &this->spindleState, compId,
+            error = hal_pin_u32_newf(HAL_IN, &this->spindleState, compId,
 				       "boss_plc.%d.spindle-state", id);
         }
     }

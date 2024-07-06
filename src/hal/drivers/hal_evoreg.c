@@ -246,7 +246,7 @@ int rtapi_app_main(void)
     }
 
     /* export parameter for scaling */
-    retval = hal_param_float_newf(HAL_RW, &(port_data_array->pos_scale),
+    retval = hal_pin_float_newf(HAL_OUT, &(port_data_array->pos_scale),
 				  comp_id, "evoreg.%d.position-scale", 1);
     if (retval != 0) {
 	return retval;

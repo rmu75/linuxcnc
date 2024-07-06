@@ -281,7 +281,7 @@ int rtapi_app_main(void){
 
     if (reset_active){
 	gpio->reset_ns = hal_malloc(sizeof(hal_u32_t));
-	retval += hal_param_u32_newf(HAL_RW, gpio->reset_ns, comp_id, "hal_gpio.reset_ns");
+	retval += hal_pin_u32_newf(HAL_OUT, gpio->reset_ns, comp_id, "hal_gpio.reset_ns");
 	retval += hal_export_funct("hal_gpio.reset", hal_gpio_reset, gpio, 0, 0, comp_id);
     }
     if (retval < 0){

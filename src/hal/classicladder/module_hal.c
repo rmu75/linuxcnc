@@ -71,7 +71,7 @@ hal_bit_t **hide_gui;
 hal_bit_t **hal_outputs;
 hal_s32_t **hal_s32_inputs;
 hal_s32_t **hal_s32_outputs;
-hal_s32_t *hal_state;
+hal_s32_t **hal_state;
 hal_float_t **hal_float_inputs;
 hal_float_t **hal_float_outputs;
 
@@ -141,7 +141,7 @@ static void hal_task(void *arg, long period) {
 
 	if (milliseconds >= 1) {
 		InfosGene->GeneralParams.PeriodicRefreshMilliSecs=milliseconds;
-		*hal_state = InfosGene->LadderState;
+		**hal_state = InfosGene->LadderState;
 		t0 = rtapi_get_time();
 		if (InfosGene->LadderState==STATE_RUN)
 			{
@@ -185,7 +185,7 @@ error:
 	}
 
 	hal_state = hal_malloc(sizeof(hal_s32_t));
-	result = hal_param_s32_new("classicladder.ladder-state", HAL_RO, hal_state, compId);
+	result = hal_pin_s32_new("classicladder.ladder-state", HAL_IN, hal_state, compId);
 	if(result < 0) {
 		 hal_exit(compId);
 		 return result;

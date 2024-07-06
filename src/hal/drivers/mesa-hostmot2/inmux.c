@@ -165,52 +165,52 @@ int hm2_inmux_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->llio->read(hm2->llio,hm2->inmux.control_addr + (i * md->instance_stride),&temp, sizeof(rtapi_u32));
             temp  = (temp & 0x0000001f) +1;
 	    hm2->inmux.instance[i].scanwidth = temp;         
-	    hm2->inmux.instance[i].hal.param.scan_width = temp;
+	    *hm2->inmux.instance[i].hal.param.scan_width = temp;
 
             rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.scan_rate", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.scan_rate), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.param.scan_rate), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
             rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.slow_scans", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.slow_scans), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.param.slow_scans), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             } 
             rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.fast_scans", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.fast_scans), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.param.fast_scans), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }  
            rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc0_4xmode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.enc0_mode), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.param.enc0_mode), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
             rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc1_4xmode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.enc1_mode), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.param.enc1_mode), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
             rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc2_4xmode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.enc2_mode), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.param.enc2_mode), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             } 
             rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc3_4xmode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->inmux.instance[i].hal.param.enc3_mode), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.param.enc3_mode), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
             rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.scan_width", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RO, &(hm2->inmux.instance[i].hal.param.scan_width), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.param.scan_width), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
@@ -336,9 +336,9 @@ int hm2_inmux_parse_md(hostmot2_t *hm2, int md_index) {
         int i;
         int rawmpgs;
         for (i = 0; i < hm2->inmux.num_instances; i ++) {
-            hm2->inmux.instance[i].hal.param.scan_rate = 20000; // 20 KHz = 50 usec/scan
-            hm2->inmux.instance[i].hal.param.slow_scans = 500;  // 500*50 usec = 25 ms
-            hm2->inmux.instance[i].hal.param.fast_scans = 5;   //  5*50 usec = 250 usec
+            *hm2->inmux.instance[i].hal.param.scan_rate = 20000; // 20 KHz = 50 usec/scan
+            *hm2->inmux.instance[i].hal.param.slow_scans = 500;  // 500*50 usec = 25 ms
+            *hm2->inmux.instance[i].hal.param.fast_scans = 5;   //  5*50 usec = 250 usec
             hm2->llio->read(hm2->llio,hm2->inmux.mpg_read_addr + (i * md->instance_stride),&rawmpgs, sizeof(rtapi_u32));
             hm2->inmux.instance[i].prev_enc0_count = (rtapi_s32)((rawmpgs >>  0) & 0x000000FF); 
             hm2->inmux.instance[i].prev_enc1_count = (rtapi_s32)((rawmpgs >>  8) & 0x000000FF); 
@@ -373,24 +373,24 @@ void hm2_inmux_force_write(hostmot2_t *hm2) {
 
     // setup control register and mpg_write
     for (i = 0; i < hm2->inmux.num_instances; i ++) {
-        muxrate = hm2->inmux.instance[i].scanwidth * hm2->inmux.instance[i].hal.param.scan_rate;
+        muxrate = hm2->inmux.instance[i].scanwidth * *hm2->inmux.instance[i].hal.param.scan_rate;
 	if (muxrate > 5000000) {
             muxrate = 5000000;
-	    hm2->inmux.instance[i].hal.param.scan_rate = muxrate/hm2->inmux.instance[i].scanwidth;
+	    *hm2->inmux.instance[i].hal.param.scan_rate = muxrate/hm2->inmux.instance[i].scanwidth;
         }
         divisor = (hm2->inmux.clock_frequency / (4 * muxrate)) - 1;
-	if (hm2->inmux.instance[i].hal.param.fast_scans > 63) {
-            hm2->inmux.instance[i].hal.param.fast_scans = 63;
+	if (*hm2->inmux.instance[i].hal.param.fast_scans > 63) {
+            *hm2->inmux.instance[i].hal.param.fast_scans = 63;
         }
-        if (hm2->inmux.instance[i].hal.param.slow_scans > 1023) {
-            hm2->inmux.instance[i].hal.param.slow_scans = 1023;
+        if (*hm2->inmux.instance[i].hal.param.slow_scans > 1023) {
+            *hm2->inmux.instance[i].hal.param.slow_scans = 1023;
         }
 
          hm2->inmux.control_reg[i] = (1 << 5) +  
 //       global invert bit(5) fixed to true for now as this matches all existing hardware
 	(divisor << 6) +
-        (hm2->inmux.instance[i].hal.param.fast_scans  << 16) +
-        (hm2->inmux.instance[i].hal.param.slow_scans  << 22);
+        (*hm2->inmux.instance[i].hal.param.fast_scans  << 16) +
+        (*hm2->inmux.instance[i].hal.param.slow_scans  << 22);
     }
 
     size = hm2->inmux.num_instances * sizeof(rtapi_u32);
@@ -419,43 +419,43 @@ void hm2_inmux_write(hostmot2_t *hm2) {
 
 
     for (i = 0; i < hm2->inmux.num_instances; i ++) {
-        muxrate = hm2->inmux.instance[i].scanwidth * hm2->inmux.instance[i].hal.param.scan_rate;
+        muxrate = hm2->inmux.instance[i].scanwidth * *hm2->inmux.instance[i].hal.param.scan_rate;
 //      bound muxrate maximum frequency
 	if (muxrate > 5000000) {
             muxrate = 5000000;
-	    hm2->inmux.instance[i].hal.param.scan_rate = muxrate/hm2->inmux.instance[i].scanwidth;
-            HM2_ERR("InMux %d scanrate too high, resetting to %d \n", i,hm2->inmux.instance[i].hal.param.scan_rate);
+	    *hm2->inmux.instance[i].hal.param.scan_rate = muxrate/hm2->inmux.instance[i].scanwidth;
+            HM2_ERR("InMux %d scanrate too high, resetting to %d \n", i,*hm2->inmux.instance[i].hal.param.scan_rate);
         }
         divisor = (hm2->inmux.clock_frequency / (4 * muxrate)) - 1;
 //      bound divisor so we dont splatter into other fields
 	if ((divisor > 1023 ) | (muxrate == 0 )) {
             divisor = 1023;
-	    hm2->inmux.instance[i].hal.param.scan_rate = (hm2->inmux.clock_frequency/4)/(divisor +1)
+	    *hm2->inmux.instance[i].hal.param.scan_rate = (hm2->inmux.clock_frequency/4)/(divisor +1)
             /hm2->inmux.instance[i].scanwidth;
-            HM2_ERR("InMux %d scanrate too low, resetting to %d \n", i,hm2->inmux.instance[i].hal.param.scan_rate);
+            HM2_ERR("InMux %d scanrate too low, resetting to %d \n", i,*hm2->inmux.instance[i].hal.param.scan_rate);
         }
-	if (hm2->inmux.instance[i].hal.param.fast_scans > 63) {
-            hm2->inmux.instance[i].hal.param.fast_scans = 63;
+	if (*hm2->inmux.instance[i].hal.param.fast_scans > 63) {
+            *hm2->inmux.instance[i].hal.param.fast_scans = 63;
             HM2_ERR("InMux %d fastscans must be less than 63, resetting to %d \n", i,63);
         }
-        if (hm2->inmux.instance[i].hal.param.slow_scans > 1023) {
-            hm2->inmux.instance[i].hal.param.slow_scans = 1023;
+        if (*hm2->inmux.instance[i].hal.param.slow_scans > 1023) {
+            *hm2->inmux.instance[i].hal.param.slow_scans = 1023;
             HM2_ERR("InMux %d slowscans  must be less than 1023, resetting to %d \n", i,1023);
         }
-	if (hm2->inmux.instance[i].hal.param.fast_scans < 1 ) {
-            hm2->inmux.instance[i].hal.param.fast_scans = 1;
+	if (*hm2->inmux.instance[i].hal.param.fast_scans < 1 ) {
+            *hm2->inmux.instance[i].hal.param.fast_scans = 1;
             HM2_ERR("InMux %d fastscans must be greater than 0, resetting to %d \n", i,1);
         }
-        if (hm2->inmux.instance[i].hal.param.slow_scans < 1) {
-            hm2->inmux.instance[i].hal.param.slow_scans = 1;
+        if (*hm2->inmux.instance[i].hal.param.slow_scans < 1) {
+            *hm2->inmux.instance[i].hal.param.slow_scans = 1;
             HM2_ERR("InMux %d slowscans must be greater than 0, resetting to %d \n", i,1);
         }
 
          hm2->inmux.control_reg[i] = (1 << 5) +  
 //       global invert bit(5) fixed to true for now as this matches all existing hardware)
 	(divisor << 6) +
-        (hm2->inmux.instance[i].hal.param.fast_scans  << 16) +
-        (hm2->inmux.instance[i].hal.param.slow_scans  << 22);
+        (*hm2->inmux.instance[i].hal.param.fast_scans  << 16) +
+        (*hm2->inmux.instance[i].hal.param.slow_scans  << 22);
         if (hm2->inmux.control_reg[i] != hm2->inmux.instance[i].written_control_reg) {
             hm2->llio->write(hm2->llio, hm2->inmux.control_addr, hm2->inmux.control_reg, size);
             hm2->inmux.instance[i].written_control_reg = hm2->inmux.control_reg[i];
@@ -472,10 +472,10 @@ void hm2_inmux_write(hostmot2_t *hm2) {
         }
         
 	hm2->inmux.mpg_mode_reg[i] =        
-	hm2->inmux.instance[i].hal.param.enc0_mode << 0  |
-        hm2->inmux.instance[i].hal.param.enc1_mode << 8  |
-        hm2->inmux.instance[i].hal.param.enc2_mode << 16 |
-        hm2->inmux.instance[i].hal.param.enc3_mode << 24;
+	*hm2->inmux.instance[i].hal.param.enc0_mode << 0  |
+        *hm2->inmux.instance[i].hal.param.enc1_mode << 8  |
+        *hm2->inmux.instance[i].hal.param.enc2_mode << 16 |
+        *hm2->inmux.instance[i].hal.param.enc3_mode << 24;
         if (hm2->inmux.mpg_mode_reg[i] != hm2->inmux.instance[i].written_mpg_mode_reg) {
             hm2->llio->write(hm2->llio, hm2->inmux.mpg_mode_addr, hm2->inmux.mpg_mode_reg, size);
             hm2->inmux.instance[i].written_mpg_mode_reg = hm2->inmux.mpg_mode_reg[i];

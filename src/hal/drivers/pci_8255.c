@@ -89,7 +89,7 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
             r = hal_pin_bit_newf(direction, &(inst->ai[i].not_), comp_id,
                 "%s.a%d-not", prefix, i);
         } else {
-            r = hal_param_bit_newf(HAL_RW, &(inst->ai[i].invert), comp_id,
+            r = hal_pin_bit_newf(HAL_OUT, &(inst->ai[i].invert), comp_id,
                     "%s.a%d-invert", prefix, i);
         }
         if(r != 0) return r;
@@ -103,7 +103,7 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
             r = hal_pin_bit_newf(direction, &(inst->bi[i].not_), comp_id,
                 "%s.b%d-not", prefix, i);
         } else {
-            r = hal_param_bit_newf(HAL_RW, &(inst->bi[i].invert), comp_id,
+            r = hal_pin_bit_newf(HAL_OUT, &(inst->bi[i].invert), comp_id,
                     "%s.b%d-invert", prefix, i);
         }
         if(r != 0) return r;
@@ -123,12 +123,12 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
             r = hal_pin_bit_newf(direction, &(inst->ci[i].not_), comp_id,
                 "%s.c%d-not", prefix, i);
         } else {
-            r = hal_param_bit_newf(HAL_RW, &(inst->ci[i].invert), comp_id,
+            r = hal_pin_bit_newf(HAL_OUT, &(inst->ci[i].invert), comp_id,
                     "%s.c%d-invert", prefix, i);
         }
         if(r != 0) return r;
     }
-    r = hal_param_u32_newf(HAL_RO, &(inst->dir_), comp_id,
+    r = hal_pin_u32_newf(HAL_IN, &(inst->dir_), comp_id,
         "%s.dir", prefix);
     if(r != 0) return r;
     r = hal_export_functf((void(*)(void *inst, long))read, inst, 0, 0, comp_id, "%s.read", prefix);
@@ -203,10 +203,10 @@ int rtapi_app_main(void) {
 	    if(r != 0) goto out_error;
 	}
 	hal_pin_bit_newf(HAL_IN, &(inst[i].relay), comp_id, "pci8255.%d.relay", i);
-	hal_param_bit_newf(HAL_RW, &(inst[i].relay_invert), comp_id, 
+	hal_pin_bit_newf(HAL_OUT, &(inst[i].relay_invert), comp_id, 
 		    "pci8255.%d.relay-invert", i);
 	r = hal_export_functf((void(*)(void *inst, long))write_relay, &inst[i], 0, 0, comp_id, "pci8255.%d.write-relay", i);
-	r = hal_param_u32_newf(HAL_RO, &(inst->ioaddr), comp_id,
+	r = hal_pin_u32_newf(HAL_IN, &(inst->ioaddr), comp_id,
 	    "pci8255.%d.io-addr", i);
 	inst->ioaddr = io[i];
 	if(r != 0) return r;

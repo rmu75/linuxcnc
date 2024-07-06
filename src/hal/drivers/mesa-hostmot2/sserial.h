@@ -118,12 +118,12 @@ typedef struct {
     hal_bit_t *invert;
     hal_bit_t *boolean;
     hal_bit_t *boolean2;
-    hal_float_t maxlim;
-    hal_float_t minlim;
-    hal_float_t fullscale;
-    hal_u32_t u32_param;
-    hal_bit_t graycode;
-    hal_bit_t nowrap;
+    hal_float_t *maxlim;
+    hal_float_t *minlim;
+    hal_float_t *fullscale;
+    hal_u32_t *u32_param;
+    hal_bit_t *graycode;
+    hal_bit_t *nowrap;
     rtapi_s64 oldval; // not pins, but this way every pin can have one
     rtapi_s64 accum; // these two are only currently used by encoders
     rtapi_s64 offset;
@@ -132,11 +132,11 @@ typedef struct {
 typedef struct {
     int type;
     union {
-        long long s64_param;
-        hal_u32_t u32_param;
-        hal_s32_t s32_param;
-        hal_float_t float_param;
-        hal_bit_t bit_param;
+        long long *s64_param;
+        hal_u32_t *u32_param;
+        hal_s32_t *s32_param;
+        hal_float_t *float_param;
+        hal_bit_t *bit_param;
     };
     union {
         long long s64_written;
@@ -145,7 +145,7 @@ typedef struct {
         hal_float_t float_written;
         hal_bit_t bit_written;
     };
-    hal_u32_t timer_num;
+    hal_u32_t *timer_num;
     hal_bit_t *error;
 }hm2_sserial_params_t;
 
@@ -196,9 +196,9 @@ typedef struct {
     rtapi_u32 *data_reg_read;
     rtapi_u32 *data_reg_write;
     hal_u32_t *fault_count;
-    hal_u32_t fault_inc;
-    hal_u32_t fault_dec;
-    hal_u32_t fault_lim;
+    hal_u32_t *fault_inc;
+    hal_u32_t *fault_dec;
+    hal_u32_t *fault_lim;
     
     hal_bit_t *run;
     hal_u32_t *state;

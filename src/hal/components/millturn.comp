@@ -77,8 +77,8 @@ static int millturn_setup(void) {
     res += hal_pin_u32_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,HAL_PREFIX);
     res += hal_pin_u32_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out",HAL_PREFIX);
     // hal parameter examples:
-    res += hal_param_float_newf(HAL_RW, &haldata->param_rw,comp_id,"%s.param-rw",HAL_PREFIX);
-    res += hal_param_float_newf(HAL_RO, &haldata->param_ro,comp_id,"%s.param-ro",HAL_PREFIX);
+    res += hal_pin_float_newf(HAL_OUT, &haldata->param_rw,comp_id,"%s.param-rw",HAL_PREFIX);
+    res += hal_pin_float_newf(HAL_IN, &haldata->param_ro,comp_id,"%s.param-ro",HAL_PREFIX);
 
     // hal pins required for switchable kinematics:
     res += hal_pin_bit_new("kinstype.is-0", HAL_OUT, &(haldata->kinstype_is_0), comp_id);

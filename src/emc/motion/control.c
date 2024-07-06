@@ -1944,14 +1944,14 @@ static void output_to_hal(void)
        to one of the debug parameters.  You can also comment out these lines
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
-    emcmot_hal_data->debug_bit_0 = joints[1].free_tp.active;
-    emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
-    emcmot_hal_data->debug_float_0 = emcmotStatus->spindle_status[0].speed;
-    emcmot_hal_data->debug_float_1 = emcmotStatus->spindleSync;
-    emcmot_hal_data->debug_float_2 = emcmotStatus->vel;
-    emcmot_hal_data->debug_float_3 = emcmotStatus->spindle_status[0].net_scale;
-    emcmot_hal_data->debug_s32_0 = emcmotStatus->overrideLimitMask;
-    emcmot_hal_data->debug_s32_1 = emcmotStatus->tcqlen;
+    // *(emcmot_hal_data->debug_bit_0) = joints[1].free_tp.active;
+    // *(emcmot_hal_data->debug_bit_1) = emcmotStatus->enables_new & AF_ENABLED;
+    // *(emcmot_hal_data->debug_float_0) = emcmotStatus->spindle_status[0].speed;
+    // *(emcmot_hal_data->debug_float_1) = emcmotStatus->spindleSync;
+    // *(emcmot_hal_data->debug_float_2) = emcmotStatus->vel;
+    // *(emcmot_hal_data->debug_float_3) = emcmotStatus->spindle_status[0].net_scale;
+    // *(emcmot_hal_data->debug_s32_0) = emcmotStatus->overrideLimitMask;
+    // *(emcmot_hal_data->debug_s32_1) = emcmotStatus->tcqlen;
 
     /* two way handshaking for the spindle encoder */
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){

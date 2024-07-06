@@ -101,20 +101,20 @@ typedef struct {
   hal_float_t	*power_factor;
   hal_float_t	*load_pct;
   hal_s32_t	*FW_Rev;
-  hal_s32_t	errorcount;
-  hal_float_t	looptime;
-  hal_float_t	speed_tolerance;
-  hal_s32_t	retval;
+  hal_s32_t	*errorcount;
+  hal_float_t	*looptime;
+  hal_float_t	*speed_tolerance;
+  hal_s32_t	*retval;
   hal_bit_t		*at_speed;		// when drive freq_cmd == freq_out and running
   hal_bit_t		*is_stopped;	// when drive freq out is 0
   hal_float_t	*speed_command;		// speed command input
-  hal_float_t	motor_hz;		// speeds are scaled in Hz, not RPM
-  hal_float_t	motor_RPM;		// nameplate RPM at default Hz
+  hal_float_t	*motor_hz;		// speeds are scaled in Hz, not RPM
+  hal_float_t	*motor_RPM;		// nameplate RPM at default Hz
   hal_bit_t	*spindle_on;		// spindle 1=on, 0=off
   hal_bit_t	*spindle_fwd;		// direction, 0=fwd, 1=rev
   hal_bit_t *spindle_rev;		// on when in rev and running
   hal_bit_t	*err_reset;		// reset errors when 1
-  hal_s32_t ack_delay;		// number of read/writes before checking at-speed
+  hal_s32_t *ack_delay;		// number of read/writes before checking at-speed
 
   hal_bit_t	old_run;		// so we can detect changes in the run state
   hal_bit_t	old_dir;
@@ -347,11 +347,11 @@ int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
     int retval;
     hal_float_t hzcalc;
 
-    if (haldata->motor_hz<10)
-        haldata->motor_hz = 60;
-    if ((haldata->motor_RPM < 600) || (haldata->motor_RPM > 5000))
-        haldata->motor_RPM = 1800;
-    hzcalc = haldata->motor_hz/haldata->motor_RPM;
+    if (*haldata->motor_hz<10)
+        *haldata->motor_hz = 60;
+    if ((*haldata->motor_RPM < 600) || (*haldata->motor_RPM > 5000))
+        *haldata->motor_RPM = 1800;
+    hzcalc = *haldata->motor_hz / *haldata->motor_RPM;
 
     retval = modbus_write_register(
         mb_ctx,
@@ -386,17 +386,17 @@ int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
             modbus_write_register(mb_ctx, slavedata->write_reg_start+4, 0);
         haldata->old_err_reset = *(haldata->err_reset);
     }
-    if (comm_delay < haldata->ack_delay){ // JET allow time for communications between drive and EMC
+    if (comm_delay < *haldata->ack_delay){ // JET allow time for communications between drive and EMC
         comm_delay++;
     }
-    if ((*haldata->spindle_on) && comm_delay == haldata->ack_delay){ // JET test for up to speed
+    if ((*haldata->spindle_on) && comm_delay == *haldata->ack_delay){ // JET test for up to speed
         if ((*(haldata->freq_cmd))==(*(haldata->freq_out)))
             *(haldata->at_speed) = 1;
     }
     if (*(haldata->spindle_on)==0){ // JET reset at-speed
         *(haldata->at_speed) = 0;
     }
-    haldata->retval = retval;
+    *haldata->retval = retval;
     return retval;
 }
 
@@ -455,14 +455,14 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
         return -1;
     /* but we can signal an error if the other params are null */
     if ((mb_ctx==NULL) || (slavedata == NULL)) {
-        hal_data_block->errorcount++;
+        *hal_data_block->errorcount++;
         return -1;
     }
     retval = modbus_read_registers(mb_ctx, slavedata->read_reg_start,
                                 slavedata->read_reg_count, receive_data);
     if (retval==slavedata->read_reg_count) {
         retval = 0;
-        hal_data_block->retval = retval;
+        *hal_data_block->retval = retval;
         *(hal_data_block->stat1) = receive_data[0];
         *(hal_data_block->stat2) = receive_data[1];
         *(hal_data_block->freq_cmd) = receive_data[2] * 0.1;
@@ -481,8 +481,8 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
         *(hal_data_block->load_pct) = receive_data[11] * 0.1;
         *(hal_data_block->FW_Rev) = receive_data[12];
     } else {
-        hal_data_block->retval = retval;
-        hal_data_block->errorcount++;
+        *hal_data_block->retval = retval;
+        *hal_data_block->errorcount++;
         retval = -1;
     }
     return retval;
@@ -699,11 +699,11 @@ int main(int argc, char **argv)
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_s32_newf(HAL_OUT, &(haldata->FW_Rev), hal_comp_id, "%s.firmware-revision", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_s32_newf(HAL_RW, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
+    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_float_newf(HAL_RW, &(haldata->looptime), hal_comp_id, "%s.loop-time", modname);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->looptime), hal_comp_id, "%s.loop-time", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_s32_newf(HAL_RW, &(haldata->retval), hal_comp_id, "%s.retval", modname);
+    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->retval), hal_comp_id, "%s.retval", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_OUT, &(haldata->at_speed), hal_comp_id, "%s.at-speed", modname);
     if (retval!=0) goto out_closeHAL;
@@ -719,13 +719,13 @@ int main(int argc, char **argv)
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->err_reset), hal_comp_id, "%s.err-reset", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_float_newf(HAL_RW, &(haldata->speed_tolerance), hal_comp_id, "%s.tolerance", modname);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->speed_tolerance), hal_comp_id, "%s.tolerance", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_float_newf(HAL_RW, &(haldata->motor_hz), hal_comp_id, "%s.nameplate-HZ", modname);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->motor_hz), hal_comp_id, "%s.nameplate-HZ", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_float_newf(HAL_RW, &(haldata->motor_RPM), hal_comp_id, "%s.nameplate-RPM", modname);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->motor_RPM), hal_comp_id, "%s.nameplate-RPM", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_s32_newf(HAL_RW, &(haldata->ack_delay), hal_comp_id, "%s.ack-delay", modname);
+    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->ack_delay), hal_comp_id, "%s.ack-delay", modname);
     if (retval!=0) goto out_closeHAL;
     /* define run (enable) pin and isInitialized */
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->ena_gs2comp), hal_comp_id, "%s.enable", modname);
@@ -746,12 +746,12 @@ int main(int argc, char **argv)
     *(haldata->power_factor) = 0;
     *(haldata->load_pct) = 0;
     *(haldata->FW_Rev) = 0;
-    haldata->errorcount = 0;
-    haldata->looptime = 0.1;
-    haldata->motor_RPM = 1730;
-    haldata->motor_hz = 60;
-    haldata->speed_tolerance = 0.01;
-    haldata->ack_delay = 2;
+    *haldata->errorcount = 0;
+    *haldata->looptime = 0.1;
+    *haldata->motor_RPM = 1730;
+    *haldata->motor_hz = 60;
+    *haldata->speed_tolerance = 0.01;
+    *haldata->ack_delay = 2;
     *(haldata->err_reset) = 0;
     *(haldata->spindle_on) = 0;
     *(haldata->spindle_fwd) = 1;
@@ -769,10 +769,10 @@ int main(int argc, char **argv)
     while (done==0) {
 
         /* don't want to scan too fast, and shouldn't delay more than a few seconds */
-        if (haldata->looptime < 0.001) haldata->looptime = 0.001;
-        if (haldata->looptime > 2.0) haldata->looptime = 2.0;
-        loop_timespec.tv_sec = (time_t)(haldata->looptime);
-        loop_timespec.tv_nsec = (long)((haldata->looptime - loop_timespec.tv_sec) * 1000000000l);
+        if (*haldata->looptime < 0.001) *haldata->looptime = 0.001;
+        if (*haldata->looptime > 2.0) *haldata->looptime = 2.0;
+        loop_timespec.tv_sec = (time_t)(*haldata->looptime);
+        loop_timespec.tv_nsec = (long)((*haldata->looptime - loop_timespec.tv_sec) * 1000000000l);
         nanosleep(&loop_timespec, &remaining);
 
         if(*(haldata->ena_gs2comp) == 0) {

@@ -366,8 +366,8 @@ static struct  tp_haldata {
   hal_u32_t *in;
   hal_u32_t *out;
   // Example parameters
-  hal_float_t param_rw;
-  hal_float_t param_ro;
+//   hal_float_t param_rw;
+//   hal_float_t param_ro;
 } *tp_haldata;
 
 static int makepins(int id) {
@@ -382,8 +382,8 @@ static int makepins(int id) {
     res += hal_pin_u32_newf(HAL_OUT,&(tp_haldata->out),id,"%s.out",HAL_PREFIX);
 
     // hal parameter examples:
-    res += hal_param_float_newf(HAL_RW, &tp_haldata->param_rw,id,"%s.param-rw",HAL_PREFIX);
-    res += hal_param_float_newf(HAL_RO, &tp_haldata->param_ro,id,"%s.param-ro",HAL_PREFIX);
+    //res += hal_pin_float_newf(HAL_OUT, &tp_haldata->param_rw,id,"%s.param-rw",HAL_PREFIX);
+    //res += hal_pin_float_newf(HAL_IN, &tp_haldata->param_ro,id,"%s.param-ro",HAL_PREFIX);
 
     if (res) goto error;
     rtapi_print("@@@ %s:%s: ok\n",__FILE__,__FUNCTION__);

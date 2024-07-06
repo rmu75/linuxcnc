@@ -81,10 +81,9 @@ typedef struct {
     char *pickname;		/* name from list, not validated */
     hal_pin_t *pin;		/* metadata (if it's a pin) */
     hal_sig_t *sig;		/* metadata (if it's a signal) */
-    hal_param_t *param;		/* metadata (if it's a parameter) */
     GtkWidget *window;		/* selection dialog window */
     GtkWidget *notebook;	/* pointer to the notebook */
-    GtkWidget *lists[3];	/* lists for pins, sigs, and params */
+    GtkWidget *lists[2];	/* lists for pins, sigs, and params */
     char probe_name[PROBE_NAME_LEN + 1];	/* name of this probe */
 } probe_t;
 
@@ -198,9 +197,6 @@ int main(int argc, gchar * argv[])
 	            } else if (strncmp(argv[n], "sig", 3) == 0) {
 	                /* initial probe is a signal */
 	                initial_type = 1;
-	            } else if (strncmp(argv[n], "par", 3) == 0) {
-	                /* initial probe is a parameter */
-	                initial_type = 2;
 	            } else {
 	                printf(_("ERROR: '%s' is not a valid probe type\n"), argv[n]);
 	                return -1;
@@ -373,7 +369,6 @@ probe_t *probe_new(char *probe_name)
     new->listnum = -1;
     new->pin = NULL;
     new->sig = NULL;
-    new->param = NULL;
     strncpy(new->probe_name, probe_name, HAL_NAME_LEN);
     new->probe_name[HAL_NAME_LEN] = '\0';
     /* window will be created just before it is displayed */
@@ -387,7 +382,6 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     probe_t *probe;
     hal_pin_t *pin;
     hal_sig_t *sig;
-    hal_param_t *param;
 
     int next, row, match_row, tab, match_tab;
     char *name[HAL_NAME_LEN + 1];
@@ -414,7 +408,6 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
      */
     clear_list(probe->lists[0]);
     clear_list(probe->lists[1]);
-    clear_list(probe->lists[2]);
 
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
@@ -448,22 +441,6 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
             match_row = row;
         }
         next = sig->next_ptr;
-        row++;
-    }
-
-    next = hal_data->param_list_ptr;
-    row = 0;
-    tab = 2;
-    while (next != 0) {
-        param = SHMPTR(next);
-        *name = param->name;
-
-        add_to_list(probe->lists[tab], name, NUM_COLS);
-        if (probe->param == param) {
-            match_tab = tab;
-            match_row = row;
-        }
-        next = param->next_ptr;
         row++;
     }
 
@@ -532,16 +509,6 @@ static int refresh_value(gpointer data)
 	name_str = probe->sig->name;
 	value_str =
 	    data_value(probe->sig->type, SHMPTR(probe->sig->data_ptr));
-    } else if (probe->param != NULL) {
-	if (probe->param->name[0] == '\0') {
-	    /* parameter has been deleted, can't display it any more */
-	    probe->param = NULL;
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 1;
-	}
-	name_str = probe->param->name;
-	value_str =
-	    data_value(probe->param->type, SHMPTR(probe->param->data_ptr));
     } else {
 	name_str = "-----";
 	value_str = "---";
@@ -595,7 +562,7 @@ static void create_probe_window(probe_t * probe)
     GtkWidget *scrolled_window;
     GtkTreeSelection *selection;
 
-    char *tab_label_text[3];
+    char *tab_label_text[2];
     int n;
 
     /* create window, set size and title */
@@ -615,10 +582,9 @@ static void create_probe_window(probe_t * probe)
     /* text for tab labels */
     tab_label_text[0] = _(" _Pins ");
     tab_label_text[1] = _(" _Signals ");
-    tab_label_text[2] = _(" Para_meters ");
 
     /* loop to create three identical tabs */
-    for (n = 0; n < 3; n++) {
+    for (n = 0; n < 2; n++) {
         /* Create a scrolled window to display the list */
         scrolled_window = gtk_scrolled_window_new(NULL, NULL);
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -667,7 +633,6 @@ static void apply_selection(GtkWidget * widget, gpointer data)
     /* discard info about previous item */
     probe->pin = NULL;
     probe->sig = NULL;
-    probe->param = NULL;
     if (probe->pickname == NULL) {
 	/* not a valid selection */
 	/* should pop up a message or something here, instead we ignore it */
@@ -679,9 +644,6 @@ static void apply_selection(GtkWidget * widget, gpointer data)
     } else if (probe->listnum == 1) {
 	/* search the signal list */
 	probe->sig = halpr_find_sig_by_name(probe->pickname);
-    } else if (probe->listnum == 2) {
-	/* search the parameter list */
-	probe->param = halpr_find_param_by_name(probe->pickname);
     }
     /* at this point, the probe structure contain a pointer to the item we
        wish to display, or all three are NULL if the item doesn't exist */

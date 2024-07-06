@@ -266,7 +266,7 @@ static int export_counter(int num, counter_t * addr)
 	return retval;
     }
     /* export parameter for scaling */
-    retval = hal_param_float_newf(HAL_RW, &(addr->pos_scale), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_scale), comp_id,
 				  "tiro.%d.position-scale", num);
     if (retval != 0) {
 	return retval;

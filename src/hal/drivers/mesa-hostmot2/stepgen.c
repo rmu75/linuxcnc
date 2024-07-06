@@ -51,12 +51,12 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         rtapi_s64 latch_delta;
 
         // those tricky users are always trying to get us to divide by zero
-        if (fabs(hm2->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
-            if (hm2->stepgen.instance[i].hal.param.position_scale >= 0.0) {
-                hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
+        if (fabs(*hm2->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
+            if (*hm2->stepgen.instance[i].hal.param.position_scale >= 0.0) {
+                *hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
                 HM2_ERR("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
             } else {
-                hm2->stepgen.instance[i].hal.param.position_scale = -1.0;
+                *hm2->stepgen.instance[i].hal.param.position_scale = -1.0;
                 HM2_ERR("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
             }
         }
@@ -83,7 +83,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
                     } else if (latch_delta < RTAPI_INT32_MIN) {
                         latch_delta += RTAPI_UINT32_MAX;
                     }
-                    *hm2->stepgen.instance[i].hal.pin.position_latch = ((double)(hm2->stepgen.instance[i].subcounts+latch_delta) / 65536.0) / hm2->stepgen.instance[i].hal.param.position_scale;
+                    *hm2->stepgen.instance[i].hal.pin.position_latch = ((double)(hm2->stepgen.instance[i].subcounts+latch_delta) / 65536.0) / *hm2->stepgen.instance[i].hal.param.position_scale;
                     acc_delta -= latch_delta;		
                     hm2->stepgen.instance[i].subcounts = 0;
                     *hm2->stepgen.instance[i].hal.pin.index_enable = 0;
@@ -98,7 +98,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
                     } else if (latch_delta < RTAPI_INT32_MIN) {
                         latch_delta += RTAPI_UINT32_MAX;
                     }
-                    *hm2->stepgen.instance[i].hal.pin.position_latch = ((double)(hm2->stepgen.instance[i].subcounts+latch_delta) / 65536.0) / hm2->stepgen.instance[i].hal.param.position_scale;
+                    *hm2->stepgen.instance[i].hal.pin.position_latch = ((double)(hm2->stepgen.instance[i].subcounts+latch_delta) / 65536.0) / *hm2->stepgen.instance[i].hal.param.position_scale;
                     *hm2->stepgen.instance[i].hal.pin.latch_enable = 0;
                      hm2->stepgen.instance[i].written_probe_enable  = 0;
                 } 
@@ -116,7 +116,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         // note that it's important to use "subcounts/65536.0" instead of just
         // "counts" when computing position_fb, because position_fb needs sub-count
         // precision
-        *(hm2->stepgen.instance[i].hal.pin.position_fb) = ((double)hm2->stepgen.instance[i].subcounts / 65536.0) / hm2->stepgen.instance[i].hal.param.position_scale;
+        *(hm2->stepgen.instance[i].hal.pin.position_fb) = ((double)hm2->stepgen.instance[i].subcounts / 65536.0) / *hm2->stepgen.instance[i].hal.param.position_scale;
         hm2->stepgen.instance[i].prev_accumulator = acc;
     }    
 }
@@ -164,13 +164,13 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
         if (s->hal.param.maxaccel == 0) {
             match_accel = -velocity_error / f_period_s;
         } else {
-            match_accel = -s->hal.param.maxaccel;
+            match_accel = -*s->hal.param.maxaccel;
         }
     } else if (velocity_error < 0.0) {
         if (s->hal.param.maxaccel == 0) {
             match_accel = velocity_error / f_period_s;
         } else {
-            match_accel = s->hal.param.maxaccel;
+            match_accel = *s->hal.param.maxaccel;
         }
     } else {
         match_accel = 0;
@@ -205,10 +205,10 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
 
         // apply accel limits?
         if (s->hal.param.maxaccel > 0) {
-            if (velocity_cmd > (*s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s))) {
-                velocity_cmd = *s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s);
-            } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s))) {
-                velocity_cmd = *s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s);
+            if (velocity_cmd > (*s->hal.pin.velocity_fb + (*s->hal.param.maxaccel * f_period_s))) {
+                velocity_cmd = *s->hal.pin.velocity_fb + (*s->hal.param.maxaccel * f_period_s);
+            } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (*s->hal.param.maxaccel * f_period_s))) {
+                velocity_cmd = *s->hal.pin.velocity_fb - (*s->hal.param.maxaccel * f_period_s);
             }
         }
 
@@ -262,33 +262,33 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 
     // maxvel must be >= 0.0, and may not be faster than 1 step per (steplen+stepspace) seconds
     {
-        double min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
+        double min_ns_per_step = *s->hal.param.steplen + *s->hal.param.stepspace;
         double max_steps_per_s = 1.0e9 / min_ns_per_step;
 
-        physical_maxvel = max_steps_per_s / fabs(s->hal.param.position_scale);
+        physical_maxvel = max_steps_per_s / fabs(*s->hal.param.position_scale);
         physical_maxvel = force_precision(physical_maxvel);
 
-        if (s->hal.param.maxvel < 0.0) {
+        if (*s->hal.param.maxvel < 0.0) {
             HM2_ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
-            s->hal.param.maxvel = fabs(s->hal.param.maxvel);
+            *s->hal.param.maxvel = fabs(*s->hal.param.maxvel);
         }
 
-        if (s->hal.param.maxvel > physical_maxvel) {
+        if (*s->hal.param.maxvel > physical_maxvel) {
             HM2_ERR("stepgen.%02d.maxvel is too big for current step timings & position-scale, clipping to max possible\n", i);
-            s->hal.param.maxvel = physical_maxvel;
+            *s->hal.param.maxvel = physical_maxvel;
         }
 
-        if (s->hal.param.maxvel == 0.0) {
+        if (*s->hal.param.maxvel == 0.0) {
             maxvel = physical_maxvel;
         } else {
-            maxvel = s->hal.param.maxvel;
+            maxvel = *s->hal.param.maxvel;
         }
     }
 
     // maxaccel may not be negative
-    if (s->hal.param.maxaccel < 0.0) {
+    if (*s->hal.param.maxaccel < 0.0) {
         HM2_ERR("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
-        s->hal.param.maxaccel = fabs(s->hal.param.maxaccel);
+        *s->hal.param.maxaccel = fabs(*s->hal.param.maxaccel);
     }
 
 
@@ -298,11 +298,11 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     } else {
         // velocity-mode control is easy
         new_vel = *s->hal.pin.velocity_cmd;
-        if (s->hal.param.maxaccel > 0.0) {
-            if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) > s->hal.param.maxaccel) {
-                new_vel = (*s->hal.pin.velocity_fb) + (s->hal.param.maxaccel * f_period_s);
-            } else if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) < -s->hal.param.maxaccel) {
-                new_vel = (*s->hal.pin.velocity_fb) - (s->hal.param.maxaccel * f_period_s);
+        if (*s->hal.param.maxaccel > 0.0) {
+            if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) > *s->hal.param.maxaccel) {
+                new_vel = (*s->hal.pin.velocity_fb) + (*s->hal.param.maxaccel * f_period_s);
+            } else if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) < -*s->hal.param.maxaccel) {
+                new_vel = (*s->hal.pin.velocity_fb) - (*s->hal.param.maxaccel * f_period_s);
             }
         }
     }
@@ -317,7 +317,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 
     *s->hal.pin.velocity_fb = (hal_float_t)new_vel;
 
-    steps_per_sec_cmd = new_vel * s->hal.param.position_scale;
+    steps_per_sec_cmd = new_vel * *s->hal.param.position_scale;
     // the double cast here is intentional.  (uint32_t)(-1.0) is undefined in
     // C (and in practice it gives the undesired value 0 on arm systems), but
     // (uint32_t)(int32-t)(-1.0) is defined and gives the desired value on all
@@ -345,46 +345,46 @@ void hm2_stepgen_prepare_tram_write(hostmot2_t *hm2, long l_period_ns) {
 
 
 static void hm2_stepgen_update_dir_setup_time(hostmot2_t *hm2, int i) {
-    hm2->stepgen.dir_setup_time_reg[i] = (double)hm2->stepgen.instance[i].hal.param.dirsetup * ((double)hm2->stepgen.clock_frequency / (double)1e9);
+    hm2->stepgen.dir_setup_time_reg[i] = (double)*hm2->stepgen.instance[i].hal.param.dirsetup * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.dir_setup_time_reg[i] > 0x3FFF) {
         HM2_ERR("stepgen %d has invalid dirsetup, resetting to max\n", i);
         hm2->stepgen.dir_setup_time_reg[i] = 0x3FFF;
-        hm2->stepgen.instance[i].hal.param.dirsetup = (double)hm2->stepgen.dir_setup_time_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
+        *hm2->stepgen.instance[i].hal.param.dirsetup = (double)hm2->stepgen.dir_setup_time_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
-    hm2->stepgen.instance[i].written_dirsetup = hm2->stepgen.instance[i].hal.param.dirsetup;
+    hm2->stepgen.instance[i].written_dirsetup = *hm2->stepgen.instance[i].hal.param.dirsetup;
 }
 
 
 static void hm2_stepgen_update_dir_hold_time(hostmot2_t *hm2, int i) {
-    hm2->stepgen.dir_hold_time_reg[i] = (double)hm2->stepgen.instance[i].hal.param.dirhold * ((double)hm2->stepgen.clock_frequency / (double)1e9);
+    hm2->stepgen.dir_hold_time_reg[i] = (double)*hm2->stepgen.instance[i].hal.param.dirhold * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.dir_hold_time_reg[i] > 0x3FFF) {
         HM2_ERR("stepgen %d has invalid dirhold, resetting to max\n", i);
         hm2->stepgen.dir_hold_time_reg[i] = 0x3FFF;
-        hm2->stepgen.instance[i].hal.param.dirhold = (double)hm2->stepgen.dir_hold_time_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
+        *hm2->stepgen.instance[i].hal.param.dirhold = (double)hm2->stepgen.dir_hold_time_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
-    hm2->stepgen.instance[i].written_dirhold = hm2->stepgen.instance[i].hal.param.dirhold;
+    hm2->stepgen.instance[i].written_dirhold = *hm2->stepgen.instance[i].hal.param.dirhold;
 }
 
 
 static void hm2_stepgen_update_pulse_idle_width(hostmot2_t *hm2, int i) {
-    hm2->stepgen.pulse_idle_width_reg[i] = (double)hm2->stepgen.instance[i].hal.param.stepspace * ((double)hm2->stepgen.clock_frequency / (double)1e9);
+    hm2->stepgen.pulse_idle_width_reg[i] = (double)*hm2->stepgen.instance[i].hal.param.stepspace * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.pulse_idle_width_reg[i] > 0x3FFF) {
         HM2_ERR("stepgen %d has invalid stepspace, resetting to max\n", i);
         hm2->stepgen.pulse_idle_width_reg[i] = 0x3FFF;
-        hm2->stepgen.instance[i].hal.param.stepspace = (double)hm2->stepgen.pulse_idle_width_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
+        *hm2->stepgen.instance[i].hal.param.stepspace = (double)hm2->stepgen.pulse_idle_width_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
-    hm2->stepgen.instance[i].written_stepspace = hm2->stepgen.instance[i].hal.param.stepspace;
+    hm2->stepgen.instance[i].written_stepspace = *hm2->stepgen.instance[i].hal.param.stepspace;
 }
 
 
 static void hm2_stepgen_update_pulse_width(hostmot2_t *hm2, int i) {
-    hm2->stepgen.pulse_width_reg[i] = (double)hm2->stepgen.instance[i].hal.param.steplen * ((double)hm2->stepgen.clock_frequency / (double)1e9);
+    hm2->stepgen.pulse_width_reg[i] = (double)*hm2->stepgen.instance[i].hal.param.steplen * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.pulse_width_reg[i] > 0x3FFF) {
         HM2_ERR("stepgen %d has invalid steplen, resetting to max\n", i);
         hm2->stepgen.pulse_width_reg[i] = 0x3FFF;
-        hm2->stepgen.instance[i].hal.param.steplen = (double)hm2->stepgen.pulse_width_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
+        *hm2->stepgen.instance[i].hal.param.steplen = (double)hm2->stepgen.pulse_width_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
-    hm2->stepgen.instance[i].written_steplen = hm2->stepgen.instance[i].hal.param.steplen;
+    hm2->stepgen.instance[i].written_steplen = *hm2->stepgen.instance[i].hal.param.steplen;
 }
 
 
@@ -395,18 +395,18 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
     hm2_stepgen_instance_t *inst =  &hm2->stepgen.instance[i];
     
     // No point coming back unless something changes
-    inst->written_step_type  = inst->hal.param.step_type;
+    inst->written_step_type  = *inst->hal.param.step_type;
     if (hm2->stepgen.firmware_supports_swap) {
-        inst->written_swap_step_dir  = inst->hal.param.swap_step_dir;
+        inst->written_swap_step_dir  = *inst->hal.param.swap_step_dir;
     }
     if (hm2->stepgen.firmware_supports_index) {
         inst->written_index_polarity  = *inst->hal.pin.index_polarity;
         inst->written_probe_polarity  = *inst->hal.pin.latch_polarity;
     } 
-    inst->hal.param.table[4] = (((inst->hal.param.table[0] ^ inst->hal.param.table[1]) 
-                            ^ inst->hal.param.table[2]) ^ inst->hal.param.table[3]);
+    *inst->hal.param.table[4] = (((*inst->hal.param.table[0] ^ *inst->hal.param.table[1]) 
+                            ^ *inst->hal.param.table[2]) ^ *inst->hal.param.table[3]);
 
-    modebuff = inst->hal.param.step_type;  // start with the step mode
+    modebuff = *inst->hal.param.step_type;  // start with the step mode
 
 
     if (hm2->stepgen.firmware_supports_index) {  // or in the index/probe control bits if needed
@@ -425,10 +425,10 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
     }
 
                                                                              
-    if (inst->hal.param.step_type <= 2) {
+    if (*inst->hal.param.step_type <= 2) {
         
         if (hm2->stepgen.firmware_supports_swap) {
-            if  (inst->hal.param.swap_step_dir) {
+            if  (*inst->hal.param.swap_step_dir) {
                 modebuff |= HM2_STEPGEN_SWAP_STEP_DIR;
             }
 	}
@@ -436,32 +436,32 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
         return;
     } 
 
-    if (inst->table_width <  inst->hal.param.step_type){
+    if (inst->table_width <  *inst->hal.param.step_type){
         HM2_ERR("the firmware only supports %i pins in the step pattern for "
                 "stepgen instance %i, you asked for %i. Reverting to step type 0\n",
                 inst->table_width, 
                 i,
-                inst->hal.param.step_type);
+                *inst->hal.param.step_type);
         hm2->stepgen.mode_reg[i] = 0;
     }
-    if (inst->hal.param.step_type > 16){
+    if (*inst->hal.param.step_type > 16){
         HM2_ERR("the firmware only supports tables up to a depth of 16, you"
                 "requested %i. Reverting to step type 0\n",
-                inst->hal.param.step_type);
+                *inst->hal.param.step_type);
         hm2->stepgen.mode_reg[i] = 0;
     }
     // In that case, we can assume that we have been fed a step table and the
     // step_type is actually the table length. 
 
-    for (j = inst->hal.param.step_type - 1; j >= 0 ; j--){
-        buff = ((inst->hal.param.table[j / 4] >> ((j % 4) * 8)) & 0xFF);
+    for (j = *inst->hal.param.step_type - 1; j >= 0 ; j--){
+        buff = ((*inst->hal.param.table[j / 4] >> ((j % 4) * 8)) & 0xFF);
         hm2->llio->write(hm2->llio, hm2->stepgen.table_sequence_data_setup_addr 
                 + (i * sizeof(rtapi_u32)), &buff, sizeof(rtapi_u32));
     }
     
     hm2->stepgen.mode_reg[i] = 3 | modebuff; // force 2 LSbs to 1,1 to select table mode in stepgen hardware
 
-    buff = inst->hal.param.step_type -1;	    
+    buff = *inst->hal.param.step_type -1;	    
     
     hm2->llio->write(hm2->llio, hm2->stepgen.table_sequence_length_addr
             + (i * sizeof(rtapi_u32)), &buff, sizeof(rtapi_u32));
@@ -489,37 +489,37 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
     // FIXME
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
         hm2_stepgen_instance_t *inst = &hm2->stepgen.instance[i];
-        if (inst->hal.param.dirsetup != inst->written_dirsetup) {
+        if (*inst->hal.param.dirsetup != inst->written_dirsetup) {
             hm2_stepgen_update_dir_setup_time(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.dir_setup_time_addr + (i * sizeof(rtapi_u32)), &hm2->stepgen.dir_setup_time_reg[i], sizeof(rtapi_u32));
         }
 
-        if (inst->hal.param.dirhold != inst->written_dirhold) {
+        if (*inst->hal.param.dirhold != inst->written_dirhold) {
             hm2_stepgen_update_dir_hold_time(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.dir_hold_time_addr + (i * sizeof(rtapi_u32)), &hm2->stepgen.dir_hold_time_reg[i], sizeof(rtapi_u32));
         }
 
-        if (inst->hal.param.steplen != inst->written_steplen) {
+        if (*inst->hal.param.steplen != inst->written_steplen) {
             hm2_stepgen_update_pulse_width(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.pulse_width_addr + (i * sizeof(rtapi_u32)), &hm2->stepgen.pulse_width_reg[i], sizeof(rtapi_u32));
         }
 
-        if (inst->hal.param.stepspace != inst->written_stepspace) {
+        if (*inst->hal.param.stepspace != inst->written_stepspace) {
             hm2_stepgen_update_pulse_idle_width(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.pulse_idle_width_addr + (i * sizeof(rtapi_u32)), &hm2->stepgen.pulse_idle_width_reg[i], sizeof(rtapi_u32));
         }
 
         need_mode_update=0;
 
-	if ((inst->hal.param.step_type != inst->written_step_type) 
-           || (((inst->hal.param.table[0] ^ inst->hal.param.table[1]) 
-           ^ inst->hal.param.table[2]) ^ inst->hal.param.table[3])
-           != inst->hal.param.table[4]) {   
+	if ((*inst->hal.param.step_type != inst->written_step_type) 
+           || (((*inst->hal.param.table[0] ^ *inst->hal.param.table[1]) 
+           ^ *inst->hal.param.table[2]) ^ *inst->hal.param.table[3])
+           != *inst->hal.param.table[4]) {   
             need_mode_update = 1;
         }
 
         if (hm2->stepgen.firmware_supports_swap) {
-            if (inst->hal.param.swap_step_dir != inst->written_swap_step_dir) {
+            if (*inst->hal.param.swap_step_dir != inst->written_swap_step_dir) {
                 need_mode_update |= 1;
             }
         }
@@ -1040,7 +1040,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             // parameters
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-scale", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.position_scale), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.position_scale), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1048,7 +1048,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxvel", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.maxvel), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.maxvel), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1056,7 +1056,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxaccel", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.maxaccel), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.maxaccel), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1064,7 +1064,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steplen", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.steplen), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.steplen), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1072,7 +1072,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepspace", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.stepspace), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.stepspace), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1080,7 +1080,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirsetup", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.dirsetup), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.dirsetup), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1088,7 +1088,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirhold", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.dirhold), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.dirhold), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1096,7 +1096,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.step_type", hm2->llio->name, i);
-            r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.step_type), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.step_type), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1105,7 +1105,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             if (hm2->stepgen.firmware_supports_swap) {
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.swap_step_dir", hm2->llio->name, i);
-                r = hal_param_bit_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.swap_step_dir), hm2->llio->comp_id);
+                r = hal_pin_bit_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.swap_step_dir), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
@@ -1115,28 +1115,28 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             if (hm2->stepgen.instance[i].table_width > 2){
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-0", hm2->llio->name, i);
-                r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.table[0]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[0]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-1", hm2->llio->name, i);
-                r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.table[1]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[1]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-2", hm2->llio->name, i);
-                r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.table[2]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[2]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-3", hm2->llio->name, i);
-                r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.table[3]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[3]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
@@ -1159,17 +1159,17 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 *(hm2->stepgen.instance[i].hal.pin.index_polarity) = 0;
                 *(hm2->stepgen.instance[i].hal.pin.latch_polarity) = 0;
             }
-            hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
-            hm2->stepgen.instance[i].hal.param.maxvel = 0.0;
-            hm2->stepgen.instance[i].hal.param.maxaccel = 1.0;
+            *hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
+            *hm2->stepgen.instance[i].hal.param.maxvel = 0.0;
+            *hm2->stepgen.instance[i].hal.param.maxaccel = 1.0;
 
             hm2->stepgen.instance[i].subcounts = 0;
 
             // start out the slowest possible, let the user speed up if they want
-            hm2->stepgen.instance[i].hal.param.steplen   = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
-            hm2->stepgen.instance[i].hal.param.stepspace = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
-            hm2->stepgen.instance[i].hal.param.dirsetup  = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
-            hm2->stepgen.instance[i].hal.param.dirhold   = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
+            *hm2->stepgen.instance[i].hal.param.steplen   = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
+            *hm2->stepgen.instance[i].hal.param.stepspace = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
+            *hm2->stepgen.instance[i].hal.param.dirsetup  = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
+            *hm2->stepgen.instance[i].hal.param.dirhold   = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
 
             hm2->stepgen.instance[i].hal.param.step_type = 0;      // step & dir
 
@@ -1182,10 +1182,10 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->stepgen.instance[i].written_dirhold = 0;
 
             hm2->stepgen.instance[i].written_step_type = 0xffffffff;
-            hm2->stepgen.instance[i].hal.param.table[0] = 0;
-            hm2->stepgen.instance[i].hal.param.table[1] = 0;
-            hm2->stepgen.instance[i].hal.param.table[2] = 0;
-            hm2->stepgen.instance[i].hal.param.table[3] = 0;
+            *hm2->stepgen.instance[i].hal.param.table[0] = 0;
+            *hm2->stepgen.instance[i].hal.param.table[1] = 0;
+            *hm2->stepgen.instance[i].hal.param.table[2] = 0;
+            *hm2->stepgen.instance[i].hal.param.table[3] = 0;
 
             hm2->stepgen.instance[i].prev_accumulator = 0;
 
@@ -1241,10 +1241,10 @@ void hm2_stepgen_print_module(hostmot2_t *hm2) {
         HM2_PRINT("            step_rate = 0x%08X\n", hm2->stepgen.step_rate_reg[i]);
         HM2_PRINT("            accumulator = 0x%08X\n", hm2->stepgen.accumulator_reg[i]);
         HM2_PRINT("            mode = 0x%08X\n", hm2->stepgen.mode_reg[i]);
-        HM2_PRINT("            dir_setup_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_setup_time_reg[i], hm2->stepgen.instance[i].hal.param.dirsetup);
-        HM2_PRINT("            dir_hold_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_hold_time_reg[i], hm2->stepgen.instance[i].hal.param.dirhold);
-        HM2_PRINT("            pulse_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_width_reg[i], hm2->stepgen.instance[i].hal.param.steplen);
-        HM2_PRINT("            pulse_idle_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_idle_width_reg[i], hm2->stepgen.instance[i].hal.param.stepspace);
+        HM2_PRINT("            dir_setup_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_setup_time_reg[i], *hm2->stepgen.instance[i].hal.param.dirsetup);
+        HM2_PRINT("            dir_hold_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_hold_time_reg[i], *hm2->stepgen.instance[i].hal.param.dirhold);
+        HM2_PRINT("            pulse_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_width_reg[i], *hm2->stepgen.instance[i].hal.param.steplen);
+        HM2_PRINT("            pulse_idle_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_idle_width_reg[i], *hm2->stepgen.instance[i].hal.param.stepspace);
     }
 }
 

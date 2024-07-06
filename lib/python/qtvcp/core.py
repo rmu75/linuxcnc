@@ -149,8 +149,8 @@ class _QHal(object):
     HAL_IN = hal.HAL_IN
     HAL_OUT = hal.HAL_OUT
     HAL_IO = hal.HAL_IO
-    HAL_RO = hal.HAL_RO
-    HAL_RW = hal.HAL_RW
+    HAL_IN = hal.HAL_IN
+    HAL_OUT = hal.HAL_OUT
 
     def __new__(cls, *a, **kw):
         instance = super(_QHal, cls).__new__(cls)

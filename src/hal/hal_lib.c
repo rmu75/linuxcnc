@@ -127,7 +127,6 @@ static void *shmalloc_dn(long int size);
 hal_comp_t *halpr_alloc_comp_struct(void);
 static hal_pin_t *alloc_pin_struct(void);
 static hal_sig_t *alloc_sig_struct(void);
-static hal_param_t *alloc_param_struct(void);
 static hal_oldname_t *halpr_alloc_oldname_struct(void);
 #ifdef RTAPI
 static hal_funct_t *alloc_funct_struct(void);
@@ -141,7 +140,6 @@ static void free_comp_struct(hal_comp_t * comp);
 static void unlink_pin(hal_pin_t * pin);
 static void free_pin_struct(hal_pin_t * pin);
 static void free_sig_struct(hal_sig_t * sig);
-static void free_param_struct(hal_param_t * param);
 static void free_oldname_struct(hal_oldname_t * oldname);
 #ifdef RTAPI
 static void free_funct_struct(hal_funct_t * funct);
@@ -735,7 +733,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     
     if(dir != HAL_IN && dir != HAL_OUT && dir != HAL_IO) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
+	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO: %s\n", name);
 	return -EINVAL;
     }
     if(type == HAL_PORT && dir == HAL_IO) {
@@ -1349,479 +1347,6 @@ int hal_unlink(const char *pin_name)
 }
 
 /***********************************************************************
-*                       "PARAM" FUNCTIONS                              *
-************************************************************************/
-
-/* wrapper functs for typed params - these call the generic funct below */
-
-int hal_param_bit_new(const char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_float_new(const char *name, hal_param_dir_t dir, hal_float_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_u32_new(const char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_u64_new(const char *name, hal_param_dir_t dir, hal_u64_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_U64, dir, (void *) data_addr, comp_id);
-}
-int hal_param_s64_new(const char *name, hal_param_dir_t dir, hal_s64_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_S64, dir, (void *) data_addr, comp_id);
-}
-
-static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
-	void *data_addr, int comp_id, const char *fmt, va_list ap) {
-    char name[HAL_NAME_LEN + 1];
-    int sz;
-    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
-    if(sz == -1 || sz > HAL_NAME_LEN) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-	    "hal_param_newfv: length %d too long for name starting '%s'\n",
-	    sz, name);
-	return -ENOMEM;
-    }
-    return hal_param_new(name, type, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_BIT, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_FLOAT, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_U32, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_S32, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_u64_newf(hal_param_dir_t dir, hal_u64_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_U64, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_s64_newf(hal_param_dir_t dir, hal_s64_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_S64, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-/* this is a generic function that does the majority of the work. */
-
-int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *data_addr,
-    int comp_id)
-{
-    rtapi_intptr_t *prev, next;
-    int cmp;
-    hal_param_t *new, *ptr;
-    hal_comp_t *comp;
-
-    if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_new called before init\n");
-	return -EINVAL;
-    }
-
-    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32 && type != HAL_S64 && type != HAL_U64) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32, Hal_S64 or HAL_U64\n");
-	return -EINVAL;
-    }
-
-    if(dir != HAL_RO && dir != HAL_RW) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param direction not one of HAL_RO, or HAL_RW\n");
-	return -EINVAL;
-    }
-
-    if (strlen(name) > HAL_NAME_LEN) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: parameter name '%s' is too long\n", name);
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_LOAD)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_new called while HAL locked\n");
-	return -EPERM;
-    }
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating parameter '%s'\n", name);
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
-    /* validate comp_id */
-    comp = halpr_find_comp_by_id(comp_id);
-    if (comp == 0) {
-	/* bad comp_id */
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: component %d not found\n", comp_id);
-	return -EINVAL;
-    }
-    /* validate passed in pointer - must point to HAL shmem */
-    if (! SHMCHK(data_addr)) {
-	/* bad pointer */
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: data_addr not in shared memory\n");
-	return -EINVAL;
-    }
-    if(comp->ready) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_new called after hal_ready\n");
-	return -EINVAL;
-    }
-    /* allocate a new parameter structure */
-    new = alloc_param_struct();
-    if (new == 0) {
-	/* alloc failed */
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: insufficient memory for parameter '%s'\n", name);
-	return -ENOMEM;
-    }
-    /* initialize the structure */
-    new->owner_ptr = SHMOFF(comp);
-    new->data_ptr = SHMOFF(data_addr);
-    new->type = type;
-    new->dir = dir;
-    rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
-    /* search list for 'name' and insert new structure */
-    prev = &(hal_data->param_list_ptr);
-    next = *prev;
-    while (1) {
-	if (next == 0) {
-	    /* reached end of list, insert here */
-	    new->next_ptr = next;
-	    *prev = SHMOFF(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 0;
-	}
-	ptr = SHMPTR(next);
-	cmp = strcmp(ptr->name, new->name);
-	if (cmp > 0) {
-	    /* found the right place for it, insert here */
-	    new->next_ptr = next;
-	    *prev = SHMOFF(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 0;
-	}
-	if (cmp == 0) {
-	    /* name already in list, can't insert */
-	    free_param_struct(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: duplicate parameter '%s'\n", name);
-	    return -EINVAL;
-	}
-	/* didn't find it yet, look at next one */
-	prev = &(ptr->next_ptr);
-	next = *prev;
-    }
-}
-
-/* wrapper functs for typed params - these call the generic funct below */
-
-int hal_param_bit_set(const char *name, int value)
-{
-    return hal_param_set(name, HAL_BIT, &value);
-}
-
-int hal_param_float_set(const char *name, double value)
-{
-    return hal_param_set(name, HAL_FLOAT, &value);
-}
-
-int hal_param_u32_set(const char *name, unsigned long value)
-{
-    return hal_param_set(name, HAL_U32, &value);
-}
-
-int hal_param_s32_set(const char *name, signed long value)
-{
-    return hal_param_set(name, HAL_S32, &value);
-}
-
-int hal_param_u64_set(const char *name, unsigned long value)
-{
-    return hal_param_set(name, HAL_U64, &value);
-}
-
-int hal_param_s64_set(const char *name, signed long value)
-{
-    return hal_param_set(name, HAL_S64, &value);
-}
-
-/* this is a generic function that does the majority of the work */
-
-int hal_param_set(const char *name, hal_type_t type, void *value_addr)
-{
-    hal_param_t *param;
-    void *d_ptr;
-
-    if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_set called before init\n");
-	return -EINVAL;
-    }
-    
-    if (hal_data->lock & HAL_LOCK_PARAMS)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_set called while HAL locked\n");
-	return -EPERM;
-    }
-    
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
-
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param == 0) {
-	/* parameter not found */
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: parameter '%s' not found\n", name);
-	return -EINVAL;
-    }
-    /* found it, is type compatible? */
-    if (param->type != type) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: type mismatch setting param '%s'\n", name);
-	return -EINVAL;
-    }
-    /* is it read only? */
-    if (param->dir == HAL_RO) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param '%s' is not writable\n", name);
-	return -EINVAL;
-    }
-    /* everything is OK, set the value */
-    d_ptr = SHMPTR(param->data_ptr);
-    switch (param->type) {
-    case HAL_BIT:
-	if (*((int *) value_addr) == 0) {
-	    *(hal_bit_t *) (d_ptr) = 0;
-	} else {
-	    *(hal_bit_t *) (d_ptr) = 1;
-	}
-	break;
-    case HAL_FLOAT:
-	*((hal_float_t *) (d_ptr)) = *((double *) (value_addr));
-	break;
-    case HAL_S32:
-	*((hal_s32_t *) (d_ptr)) = *((signed long *) (value_addr));
-	break;
-    case HAL_U32:
-	*((hal_u32_t *) (d_ptr)) = *((unsigned long *) (value_addr));
-	break;
-    case HAL_S64:
-	*((hal_s64_t *) (d_ptr)) = *((signed long *) (value_addr));
-	break;
-    case HAL_U64:
-	*((hal_u64_t *) (d_ptr)) = *((unsigned long *) (value_addr));
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: bad type %d setting param\n", param->type);
-	return -EINVAL;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    return 0;
-}
-
-int hal_param_alias(const char *param_name, const char *alias)
-{
-    rtapi_intptr_t *prev, next;
-    int cmp;
-    hal_param_t *param, *ptr;
-    hal_oldname_t *oldname;
-
-    if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_alias called before init\n");
-	return -EINVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_alias called while HAL locked\n");
-	return -EPERM;
-    }
-    if (alias != NULL ) {
-	if (strlen(alias) > HAL_NAME_LEN) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-	        "HAL: ERROR: alias name '%s' is too long\n", alias);
-	    return -EINVAL;
-	}
-    }
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
-    if (alias != NULL ) {
-	param = halpr_find_param_by_name(alias);
-	if ( param != NULL ) {
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-	        "HAL: ERROR: duplicate pin/alias name '%s'\n", alias);
-	    return -EINVAL;
-	}
-    }
-    /* once we unlink the param from the list, we don't want to have to
-       abort the change and repair things.  So we allocate an oldname
-       struct here, then free it (which puts it on the free list).  This
-       allocation might fail, in which case we abort the command.  But
-       if we actually need the struct later, the next alloc is guaranteed
-       to succeed since at least one struct is on the free list. */
-    oldname = halpr_alloc_oldname_struct();
-    if ( oldname == NULL ) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: insufficient memory for param_alias\n");
-	return -EINVAL;
-    }
-    free_oldname_struct(oldname);
-    /* find the param and unlink it from pin list */
-    prev = &(hal_data->param_list_ptr);
-    next = *prev;
-    while (1) {
-	if (next == 0) {
-	    /* reached end of list, not found */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: param '%s' not found\n", param_name);
-	    return -EINVAL;
-	}
-	param = SHMPTR(next);
-	if ( strcmp(param->name, param_name) == 0 ) {
-	    /* found it, unlink from list */
-	    *prev = param->next_ptr;
-	    break;
-	}
-	if (param->oldname != 0 ) {
-	    oldname = SHMPTR(param->oldname);
-	    if (strcmp(oldname->name, param_name) == 0) {
-		/* found it, unlink from list */
-		*prev = param->next_ptr;
-		break;
-	    }
-	}
-	/* didn't find it yet, look at next one */
-	prev = &(param->next_ptr);
-	next = *prev;
-    }
-    if ( alias != NULL ) {
-	/* adding a new alias */
-	if ( param->oldname == 0 ) {
-	    /* save old name (only if not already saved) */
-	    oldname = halpr_alloc_oldname_struct();
-	    param->oldname = SHMOFF(oldname);
-	    rtapi_snprintf(oldname->name, sizeof(oldname->name), "%s", param->name);
-	}
-	/* change param's name to 'alias' */
-	rtapi_snprintf(param->name, sizeof(param->name), "%s", alias);
-    } else {
-	/* removing an alias */
-	if ( param->oldname != 0 ) {
-	    /* restore old name (only if param is aliased) */
-	    oldname = SHMPTR(param->oldname);
-	    rtapi_snprintf(param->name, sizeof(param->name), "%s", oldname->name);
-	    param->oldname = 0;
-	    free_oldname_struct(oldname);
-	}
-    }
-    /* insert param back into list in proper place */
-    prev = &(hal_data->param_list_ptr);
-    next = *prev;
-    while (1) {
-	if (next == 0) {
-	    /* reached end of list, insert here */
-	    param->next_ptr = next;
-	    *prev = SHMOFF(param);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 0;
-	}
-	ptr = SHMPTR(next);
-	cmp = strcmp(ptr->name, param->name);
-	if (cmp > 0) {
-	    /* found the right place for it, insert here */
-	    param->next_ptr = next;
-	    *prev = SHMOFF(param);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 0;
-	}
-	/* didn't find it yet, look at next one */
-	prev = &(ptr->next_ptr);
-	next = *prev;
-    }
-}
-
-/***********************************************************************
 *                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
 ************************************************************************/
 
@@ -1856,18 +1381,6 @@ int hal_get_signal_value_by_name(
         *has_writers = !!sig->writers;
     *type = sig->type;
     *data = (hal_data_u *) SHMPTR(sig->data_ptr);
-    return 0;
-}
-
-int hal_get_param_value_by_name(
-    const char *hal_name, hal_type_t *type, hal_data_u **data)
-{
-    hal_param_t *param;
-    if ((param = halpr_find_param_by_name(hal_name)) == NULL)
-        return -1;
-
-    *type = param->type;
-    *data = (hal_data_u *) SHMPTR(param->data_ptr);
     return 0;
 }
 
@@ -2020,13 +1533,13 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
        for debugging and testing use only */
     /* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
-    new->maxtime = 0;
-    hal_param_s32_new(buf, HAL_RW, &(new->maxtime), comp_id);
+    hal_pin_s32_new(buf, HAL_OUT, &new->maxtime, comp_id);
+    *new->maxtime = 0;
 
     /* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax-increased", name);
-    new->maxtime_increased = 0;
-    hal_param_bit_new(buf, HAL_RO, &(new->maxtime_increased), comp_id);
+    hal_pin_bit_new(buf, HAL_IN, &new->maxtime_increased, comp_id);
+    *new->maxtime_increased = 0;
 
     return 0;
 }
@@ -2183,12 +1696,12 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     }
 
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax", new->name);
-    new->maxtime = 0;
-    if (hal_param_s32_new(buf, HAL_RW, &(new->maxtime), new->comp_id)) {
+    if (hal_pin_s32_new(buf, HAL_OUT, &new->maxtime, new->comp_id)) {
         rtapi_print_msg(RTAPI_MSG_ERR,
            "HAL: ERROR: fail to create param '%s.tmax'\n", new->name);
         return -EINVAL;
     }
+    *new->maxtime = 0;
 
     if (hal_pin_s32_newf(HAL_OUT, &(new->runtime), new->comp_id,"%s.time",new->name)) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2660,34 +2173,6 @@ hal_sig_t *halpr_find_sig_by_name(const char *name)
     return 0;
 }
 
-hal_param_t *halpr_find_param_by_name(const char *name)
-{
-    int next;
-    hal_param_t *param;
-    hal_oldname_t *oldname;
-
-    /* search parameter list for 'name' */
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if (strcmp(param->name, name) == 0) {
-	    /* found a match */
-	    return param;
-	}
-	if (param->oldname != 0 ) {
-	    oldname = SHMPTR(param->oldname);
-	    if (strcmp(oldname->name, name) == 0) {
-		/* found a match */
-		return param;
-	    }
-	}
-	/* didn't find it yet, look at next one */
-	next = param->next_ptr;
-    }
-    /* if loop terminates, we reached end of list with no match */
-    return 0;
-}
-
 hal_thread_t *halpr_find_thread_by_name(const char *name)
 {
     int next;
@@ -2771,35 +2256,6 @@ hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner, hal_pin_t * start)
 	}
 	/* didn't find it yet, look at next one */
 	next = pin->next_ptr;
-    }
-    /* if loop terminates, we reached end of list without finding a match */
-    return 0;
-}
-
-hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
-    hal_param_t * start)
-{
-    int owner_ptr, next;
-    hal_param_t *param;
-
-    /* get offset of 'owner' component */
-    owner_ptr = SHMOFF(owner);
-    /* is this the first call? */
-    if (start == 0) {
-	/* yes, start at beginning of param list */
-	next = hal_data->param_list_ptr;
-    } else {
-	/* no, start at next param */
-	next = start->next_ptr;
-    }
-    while (next != 0) {
-	param = SHMPTR(next);
-	if (param->owner_ptr == owner_ptr) {
-	    /* found a match */
-	    return param;
-	}
-	/* didn't find it yet, look at next one */
-	next = param->next_ptr;
     }
     /* if loop terminates, we reached end of list without finding a match */
     return 0;
@@ -3024,11 +2480,11 @@ static void thread_task(void *arg)
 		funct = SHMPTR(funct_entry->funct_ptr);
 		/* update execution time data */
 		*(funct->runtime) = (hal_s32_t)(end_time - start_time);
-		if ( *(funct->runtime) > funct->maxtime) {
-		    funct->maxtime = *(funct->runtime);
-		    funct->maxtime_increased = 1;
+		if ( *funct->runtime > *funct->maxtime) {
+		    *funct->maxtime = *funct->runtime;
+		    *funct->maxtime_increased = 1;
 		} else {
-		    funct->maxtime_increased = 0;
+		    *funct->maxtime_increased = 0;
 		}
 		/* point to next next entry in list */
 		funct_entry = SHMPTR(funct_entry->links.next);
@@ -3036,9 +2492,9 @@ static void thread_task(void *arg)
 		start_time = end_time;
 	    }
 	    /* update thread execution time */
-	    *(thread->runtime) = (hal_s32_t)(end_time - thread_start_time);
-	    if ( *(thread->runtime) > thread->maxtime) {
-	        thread->maxtime = *(thread->runtime);
+	    *thread->runtime = (hal_s32_t)(end_time - thread_start_time);
+	    if ( *thread->runtime > *thread->maxtime) {
+	        *thread->maxtime = *thread->runtime;
 	    }
 	}
 	/* wait until next period */
@@ -3083,7 +2539,6 @@ static int init_hal_data(void)
     hal_data->comp_list_ptr = 0;
     hal_data->pin_list_ptr = 0;
     hal_data->sig_list_ptr = 0;
-    hal_data->param_list_ptr = 0;
     hal_data->funct_list_ptr = 0;
     hal_data->thread_list_ptr = 0;
     hal_data->base_period = 0;
@@ -3092,7 +2547,6 @@ static int init_hal_data(void)
     hal_data->comp_free_ptr = 0;
     hal_data->pin_free_ptr = 0;
     hal_data->sig_free_ptr = 0;
-    hal_data->param_free_ptr = 0;
     hal_data->funct_free_ptr = 0;
     hal_data->pending_constructor = 0;
     hal_data->constructor_prefix[0] = 0;
@@ -3259,32 +2713,6 @@ static hal_sig_t *alloc_sig_struct(void)
     return p;
 }
 
-static hal_param_t *alloc_param_struct(void)
-{
-    hal_param_t *p;
-
-    /* check the free list */
-    if (hal_data->param_free_ptr != 0) {
-	/* found a free structure, point to it */
-	p = SHMPTR(hal_data->param_free_ptr);
-	/* unlink it from the free list */
-	hal_data->param_free_ptr = p->next_ptr;
-	p->next_ptr = 0;
-    } else {
-	/* nothing on free list, allocate a brand new one */
-	p = shmalloc_dn(sizeof(hal_param_t));
-    }
-    if (p) {
-	/* make sure it's empty */
-	p->next_ptr = 0;
-	p->data_ptr = 0;
-	p->owner_ptr = 0;
-	p->type = 0;
-	p->name[0] = '\0';
-    }
-    return p;
-}
-
 static hal_oldname_t *halpr_alloc_oldname_struct(void)
 {
     hal_oldname_t *p;
@@ -3403,7 +2831,6 @@ static void free_comp_struct(hal_comp_t * comp)
     hal_funct_t *funct;
 #endif /* RTAPI */
     hal_pin_t *pin;
-    hal_param_t *param;
 
     /* can't delete the component until we delete its "stuff" */
     /* need to check for functs only if a realtime component */
@@ -3438,22 +2865,6 @@ static void free_comp_struct(hal_comp_t * comp)
 	} else {
 	    /* no match, try the next one */
 	    prev = &(pin->next_ptr);
-	}
-	next = *prev;
-    }
-    /* search the parameter list for this component's parameters */
-    prev = &(hal_data->param_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if (SHMPTR(param->owner_ptr) == comp) {
-	    /* this param belongs to our component, unlink from list */
-	    *prev = param->next_ptr;
-	    /* and delete it */
-	    free_param_struct(param);
-	} else {
-	    /* no match, try the next one */
-	    prev = &(param->next_ptr);
 	}
 	next = *prev;
     }
@@ -3574,19 +2985,6 @@ static void free_sig_struct(hal_sig_t * sig)
     /* add it to free list */
     sig->next_ptr = hal_data->sig_free_ptr;
     hal_data->sig_free_ptr = SHMOFF(sig);
-}
-
-static void free_param_struct(hal_param_t * p)
-{
-    /* clear contents of struct */
-    if ( p->oldname != 0 ) free_oldname_struct(SHMPTR(p->oldname));
-    p->data_ptr = 0;
-    p->owner_ptr = 0;
-    p->type = 0;
-    p->name[0] = '\0';
-    /* add it to free list (params use the same struct as src vars) */
-    p->next_ptr = hal_data->param_free_ptr;
-    hal_data->param_free_ptr = SHMOFF(p);
 }
 
 static void free_oldname_struct(hal_oldname_t * oldname)
@@ -4361,29 +3759,6 @@ EXPORT_SYMBOL(hal_signal_delete);
 EXPORT_SYMBOL(hal_link);
 EXPORT_SYMBOL(hal_unlink);
 
-EXPORT_SYMBOL(hal_param_bit_new);
-EXPORT_SYMBOL(hal_param_float_new);
-EXPORT_SYMBOL(hal_param_u32_new);
-EXPORT_SYMBOL(hal_param_s32_new);
-EXPORT_SYMBOL(hal_param_u64_new);
-EXPORT_SYMBOL(hal_param_s64_new);
-EXPORT_SYMBOL(hal_param_new);
-
-EXPORT_SYMBOL(hal_param_bit_newf);
-EXPORT_SYMBOL(hal_param_float_newf);
-EXPORT_SYMBOL(hal_param_u32_newf);
-EXPORT_SYMBOL(hal_param_s32_newf);
-EXPORT_SYMBOL(hal_param_u64_newf);
-EXPORT_SYMBOL(hal_param_s64_newf);
-
-EXPORT_SYMBOL(hal_param_bit_set);
-EXPORT_SYMBOL(hal_param_float_set);
-EXPORT_SYMBOL(hal_param_u32_set);
-EXPORT_SYMBOL(hal_param_s32_set);
-EXPORT_SYMBOL(hal_param_u64_set);
-EXPORT_SYMBOL(hal_param_s64_set);
-EXPORT_SYMBOL(hal_param_set);
-
 EXPORT_SYMBOL(hal_set_constructor);
 
 EXPORT_SYMBOL(hal_export_funct);
@@ -4401,19 +3776,16 @@ EXPORT_SYMBOL(hal_shmem_base);
 EXPORT_SYMBOL(halpr_find_comp_by_name);
 EXPORT_SYMBOL(halpr_find_pin_by_name);
 EXPORT_SYMBOL(halpr_find_sig_by_name);
-EXPORT_SYMBOL(halpr_find_param_by_name);
 EXPORT_SYMBOL(halpr_find_thread_by_name);
 EXPORT_SYMBOL(halpr_find_funct_by_name);
 EXPORT_SYMBOL(halpr_find_comp_by_id);
 
 EXPORT_SYMBOL(halpr_find_pin_by_owner);
-EXPORT_SYMBOL(halpr_find_param_by_owner);
 EXPORT_SYMBOL(halpr_find_funct_by_owner);
 
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
 
 EXPORT_SYMBOL(hal_pin_alias);
-EXPORT_SYMBOL(hal_param_alias);
 
 EXPORT_SYMBOL(hal_port_alloc);
 EXPORT_SYMBOL(hal_port_read);

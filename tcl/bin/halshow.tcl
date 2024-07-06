@@ -249,8 +249,6 @@ set viewmenu [menu $menubar.view -tearoff 0]
         $viewmenu add separator
         $viewmenu add command -label [msgcat::mc "Expand Pins"] \
             -command {showNode {pin}}
-        $viewmenu add command -label [msgcat::mc "Expand Parameters"] \
-            -command {showNode {param}}
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}}
         $viewmenu add separator
@@ -264,8 +262,6 @@ set watchmenu [menu $menubar.watch -tearoff 1]
             -command {addToWatch pin [msgcat::mc "Pin"]}
         $watchmenu add command -label [msgcat::mc "Add signal"] \
             -command {addToWatch sig [msgcat::mc "Signal"]}
-        $watchmenu add command -label [msgcat::mc "Add parameter"] \
-            -command {addToWatch param [msgcat::mc "Parameter"]}
         $watchmenu add separator
         $watchmenu add command -label [msgcat::mc "Reload Watch"] \
             -command {reloadWatch}
@@ -430,10 +426,10 @@ proc addSubTree {item} {
 # ::nodenames are the text applied to the toplevel tree nodes
 # they could be internationalized here but the international name
 # must contain no whitespace.  I'm not certain how to do that.
-set ::nodenames {Components Pins Parameters Signals Functions Threads}
+set ::nodenames {Components Pins Signals Functions Threads}
 
 # ::searchnames is the real name to be used to reference
-set ::searchnames {comp pin param sig funct thread}
+set ::searchnames {comp pin sig funct thread}
 
 set ::treenodes ""
 proc refreshHAL {} {
@@ -490,9 +486,6 @@ proc listHAL {} {
 
         switch -- $node {
             pin {-}
-            param {
-                makeNodeP $node [set ${node}str]
-            }
             sig {
                 makeNodeP $node [set ${node}str]
             }
@@ -626,7 +619,6 @@ proc showNode {which} {
             }
         }
         pin {-}
-        param {-}
         sig {
             foreach type $::searchnames {
                 $::treew closetree $type
@@ -843,7 +835,7 @@ proc watchHAL {which} {
         setStatusbar "'$varname' [msgcat::mc "already in list"]"
         return "Item already in list"
     }
-    if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
+    if {$vartype != "pin" && $vartype != "sig"} {
         # cannot watch components, functions, or threads
         return
     }
@@ -882,12 +874,6 @@ proc watchHAL {which} {
                 set writable -1
             }
         }
-    } elseif {$vartype == "param"} {
-        # check if parameter is writable
-        if {[lindex $showret 8] == "RW"} {
-            set writable 1
-        }
-        set labelcolor #6e3400
     } elseif {$vartype == "sig"} {
         # puts stderr "return $showret, found: [string first "<==" $showret 0]"
         # check if signal has no writers
@@ -975,7 +961,6 @@ proc popupmenu_text {x y} {
     $m add command -label [msgcat::mc "Copy"] -command {copySelection 0}
     $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatch "pin" [join [selection get] " "]}
     $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatch "sig" [join [selection get] " "]}
-    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatch "param" [join [selection get] " "]}
     # show menu
     tk_popup $m $x $y
     bind $m <FocusOut> [list destroy $m]

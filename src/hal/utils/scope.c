@@ -271,7 +271,6 @@ void start_capture(void)
     scope_chan_t *chan;
     hal_pin_t *pin;
     hal_sig_t *sig;
-    hal_param_t *param;
 
     if (ctrl_shm->state != IDLE) {
 	/* already running! */
@@ -311,17 +310,6 @@ void start_capture(void)
 		break;
 	    }
 	    ctrl_shm->data_offset[n] = sig->data_ptr;
-	} else if ( chan->data_source_type == 2 ) {
-	    /* channel source is a parameter, point at it */
-	    param = SHMPTR(chan->data_source);
-	    /* make sure it's still valid */
-	    if ( param->name[0] == '\0' ) {
-		/* param has been deleted */
-		chan->data_source_type = -1;
-		chan->data_len = 0;
-		break;
-	    }
-	    ctrl_shm->data_offset[n] = param->data_ptr;
 	} else {
 	    /* channel source is invalid */
 	    chan->data_len = 0;

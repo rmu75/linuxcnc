@@ -147,14 +147,14 @@ typedef struct {
     hal_float_t *requested_vel;   /* RPI: requested velocity magnitude in machine units */
     hal_float_t *distance_to_go;/* RPI: distance to go in current move*/
 
-    hal_bit_t debug_bit_0;	/* RPA: generic param, for debugging */
-    hal_bit_t debug_bit_1;	/* RPA: generic param, for debugging */
-    hal_float_t debug_float_0;	/* RPA: generic param, for debugging */
-    hal_float_t debug_float_1;	/* RPA: generic param, for debugging */
-    hal_float_t debug_float_2;	/* RPA: generic param, for debugging */
-    hal_float_t debug_float_3;	/* RPA: generic param, for debugging */
-    hal_s32_t debug_s32_0;	/* RPA: generic param, for debugging */
-    hal_s32_t debug_s32_1;	/* RPA: generic param, for debugging */
+    // hal_bit_t *debug_bit_0;	/* RPA: generic param, for debugging */
+    // hal_bit_t *debug_bit_1;	/* RPA: generic param, for debugging */
+    // hal_float_t *debug_float_0;	/* RPA: generic param, for debugging */
+    // hal_float_t *debug_float_1;	/* RPA: generic param, for debugging */
+    // hal_float_t *debug_float_2;	/* RPA: generic param, for debugging */
+    // hal_float_t *debug_float_3;	/* RPA: generic param, for debugging */
+    // hal_s32_t *debug_s32_0;	/* RPA: generic param, for debugging */
+    // hal_s32_t *debug_s32_1;	/* RPA: generic param, for debugging */
 
     hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
     hal_bit_t *synch_di[EMCMOT_MAX_DIO]; /* RPI array: input pins for motion synched IO */
@@ -163,12 +163,12 @@ typedef struct {
     hal_bit_t *misc_error[EMCMOT_MAX_MISC_ERROR]; /* RPI array: output pins for misc error Inputs */
 
     // FIXME - debug only, remove later
-    hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */
-    hal_float_t traj_vel_out;	/* RPA: traj internals, for debugging */
-    hal_u32_t traj_active_tc;	/* RPA: traj internals, for debugging */
-    hal_float_t tc_pos[4];	/* RPA: traj internals, for debugging */
-    hal_float_t tc_vel[4];	/* RPA: traj internals, for debugging */
-    hal_float_t tc_acc[4];	/* RPA: traj internals, for debugging */
+    // hal_float_t *traj_pos_out;	/* RPA: traj internals, for debugging */
+    // hal_float_t *traj_vel_out;	/* RPA: traj internals, for debugging */
+    // hal_u32_t *traj_active_tc;	/* RPA: traj internals, for debugging */
+    // hal_float_t *tc_pos[4];	/* RPA: traj internals, for debugging */
+    // hal_float_t *tc_vel[4];	/* RPA: traj internals, for debugging */
+    // hal_float_t *tc_acc[4];	/* RPA: traj internals, for debugging */
 
     // realtime overrun detection
     hal_u32_t   *last_period;	/* pin: last period in clocks */

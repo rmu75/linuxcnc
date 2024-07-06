@@ -181,50 +181,6 @@ static char *thread_generator(const char *text, int state) {
     return NULL;
 }
 
-static char *parameter_generator(const char *text, int state) { 
-    static int len;
-    static int next;
-    static int aliased;
-    char *name;
-
-    if(!state) {
-        next = hal_data->param_list_ptr;
-        len = strlen(text);
-        aliased = 0;
-    }
-
-    while(next) {
-        hal_param_t *param = SHMPTR(next);
-        switch (aliased) {
-            case 0: // alias (if any) has not been output
-                if (param->oldname != 0) {
-                    // there's an alias, so use that and do not update the pin pointer
-                    hal_oldname_t *oldname = SHMPTR(param->oldname);
-                    name = oldname->name;
-                    aliased = 1;
-                } else {
-                    // no alias, so use the name and update the pin pointer
-                    name = param->name;
-                    next = param->next_ptr;
-                }
-            break;
-            case 1:  // there is an alias, and it has been processed already
-                name = param->name;
-                next = param->next_ptr;
-                aliased = 0;
-            break;
-            default:
-                // shouldn't be able to get here, so assume we're done
-                rl_attempted_completion_over = 1;
-                return NULL;
-            break;
-        }
-        if ( strncmp(text, name, len) == 0 )
-            return strdup(name);
-    }
-    return NULL;
-}
-
 static char *funct_generator_common(const char *text, int state, int inuse) { 
     static int len;
     static int next;
@@ -273,23 +229,7 @@ static char *signal_generator(const char *text, int state) {
 static char *getp_generator(const char *text, int state) {
     static int len;
     static int next;
-    static int what;
-    if(!state) {
-        what = 0;
-        next = hal_data->param_list_ptr;
-        len = strlen(text);
-    }
 
-    if(what == 0) {
-        while(next) {
-            hal_param_t *param = SHMPTR(next);
-            next = param->next_ptr;
-            if ( strncmp(text, param->name, len) == 0 )
-                return strdup(param->name);
-        }
-        what = 1;
-        next = hal_data->pin_list_ptr;
-    }
     while(next) {
         hal_pin_t *pin = SHMPTR(next);
         next = pin->next_ptr;
@@ -303,23 +243,7 @@ static char *getp_generator(const char *text, int state) {
 static char *setp_generator(const char *text, int state) {
     static int len;
     static int next;
-    static int what;
-    if(!state) {
-        what = 0;
-        next = hal_data->param_list_ptr;
-        len = strlen(text);
-    }
 
-    if(what == 0) {
-        while(next) {
-            hal_param_t *param = SHMPTR(next);
-            next = param->next_ptr;
-            if ( param->dir != HAL_RO && strncmp(text, param->name, len) == 0 )
-                return strdup(param->name);
-        }
-        what = 1;
-        next = hal_data->pin_list_ptr;
-    }
     while(next) {
         hal_pin_t *pin = SHMPTR(next);
         next = pin->next_ptr;
@@ -394,25 +318,6 @@ static char *rtcomp_generator(const char *text, int state) {
             return strdup(comp->name);
     }
     rl_attempted_completion_over = 1;
-    return NULL;
-}
-
-static char *parameter_alias_generator(const char *text, int state) {
-    static int len;
-    static int next;
-
-    if(!state) {
-        next = hal_data->param_list_ptr;
-        len = strlen(text);
-    }
-
-    while(next) {
-        hal_param_t *param = SHMPTR(next);
-        next = param->next_ptr;
-        if (param->oldname==0) continue;  // no alias here, move along
-        if ( strncmp(text, param->name, len) == 0 )
-            return strdup(param->name);
-    }
     return NULL;
 }
 
@@ -622,10 +527,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
             n = nextword(buffer);
             if (startswith(n, "pin")) {
                 result = func(text, pin_generator);
-            } else if (startswith(n, "param")) {
-                result = func(text, parameter_generator);
             }
-        }
+            }
     } else if(startswith(buffer, "unalias ")) {
         if (argno == 1) {
             result = completion_matches_table(text, alias_table, func);
@@ -633,8 +536,6 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
             n = nextword(buffer);
             if (startswith(n, "pin")) {
                 result = func(text, pin_alias_generator);
-            } else if (startswith(n, "param")) {
-                result = func(text, parameter_alias_generator);
             }
         }
     } else if(startswith(buffer, "linkpp ") && argno == 1) {
@@ -665,8 +566,6 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, pin_generator);
             } else if (startswith(n, "sig")) {
                 result = func(text, signal_generator);
-            } else if (startswith(n, "param")) {
-                result = func(text, parameter_generator);
             } else if (startswith(n, "funct")) {
                 result = func(text, funct_generator);
             } else if (startswith(n, "thread")) {
@@ -682,8 +581,6 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, pin_generator);
             } else if (startswith(n, "sig")) {
                 result = func(text, signal_generator);
-            } else if (startswith(n, "param")) {
-                result = func(text, parameter_generator);
             } else if (startswith(n, "funct")) {
                 result = func(text, funct_generator);
             } else if (startswith(n, "thread")) {
