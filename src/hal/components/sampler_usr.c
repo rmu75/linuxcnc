@@ -96,6 +96,7 @@ char comp_name[HAL_NAME_LEN+1];	/* name for this instance of sampler */
 static sig_atomic_t stop;
 static void quit(int sig)
 {
+    (void)sig;
     if ( ignore_sig ) {
 	return;
     }
@@ -205,7 +206,7 @@ int main(int argc, char **argv)
 	    last_sample = this_sample;
 	}
 	if ( tag ) {
-	    printf ( "%d ", this_sample-1 );
+	    printf ( "%u ", this_sample-1 );
 	}
 	for ( n = 0 ; n < num_pins; n++ ) {
 	    switch ( hal_stream_element_type(&stream, n) ) {

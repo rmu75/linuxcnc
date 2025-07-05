@@ -387,6 +387,27 @@ class App:
 
                     file.close()
 
+            # copy files for Gmoccapy remaps M6 and m61
+            if self.d.frontend == _PD._GMOCCAPY:
+                
+                # source directory
+                dirgmoccapy = os.path.join(BASE, "share", "linuxcnc", "pncconf", "gmoccapy")
+                if not os.path.exists(dirgmoccapy):
+                    dirgmoccapy = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "gmoccapy")
+                srcmacros = os.path.join(dirgmoccapy, "macros")
+                srcpython = os.path.join(dirgmoccapy, "python")
+
+                # destination directory
+                dstmacros = os.path.join(base, "macros")
+                dstpython = os.path.join(base, "python")
+
+                # copy files
+                if not os.path.exists(dstmacros):
+                    shutil.copytree(srcmacros, dstmacros)
+                
+                if not os.path.exists(dstpython):
+                    shutil.copytree(srcpython, dstpython)
+
             if self.warning_dialog(self._p.MESS_QUIT,False):
                 Gtk.main_quit()
 
@@ -3688,7 +3709,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         self.d._arcvpin = pin
                     elif self.d._arcvpin == pin:
                         self.d._arcvpin = None
-                    if self.d._arcvpin and self.d.frontend == _PD._QTPLASMAC:
+                    if self.d._arcvpin != None and self.d.frontend == _PD._QTPLASMAC:
                         self.p.page_set_state('thcad', True)
                     else:
                         self.p.page_set_state('thcad', False)
@@ -5615,7 +5636,10 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         return "%s."% (make_name(boardname,halboardnum)) + "outm.00.out-%02d"% (compnum)
                     elif ptype == _PD.INM0:
                         compnum -= 100
-                        return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)
+                        if boardname in ("7i95t"):
+                            return "%s."% (make_name(boardname,halboardnum)) + "inmux.00.input-%02d"% (compnum)
+                        else:
+                            return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)
                     else:
                         compnum = int(pinnum)+(concount* num_of_pins )
                         return "%s."% (make_name(boardname,halboardnum)) + "gpio.%03d"% (compnum)

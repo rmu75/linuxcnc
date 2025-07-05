@@ -54,15 +54,19 @@ public:
     Task(EMC_IO_STAT &emcioStatus_in);
     virtual ~Task();
 
+    // Don't copy or assign
+    Task(const Task&) = delete;
+    Task& operator=(const Task&) = delete;
+
     virtual int emcIoInit();
-    virtual int emcIoAbort(int reason);
+    virtual int emcIoAbort(EMC_ABORT reason);
     virtual int emcAuxEstopOn();
     virtual int emcAuxEstopOff();
     virtual int emcCoolantMistOn();
     virtual int emcCoolantMistOff();
     virtual int emcCoolantFloodOn();
     virtual int emcCoolantFloodOff();
-    virtual int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
+    virtual int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
 				 double frontangle, double backangle, int orientation);
     virtual int emcToolPrepare(int tool);
     virtual int emcToolLoad();

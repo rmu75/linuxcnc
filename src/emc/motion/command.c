@@ -369,6 +369,7 @@ STATIC int is_feed_type(int motion_type)
         return 1;
     default:
         rtapi_print_msg(RTAPI_MSG_ERR, "Internal error: unhandled motion type %d\n", motion_type);
+        /* Fallthrough */
     case EMC_MOTION_TYPE_TOOLCHANGE:
     case EMC_MOTION_TYPE_TRAVERSE:
     case EMC_MOTION_TYPE_INDEXROTARY:
@@ -385,6 +386,7 @@ STATIC int is_feed_type(int motion_type)
   */
 void emcmotCommandHandler_locked(void *arg, long servo_period)
 {
+    (void)arg;
     int joint_num, spindle_num;
     int n,s0,s1;
     emcmot_joint_t *joint;
@@ -1672,6 +1674,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	        emcmotStatus->spindle_status[n].direction = 0;
 	        // so far like spindle stop, except opening brake
 	        emcmotStatus->spindle_status[n].brake = 0; // open brake
+
+            // https://github.com/LinuxCNC/linuxcnc/issues/3389
+            emcmotStatus->spindle_status[n].state = 0;
+            *(emcmot_hal_data->spindle[n].spindle_on) = 0;
+            // https://github.com/LinuxCNC/linuxcnc/issues/3389
 
 	        *(emcmot_hal_data->spindle[n].spindle_orient_angle) = emcmotCommand->orientation;
 	        *(emcmot_hal_data->spindle[n].spindle_orient_mode) = emcmotCommand->mode;

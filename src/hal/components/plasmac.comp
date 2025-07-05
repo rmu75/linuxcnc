@@ -5,16 +5,16 @@ description
 
 A plasma cutting table control component for use with the LinuxCNC 2.10.
 
-.I VERSION:
-.br
+=== VERSION
+
 008
 
-.I SUMMARY:
-.br
+=== SUMMARY
+
 Usage of this component is demonstrated in the QtPlasmaC example configurations included with LinuxCNC.
 
-.I DISCLAIMER:
-.br
+=== DISCLAIMER
+
 THE AUTHOR OF THIS SOFTWARE ACCEPTS ABSOLUTELY NO LIABILITY FOR ANY HARM OR LOSS RESULTING FROM ITS USE.
 
 IT IS EXTREMELY UNWISE TO RELY ON SOFTWARE ALONE FOR SAFETY.
@@ -55,7 +55,7 @@ pin in  bit     cut_recovery                "recover from cut error";
 pin in  float   cut_volts                   "cut voltage (volts)";
 pin in  bit     cutting_start               "start a new cut, connect to spindle.0.on";
 pin in  bit     debug_print                 "if true will print state changes as a debug aid";
-pin in  bit     dry_run                     "perfom a dry run without probing";
+pin in  bit     dry_run                     "perform a dry run without probing";
 pin in  bit     external_estop              "external E-stop input";
 pin in  float   feed_override               "feed override value from GUI (connect to halui.feed-override.value)";
 pin in  float   feed_reduction              "reduce adaptive feed to this percentage (connect to motion.analog-out-03)";
@@ -2425,7 +2425,7 @@ FUNCTION(_) {
     stop_type_out = stop_type;
 
     /* debug print */
-    if(debug_print && state_old != state){
+    if(debug_print && state_old != (int)state){
         state_old = state;
         switch(state){
             case 0:

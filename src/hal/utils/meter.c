@@ -176,10 +176,10 @@ int main(int argc, gchar * argv[])
             n++;
             if ( argc > n ){
                 rtapi_strxcpy(buf,argv[n]);
-                for (i=0; i< strlen(argv[n]); i++) {
+                for (i=0; i< (int)strlen(argv[n]); i++) {
                     if (isdigit(buf[i]) == 0) { break; } 
                 }
-                if (strlen(argv[n]) == i){
+                if ((int)strlen(argv[n]) == i){
                     width =  atoi(argv[n]);
                     n++;
                 }
@@ -379,6 +379,7 @@ probe_t *probe_new(char *probe_name)
 
 void popup_probe_window(GtkWidget * widget, gpointer data)
 {
+    (void)widget;
     probe_t *probe;
     hal_pin_t *pin;
     hal_sig_t *sig;
@@ -455,6 +456,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 
 static void quit(int sig)
 {
+    (void)sig;
     gtk_main_quit();
 }
 
@@ -626,6 +628,7 @@ static void create_probe_window(probe_t * probe)
 
 static void apply_selection(GtkWidget * widget, gpointer data)
 {
+    (void)widget;
     probe_t *probe;
 
     /* get a pointer to the probe data structure */
@@ -653,6 +656,8 @@ static void apply_selection(GtkWidget * widget, gpointer data)
 static void page_switched(GtkNotebook *notebook, GtkWidget *page,
                           guint page_num, gpointer user_data)
 {
+    (void)notebook;
+    (void)page;
     probe_t *probe;
     probe = (probe_t *) user_data;
     probe->listnum=page_num;

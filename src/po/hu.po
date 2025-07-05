@@ -3,6 +3,8 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <dzsolt@gmail.com>, 2006.
 # Ambr Enzs <inarcsjavagarage@gmail.com>, 2022.
+# Mező László <jamborbt@gmail.com>, 2024.
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 #
 # Beta.
 # Now 100% translation.
@@ -12,9 +14,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AXIS Hungarian Translation 0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2022-06-24 12:03+0000\n"
-"Last-Translator: Ambr Enzs <inarcsjavagarage@gmail.com>\n"
+"POT-Creation-Date: 2024-10-05 14:29+0200\n"
+"PO-Revision-Date: 2024-08-11 09:50+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/hu/>\n"
 "Language: hu\n"
@@ -22,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 5.7-dev\n"
 "X-Poedit-Language: Hungarian\n"
 "X-Poedit-Country: HUNGARY\n"
 
@@ -284,19 +286,19 @@ msgid "Cannot use G5.3 without G5.2 first"
 msgstr "Nem használhatja a G5.3-at előtte kiadott G5.2 parancs nélkül"
 
 #: src/emc/rs274ngc/interp_convert.cc:320
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "You must specify a number of control points at least equal to the order L = "
 "%d"
-msgstr ""
+msgstr "Meg kell adnia az L = %d sorrendnek megfelelő számú vezérlőpontot"
 
 #: src/emc/rs274ngc/interp_convert.cc:373
 msgid "one plane must be selected for nurbs: XY, YZ, ZX"
-msgstr ""
+msgstr "egy síkot kell kiválasztani a nurbokhoz: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "Programozza be a nurbs sorrendet P az első utasításblokkban"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
 #, fuzzy
@@ -307,11 +309,11 @@ msgstr "Q értéke G10-ben nem integer"
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
 msgstr ""
+"Programozza be a nurbs Q értéket (1,2,3) a nurbs utasítás első blokkjában"
 
 #: src/emc/rs274ngc/interp_convert.cc:415
-#, fuzzy
 msgid "nurbs Q value not in range 1 to 3"
-msgstr "Hibás kód nem a G54 - G593 tartományban"
+msgstr "a Q értéke nem az 1–3 tartományban van"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
 #, fuzzy
@@ -347,7 +349,7 @@ msgstr "Nem végezhetö NURBS 0 előtolással"
 msgid ""
 "You must specify a number of control points at least equal to the order P = "
 "%d"
-msgstr ""
+msgstr "Meg kell adnia a P = %d sorrendnek megfelelő számú vezérlőpontot"
 
 #: src/emc/rs274ngc/interp_convert.cc:567
 msgid "Cannot convert spline with cutter radius compensation"
@@ -361,9 +363,8 @@ msgid "Splines may not have motion in A, B, or C"
 msgstr "Az ívek( Splines) Z, A, B, vagy C irányban nem végezhetnek mozgást"
 
 #: src/emc/rs274ngc/interp_convert.cc:586
-#, fuzzy
 msgid "Must specify both I and J with G5.1 or G6.1"
-msgstr "Meg kell adnia az I és J-t a G5.1 parancsnál"
+msgstr "Meg kell adnia az I és J-t a G5.1 és G6.1 parancsnál"
 
 #: src/emc/rs274ngc/interp_convert.cc:691
 msgid "Must specify both I and J, or neither"
@@ -378,13 +379,15 @@ msgid ""
 "The move just after exiting cutter compensation mode must be straight, not "
 "an arc"
 msgstr ""
+"A vágókompenzációs módból való kilépés utáni mozgásnak egyenesnek kell "
+"lennie, nem ívnek"
 
 #: src/emc/rs274ngc/interp_convert.cc:936
 msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr "Nem rakhat ívet a G17.1, G18.1 vagy G19.1 síkokban"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
-#: src/emc/rs274ngc/interp_convert.cc:5334
+#: src/emc/rs274ngc/interp_convert.cc:5333
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr "Nincs előtolás ha a főorsó sebessége nulla előtolás/ford módban"
 
@@ -396,18 +399,20 @@ msgstr "Nincs előtolás ha a főorsó sebessége nulla előtolás/ford módban"
 #: src/emc/rs274ngc/interp_convert.cc:995
 #, c-format
 msgid "%c word missing in absolute center arc"
-msgstr ""
+msgstr "%c szó hiányzik az abszolút középső ívből"
 
 #: src/emc/rs274ngc/interp_convert.cc:1222
 msgid ""
 "Radius of cutter compensation entry arc is not greater than the tool radius"
 msgstr ""
+"A marókompenzáció belépési ívének sugara nem nagyobb, mint a szerszám sugara"
 
 #: src/emc/rs274ngc/interp_convert.cc:1441
 #: src/emc/rs274ngc/interp_convert.cc:1451 src/emc/rs274ngc/interp_queue.cc:592
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
+"A homorú sarokban lévő ívmozgást a szerszám nem tudja elérni marás nélkül"
 
 #: src/emc/rs274ngc/interp_convert.cc:1477
 msgid "Arc to arc motion is invalid because the arcs have the same center"
@@ -420,13 +425,15 @@ msgid ""
 "Arc to arc motion makes a corner the compensated tool can't fit in without "
 "gouging"
 msgstr ""
+"Az ívtől ívig terjedő mozgás miatt a kompenzált szerszám nem fér bele a "
+"sarokba marás nélkül"
 
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
 #: src/emc/rs274ngc/interp_convert.cc:1623
-#: src/emc/rs274ngc/interp_convert.cc:4752
-#: src/emc/rs274ngc/interp_convert.cc:4755
-#: src/emc/rs274ngc/interp_convert.cc:4758 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:4751
+#: src/emc/rs274ngc/interp_convert.cc:4754
+#: src/emc/rs274ngc/interp_convert.cc:4757 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "Érvénytelen abszolút pozíció %5.2f a burkolt forgó tengely %c"
@@ -508,6 +515,8 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:3804
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr ""
+"Nem lehet beállítani a mozgáskimenetet bekapcsolt vágósugár-kompenzáció "
+"mellett"
 
 #: src/emc/rs274ngc/interp_convert.cc:3805
 msgid "No valid P word with M62"
@@ -516,6 +525,8 @@ msgstr "Nincs érvényes P paraméter az M62 kódban"
 #: src/emc/rs274ngc/interp_convert.cc:3809
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
+"Nem lehet beállítani a mozgás digitális kimenetét bekapcsolt vágósugár-"
+"kompenzáció mellett"
 
 #: src/emc/rs274ngc/interp_convert.cc:3810
 msgid "No valid P word with M63"
@@ -525,6 +536,8 @@ msgstr "Nincs érvényes P paraméter az M63 kódban"
 #: src/emc/rs274ngc/interp_convert.cc:3819
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr ""
+"Nem lehet beállítani a kiegészítő digitális kimenetet bekapcsolt vágósugár-"
+"kompenzáció mellett"
 
 #: src/emc/rs274ngc/interp_convert.cc:3815
 msgid "No valid P word with M64"
@@ -541,14 +554,19 @@ msgstr "Nincs érvényes P paraméter az M66 kódban"
 #: src/emc/rs274ngc/interp_convert.cc:3866
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr ""
+"Képtelen kivárni a digitális bemenetet bekapcsolt vágósugár-kompenzáció "
+"mellett"
 
 #: src/emc/rs274ngc/interp_convert.cc:3878
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr ""
+"Képtelen kivárni az analóg bemenetet bekapcsolt vágósugár-kompenzáció mellett"
 
 #: src/emc/rs274ngc/interp_convert.cc:3893
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr ""
+"A mozgás analóg kimenete nem állítható be bekapcsolt vágósugár-kompenzáció "
+"mellett"
 
 #: src/emc/rs274ngc/interp_convert.cc:3894
 msgid "Invalid analog index with M67"
@@ -557,6 +575,8 @@ msgstr "Érvénytelen analóg index az M67 kódban"
 #: src/emc/rs274ngc/interp_convert.cc:3900
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr ""
+"Nem állítható be analóg kiegészítő kimenet bekapcsolt vágósugár-kompenzáció "
+"mellett"
 
 #: src/emc/rs274ngc/interp_convert.cc:3901
 msgid "Invalid analog index with M68"
@@ -565,20 +585,26 @@ msgstr "Érvénytelen analóg index az M68 kódban"
 #: src/emc/rs274ngc/interp_convert.cc:3932
 msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr ""
+"Nem negatív Q-szóra van szükség a szerszám számának M61-gyel történő "
+"megadásához"
 
 #: src/emc/rs274ngc/interp_convert.cc:3976
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Az orsó ($) száma kívül esik az M3 parancs tartományán\n"
+" orsók száma =%i.  $=%d"
 
 #: src/emc/rs274ngc/interp_convert.cc:3993
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Az orsó ($) száma kívül esik az M4 parancs tartományán\n"
+" orsók száma =%i.  $=%d"
 
 #: src/emc/rs274ngc/interp_convert.cc:4010
 #, c-format
@@ -589,7 +615,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4031
 msgid "Spindle ($) number out of range in M19 Command"
-msgstr ""
+msgstr "Az orsó ($) száma tartományon kívül esik az M19 parancsban"
 
 #: src/emc/rs274ngc/interp_convert.cc:4038
 msgid "Q word with M19 requires a value > 0"
@@ -628,160 +654,176 @@ msgstr "Érvénytelen főórsószám ($) az M51 parancsban"
 #: src/emc/rs274ngc/interp_convert.cc:4309
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
-msgstr ""
+msgstr "A %c indexelési tengely csak G0-val mozgatható"
 
 #: src/emc/rs274ngc/interp_convert.cc:4316
 #: src/emc/rs274ngc/interp_convert.cc:4318
 #: src/emc/rs274ngc/interp_convert.cc:4320
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
-msgstr ""
+msgstr "A %c indexelési tengely csak egyedül mozgatható"
 
-#: src/emc/rs274ngc/interp_convert.cc:4427
+#: src/emc/rs274ngc/interp_convert.cc:4426
 msgid "Cannot probe with feed per rev mode"
 msgstr "Nem lehet tapintani előtolás/ford. módban"
 
-#: src/emc/rs274ngc/interp_convert.cc:4475
+#: src/emc/rs274ngc/interp_convert.cc:4474
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
+"A visszahúzási mód nem módosítható bekapcsolt vágósugár-kompenzáció mellett"
 
-#: src/emc/rs274ngc/interp_convert.cc:4509
+#: src/emc/rs274ngc/interp_convert.cc:4508
 msgid "G10 L1 without offsets has no effect"
 msgstr "G10 L1 parancsnak eltolás(offset) nélkül nincs hatása"
 
-#: src/emc/rs274ngc/interp_convert.cc:4615
+#: src/emc/rs274ngc/interp_convert.cc:4614
 msgid "Q number in G10 is not an integer"
 msgstr "Q értéke G10-ben nem integer"
 
-#: src/emc/rs274ngc/interp_convert.cc:4616
+#: src/emc/rs274ngc/interp_convert.cc:4615
 msgid "Invalid tool orientation"
 msgstr "Érvénytelen szerszám orientéció"
 
-#: src/emc/rs274ngc/interp_convert.cc:4740
+#: src/emc/rs274ngc/interp_convert.cc:4739
 msgid "I J words not allowed with G10 L2"
 msgstr "I és J paraméter nem engedélyezett G10 L2-ben"
 
-#: src/emc/rs274ngc/interp_convert.cc:4761
+#: src/emc/rs274ngc/interp_convert.cc:4760
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
+"Az aktív koordinátarendszer nem módosítható bekapcsolt vágósugár-kompenzáció "
+"mellett"
 
-#: src/emc/rs274ngc/interp_convert.cc:4769
+#: src/emc/rs274ngc/interp_convert.cc:4768
 msgid "R not allowed in G10 L20"
 msgstr "R nem engedélyezett G10 és G20-ban"
 
-#: src/emc/rs274ngc/interp_convert.cc:5115
+#: src/emc/rs274ngc/interp_convert.cc:5114
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
-msgstr ""
+msgstr "Hiba: A convert_stop() elérése az M99-ből alprogram visszatérésként"
 
-#: src/emc/rs274ngc/interp_convert.cc:5394
+#: src/emc/rs274ngc/interp_convert.cc:5393
 msgid "Invalid spindle ($) number in G33 move"
 msgstr "Érvénytelen főorsó ($) szám a G33 mozgásban"
 
-#: src/emc/rs274ngc/interp_convert.cc:5399
+#: src/emc/rs274ngc/interp_convert.cc:5398
 msgid "Spindle not turning in G33"
 msgstr "Főorsó nem forog G33-nál"
 
-#: src/emc/rs274ngc/interp_convert.cc:5409
+#: src/emc/rs274ngc/interp_convert.cc:5408
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr "Érvénytelen főorsó szám ($) a G33.1 mozgásban"
 
-#: src/emc/rs274ngc/interp_convert.cc:5414
+#: src/emc/rs274ngc/interp_convert.cc:5413
 msgid "Spindle not turning in G33.1"
 msgstr "Főorsó nem forog G33.1 -nál"
 
-#: src/emc/rs274ngc/interp_convert.cc:5429
+#: src/emc/rs274ngc/interp_convert.cc:5428
 msgid "Invalid D-number in G76 cycle"
 msgstr "Érvénytelen D érték a G76 ciklusban"
 
-#: src/emc/rs274ngc/interp_convert.cc:5434
+#: src/emc/rs274ngc/interp_convert.cc:5433
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr "A kiválasztott főorsó (%i)nem forog a G76-ban"
 
-#: src/emc/rs274ngc/interp_convert.cc:5472
+#: src/emc/rs274ngc/interp_convert.cc:5471
 msgid "BUG: An axis incorrectly moved along with an indexer"
-msgstr ""
+msgstr "HIBA: Egy tengely helytelenül mozgott az indexelővel együtt"
 
-#: src/emc/rs274ngc/interp_convert.cc:5485
+#: src/emc/rs274ngc/interp_convert.cc:5484
 msgid "BUG: trying to index incorrect axis"
-msgstr ""
+msgstr "BUG: hibás tengelyt próbál indexelni"
 
-#: src/emc/rs274ngc/interp_convert.cc:5580
+#: src/emc/rs274ngc/interp_convert.cc:5579
+#, fuzzy
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr ""
+"Nem használható a G76 menetvágó ciklus bekapcsolt vágósugár-kompenzáció "
+"mellett"
 
-#: src/emc/rs274ngc/interp_convert.cc:5583
+#: src/emc/rs274ngc/interp_convert.cc:5582
 msgid "In G76, I must not be 0"
 msgstr "G76-ban I nem kell 0-nak lennie"
 
-#: src/emc/rs274ngc/interp_convert.cc:5585
+#: src/emc/rs274ngc/interp_convert.cc:5584
 msgid "In G76, J must be greater than 0"
 msgstr "G76-ban, J-nek nagyobbnak kell lenni mint 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5587
+#: src/emc/rs274ngc/interp_convert.cc:5586
 msgid "In G76, K must be greater than J"
 msgstr "G76-ban, K-nak nagyobbnak kell lenni mint J-nek"
 
-#: src/emc/rs274ngc/interp_convert.cc:5730
+#: src/emc/rs274ngc/interp_convert.cc:5729
+#, fuzzy
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
+"A marókompenzáció belépési mozgásának hossza nem nagyobb, mint a szerszám "
+"sugara"
 
-#: src/emc/rs274ngc/interp_convert.cc:5949
+#: src/emc/rs274ngc/interp_convert.cc:5948
 msgid "Zero degree inside corner is invalid for cutter compensation"
-msgstr ""
+msgstr "A belső sarok nulla foka érvénytelen a vágókorrekcióhoz"
 
-#: src/emc/rs274ngc/interp_convert.cc:5987
-#: src/emc/rs274ngc/interp_convert.cc:5995
+#: src/emc/rs274ngc/interp_convert.cc:5986
+#: src/emc/rs274ngc/interp_convert.cc:5994
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr ""
+"Az ívtől az egyenes mozgásig olyan sarokba kerül, amelybe a kompenzált "
+"szerszám nem fér bele marás nélkül"
 
-#: src/emc/rs274ngc/interp_convert.cc:6079
+#: src/emc/rs274ngc/interp_convert.cc:6078
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr "Szerszámváltás nem lehetséges ha a rádiusz kompenzálás aktív"
 
-#: src/emc/rs274ngc/interp_convert.cc:6202
+#: src/emc/rs274ngc/interp_convert.cc:6201
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr "Szerszámeltolás váltás nem lehetséges ha a rádiusz kompenzálás aktív"
 
-#: src/emc/rs274ngc/interp_convert.cc:6253
+#: src/emc/rs274ngc/interp_convert.cc:6252
 msgid "G43.2: Can not have both H and axis words"
-msgstr ""
+msgstr "G43.2: Nem tartalmazhat H és tengely szavakat"
 
-#: src/emc/rs274ngc/interp_convert.cc:6256
+#: src/emc/rs274ngc/interp_convert.cc:6255
 msgid "G43.2: No axes specified and H word missing"
-msgstr ""
+msgstr "G43.2: Nincs megadva tengely, és hiányzik a H szó"
 
 #: src/emc/rs274ngc/interp_queue.cc:590
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
+"HIBA: a vágókompenzáció érvénytelen ívet generált r1 %f r2 %f nem illő "
+"sugarak mellett"
 
 #: src/emc/rs274ngc/interp_queue.cc:612 src/emc/rs274ngc/interp_queue.cc:634
 #: src/emc/rs274ngc/interp_queue.cc:675
 msgid "BUG: Unsupported plane in cutter compensation"
-msgstr ""
+msgstr "HIBA: Nem támogatott sík a vágókompenzációban"
 
 #: src/emc/rs274ngc/interp_queue.cc:622
 msgid ""
 "Straight traverse in concave corner cannot be reached by the tool without "
 "gouging"
 msgstr ""
+"A homorú sarokban lévő egyenes mozgást nem érheti el a szerszám marás nélkül"
 
 #: src/emc/rs274ngc/interp_queue.cc:652
 #, c-format
 msgid "BUG: Unsupported plane [%d] in cutter compensation"
-msgstr ""
+msgstr "HIBA: Nem támogatott sík [%d] a vágókompenzációban"
 
 #: src/emc/rs274ngc/interp_queue.cc:663
 msgid ""
 "Straight feed in concave corner cannot be reached by the tool without gouging"
 msgstr ""
+"A homorú sarokban lévő egyenes előtolást a szerszám nem tudja elérni marás "
+"nélkül"
 
 #: src/emc/rs274ngc/interp_cycles.cc:270
 #, c-format
@@ -790,7 +832,7 @@ msgstr "Főorsó nem forog %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:272
 msgid "Spindle turning clockwise in G74"
-msgstr ""
+msgstr "Orsó forgása az óramutató járásával megegyező irányba a G74-ben"
 
 #: src/emc/rs274ngc/interp_cycles.cc:275
 msgid "Spindle turning counterclockwise in G84"
@@ -807,15 +849,15 @@ msgstr "Nincs előtolás mert az előtolás nulla"
 
 #: src/emc/rs274ngc/interp_cycles.cc:720
 msgid "Cannot use inverse time feed with canned cycles"
-msgstr ""
+msgstr "Nem használható inverz időbetöltés a konzerv ciklusokkal"
 
 #: src/emc/rs274ngc/interp_cycles.cc:721
 msgid "Cannot use canned cycles with cutter compensation on"
-msgstr ""
+msgstr "Nem használhatók beépített ciklusok bekapcsolt vágókompenzáció mellett"
 
 #: src/emc/rs274ngc/interp_cycles.cc:917
 msgid "G17 canned cycle is not possible on a machine without Z axis"
-msgstr ""
+msgstr "A G17 konzerv ciklus nem lehetséges Z tengely nélküli gépen"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1016
 #: src/emc/rs274ngc/interp_cycles.cc:1207
@@ -830,19 +872,19 @@ msgstr "Érvénytelen főorsó ($) szám a G74/G84 ciklusban"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1126
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
-msgstr ""
+msgstr "A G17.1 konzerv ciklus nem lehetséges W tengely nélküli gépen"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1363
 msgid "G19 canned cycle is not possible on a machine without X axis"
-msgstr ""
+msgstr "A G19 konzerv ciklus nem lehetséges X tengely nélküli gépen"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1551
 msgid "G19.1 canned cycle is not possible on a machine without U axis"
-msgstr ""
+msgstr "A G19.1 konzerv ciklus U tengely nélküli gépen nem lehetséges"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1796
 msgid "G18 canned cycle is not possible on a machine without Y axis"
-msgstr ""
+msgstr "A G18 konzerv ciklus nem lehetséges Y tengely nélküli gépen"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1877
 msgid "Invalid E-number in G74/G84 cycle"
@@ -850,7 +892,7 @@ msgstr "Érvénytelen E érték a G74/G78 ciklusban"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1983
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
-msgstr ""
+msgstr "V tengely nélküli gépen a G18.1 konzerv ciklus nem lehetséges"
 
 #: src/emc/rs274ngc/interp_execute.cc:250
 msgid "Invalid spindle ($) number in Spindle Mode command"
@@ -858,7 +900,7 @@ msgstr "Érvénytelen főorsó szám ($) a főórsó mód parancsban"
 
 #: src/emc/rs274ngc/interp_execute.cc:260
 msgid "Invalid spindle ($) number in Spindle Feed command"
-msgstr ""
+msgstr "Érvénytelen orsószám ($) a Spindle Feed parancsban"
 
 #: src/emc/rs274ngc/interp_execute.cc:284
 msgid "Invalid spindle ($) number in Spindle speed command"
@@ -876,43 +918,45 @@ msgstr "Nem lehet megadni X vagy Y szavakat poláris koordinátával"
 
 #: src/emc/rs274ngc/interp_find.cc:278
 msgid "Must specify angle in polar coordinate if at the origin"
-msgstr ""
+msgstr "Meg kell adni a szöget polárkoordinátában, ha az origóban van"
 
 #: src/emc/rs274ngc/interp_find.cc:344
 msgid ""
 "Incremental motion with polar coordinates is indeterminate when at the origin"
 msgstr ""
+"A polárkoordinátákkal rendelkező növekményes mozgás az origóban határozatlan"
 
 #: src/emc/rs274ngc/interp_find.cc:354
 msgid "G91 motion with polar coordinates is indeterminate when at the origin"
-msgstr ""
+msgstr "A polárkoordinátákkal rendelkező G91 mozgás az origóban határozatlan"
 
 #: src/emc/rs274ngc/interp_find.cc:730 src/emc/rs274ngc/interp_find.cc:746
 #, c-format
 msgid "Requested tool %d not found in the tool table"
-msgstr ""
+msgstr "A kért %d szerszám nem található a szerszámtáblázatban"
 
 #: src/emc/rs274ngc/interp_internal.cc:159
 msgid "Cannot use polar coordinate on a machine lacking X or Y axes"
 msgstr ""
+"Nem használható polárkoordináta olyan gépen, amelyen nincs X vagy Y tengely"
 
 #: src/emc/rs274ngc/interp_internal.cc:160
 msgid "Cannot use polar coordinate except in G17 plane"
-msgstr ""
+msgstr "Nem használható poláris koordináta, kivéve a G17 síkban"
 
 #: src/emc/rs274ngc/interp_internal.cc:161
 msgid "Cannot specify both polar coordinate and X word"
-msgstr ""
+msgstr "Nem adható meg egyszerre polárkoordináta és X szó"
 
 #: src/emc/rs274ngc/interp_internal.cc:162
 msgid "Cannot specify both polar coordinate and Y word"
-msgstr ""
+msgstr "Nem adható meg poláris koordináta és Y szó egyaránt"
 
 #: src/emc/rs274ngc/interp_internal.cc:183
 #: src/emc/rs274ngc/interp_internal.cc:201
 #: src/emc/rs274ngc/interp_internal.cc:217
 msgid "Polar coordinates can only be used for motion"
-msgstr ""
+msgstr "A poláris koordináták csak mozgáshoz használhatók"
 
 #: src/emc/rs274ngc/interp_read.cc:1207 src/emc/rs274ngc/interp_read.cc:1211
 #, c-format
@@ -927,7 +971,7 @@ msgstr "Hibás karaktert'%c' hasznl"
 #: src/emc/rs274ngc/interp_read.cc:1604
 #, c-format
 msgid "%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"
-msgstr ""
+msgstr "%d: Hiba: Nem m98/m99 M-kód átadva a read_o()-nak: '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:1808
 msgid "Left bracket missing after 'while'"
@@ -948,6 +992,7 @@ msgstr "A bal oldali zárójel hiányzik a \"elseif\" után"
 #: src/emc/rs274ngc/interp_read.cc:2057
 msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
+"Nem olvasható az aktuális pozíció bekapcsolt vágósugár-kompenzáció mellett"
 
 #: src/emc/rs274ngc/interp_read.cc:2072
 msgid "Expected # reading parameter"
@@ -955,7 +1000,7 @@ msgstr "Várható # olvasási paraméter"
 
 #: src/emc/rs274ngc/interp_read.cc:2074
 msgid "Expected ] reading bracketed parameter"
-msgstr ""
+msgstr "Várható ] zárójeles paraméter olvasása"
 
 #: src/emc/rs274ngc/interp_read.cc:2746
 #, c-format
@@ -978,7 +1023,7 @@ msgstr "Számítás eredménye 'végtelen'"
 #: src/emc/rs274ngc/interp_read.cc:3132
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
-msgstr ""
+msgstr "EOF a fájlban:%s o-szót keres: o<%s> a következő sorból: %d"
 
 #: src/emc/rs274ngc/interp_read.cc:3244
 msgid "Multiple U words on one line"
@@ -995,12 +1040,14 @@ msgstr "Több W szó egy sorban"
 #: src/emc/rs274ngc/interp_o_word.cc:104
 #, c-format
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr ""
+msgstr "Fájl:%s sor:%d al: o|%s|  illegális helyen találták"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
 msgstr ""
+"Fájl:%s sor:%d újradefiniálva az al: o|%s|  már meghatározva a következő "
+"fájlban:%s"
 
 #: src/emc/rs274ngc/interp_o_word.cc:825
 #, c-format
@@ -1032,22 +1079,23 @@ msgstr "%d: Nem definiált O-szó cimke: '%s'"
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
 msgstr ""
+"%d: nincs megfelelő \"if\" címke: \"%s\" (a \"%s\" a %d sorban található)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1096
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
-msgstr ""
+msgstr "%d: nincs megfelelő címke: „%s” (a „%s” a %d sorban található): „%s”"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1114
 #: src/emc/rs274ngc/interp_o_word.cc:1131
 #, c-format
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: nincs egyező while/do címke: '%s' (a '%s' található a %d sorban)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1157
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: nincs megfelelő címke: \"%s\" (a \"%s\" a %d sorban található)"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:185
 #, c-format
@@ -1067,12 +1115,12 @@ msgstr "Név paraméter #<%s> nem definiált"
 #: src/emc/rs274ngc/interp_namedparams.cc:256
 #, c-format
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_ready(): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:421
 #, c-format
@@ -1087,7 +1135,7 @@ msgstr "Nem lehet hozzárendelni csak olvasható paraméter #<%s>"
 #: src/emc/rs274ngc/interp_namedparams.cc:790
 #, c-format
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
-msgstr ""
+msgstr "BUG: lookup_named_param(%s): kezeletlen index=%fn"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1461 src/emc/rs274ngc/rs274ngc_pre.cc:1536
 msgid "Queue is not empty after tool change"
@@ -1108,23 +1156,23 @@ msgstr "A fájl már nyitva van"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:21
 msgid "All axes missing with g52 or g92"
-msgstr ""
+msgstr "Minden tengely hiányzik a g52-vel vagy a g92-vel"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:22
 msgid "All axes missing with motion code"
-msgstr ""
+msgstr "Minden tengely hiányzik a mozgáskóddal"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:23
 msgid "Arc radius too small to reach end point"
-msgstr ""
+msgstr "Az ív sugara túl kicsi a végpont eléréséhez"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:24
 msgid "Argument to acos out of range"
-msgstr ""
+msgstr "Érv az aco-hoz a tartományon kívül"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:25
 msgid "Argument to asin out of range"
-msgstr ""
+msgstr "Érv az assin tartományon kívülre"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:26
 msgid "Attempt to divide by zero"
@@ -1132,7 +1180,7 @@ msgstr "Megróbált nullával osztani"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:27
 msgid "Attempt to raise negative to non integer power"
-msgstr ""
+msgstr "Próbálja meg a negatív hatványt nem egész számra emelni"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:28
 msgid "Bad format unsigned integer"
@@ -1144,7 +1192,7 @@ msgstr "Hibás szám formátum"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:30
 msgid "Bug bad g code modal group 0"
-msgstr ""
+msgstr "Hiba hibás g-kód modális csoport 0"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:31
 msgid "Bug code not g0 or g1"
@@ -1204,7 +1252,7 @@ msgstr "Hiba a funkciót nem lehet hívni"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:46
 msgid "Bug in tool radius comp"
-msgstr ""
+msgstr "Hiba a szerszám sugár kompenzációban."
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:47
 msgid "Bug plane not xy yz or xz"
@@ -1224,7 +1272,7 @@ msgstr "Hiba ismeretlen művelet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:51
 msgid "Cannot change axis offsets with cutter radius comp"
-msgstr ""
+msgstr "A tengelyeltolások nem változtathatók meg a marósugár korrekciójával"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:52
 msgid "Cannot create backup file"
@@ -1232,15 +1280,15 @@ msgstr "Nem lehet létrehozni biztonsági mentési fájlt"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:53
 msgid "Cannot do g1 with zero feed rate"
-msgstr ""
+msgstr "Nem lehet g1-et csinálni nulla előtolás mellett"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:54
 msgid "Cannot do zero repeats of cycle"
-msgstr ""
+msgstr "Nem lehet nulla ciklusismétlést végrehajtani"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:55
 msgid "Cannot make arc with zero feed rate"
-msgstr ""
+msgstr "Nem lehet ívet létrehozni nulla előtolás mellett"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:56
 msgid "Cannot open backup file"
@@ -1252,7 +1300,7 @@ msgstr "Nem lehet megnyitni a változó fájlt"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:58
 msgid "Cannot probe with cutter radius comp on"
-msgstr ""
+msgstr "Nem szondázható bekapcsolt vágósugár-kompozíció mellett"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:59
 msgid "Cannot probe with zero feed rate"
@@ -1339,11 +1387,13 @@ msgid "F word missing with inverse time g1 move"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-msgid "File ended with no percent sign"
+#, fuzzy
+msgid "File ended with no percent sign (%)"
 msgstr "A fájl nem zárult % jellel"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
-msgid "File ended with no percent sign or program end"
+#, fuzzy
+msgid "File ended with no percent sign (%) or program end (M2)"
 msgstr "A fájl végén nincs % jel vagy end"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
@@ -1961,8 +2011,8 @@ msgid "Open Configuration File:"
 msgstr "Konfigurációs fájl megnyitása:"
 
 #: src/hal/utils/scope.c:478 src/hal/utils/scope.c:501
-#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:700
-#: src/hal/utils/scope_vert.c:918 src/hal/utils/scope_trig.c:315
+#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:701
+#: src/hal/utils/scope_vert.c:919 src/hal/utils/scope_trig.c:315
 msgid "_Cancel"
 msgstr "Mégsem"
 
@@ -2103,7 +2153,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1302
 #: src/emc/usr_intf/axis/scripts/axis.py:1662
 #: src/emc/usr_intf/axis/scripts/axis.py:2983
-#: src/emc/usr_intf/axis/scripts/axis.py:4239
+#: src/emc/usr_intf/axis/scripts/axis.py:4247
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -2146,8 +2196,8 @@ msgid ""
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
 
-#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
-#: src/hal/utils/scope_vert.c:917
+#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:700
+#: src/hal/utils/scope_vert.c:918
 msgid "_OK"
 msgstr "_OK"
 
@@ -2313,7 +2363,7 @@ msgstr ""
 msgid "MHz"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
+#: src/hal/utils/scope_vert.c:414 src/hal/utils/scope_vert.c:1118
 #, c-format
 msgid ""
 "Offset\n"
@@ -2322,15 +2372,15 @@ msgstr ""
 "Eltolás\n"
 "%s"
 
-#: src/hal/utils/scope_vert.c:602
+#: src/hal/utils/scope_vert.c:603
 msgid "Gain"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:615 src/hal/utils/scope_trig.c:257
+#: src/hal/utils/scope_vert.c:616 src/hal/utils/scope_trig.c:257
 msgid "Pos"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:630 tcl/ngcgui_ttt.tcl:215
+#: src/hal/utils/scope_vert.c:631 tcl/ngcgui_ttt.tcl:215
 #: src/emc/usr_intf/pncconf/x_motor.glade:1672
 #: src/emc/usr_intf/pncconf/y_motor.glade:1666
 #: src/emc/usr_intf/pncconf/z_motor.glade:1666
@@ -2340,7 +2390,7 @@ msgstr ""
 msgid "Scale"
 msgstr "Lépték"
 
-#: src/hal/utils/scope_vert.c:635
+#: src/hal/utils/scope_vert.c:636
 msgid ""
 "Offset\n"
 "----"
@@ -2348,26 +2398,26 @@ msgstr ""
 "Eltolás\n"
 "----"
 
-#: src/hal/utils/scope_vert.c:693
+#: src/hal/utils/scope_vert.c:694
 #, c-format
 msgid ""
 "Set the vertical offset\n"
 "for channel %d."
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:697
+#: src/hal/utils/scope_vert.c:698
 msgid "Set Offset"
 msgstr "Eltolás beállítása"
 
-#: src/hal/utils/scope_vert.c:716
+#: src/hal/utils/scope_vert.c:717
 msgid "AC Coupled"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:819
+#: src/hal/utils/scope_vert.c:820
 msgid "Too many channels"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:822
+#: src/hal/utils/scope_vert.c:823
 msgid ""
 "You cannot add another channel.\n"
 "\n"
@@ -2375,20 +2425,20 @@ msgid ""
 "the record length to allow for more channels"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:912
+#: src/hal/utils/scope_vert.c:913
 #, fuzzy, c-format
 msgid "Select Channel %d Source"
 msgstr "Kiválasztott csatorna"
 
-#: src/hal/utils/scope_vert.c:935
+#: src/hal/utils/scope_vert.c:936
 msgid "Pins"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:936
+#: src/hal/utils/scope_vert.c:937
 msgid "Signals"
 msgstr ""
 
-#: src/hal/utils/scope_vert.c:937
+#: src/hal/utils/scope_vert.c:938
 msgid "Parameters"
 msgstr ""
 
@@ -2511,20 +2561,20 @@ msgstr ""
 msgid "kinematicsInverse failed"
 msgstr ""
 
-#: src/emc/motion/control.c:1510
+#: src/emc/motion/control.c:1515
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr ""
 
-#: src/emc/motion/control.c:1513 src/emc/motion/control.c:1522
+#: src/emc/motion/control.c:1518 src/emc/motion/control.c:1527
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
 
-#: src/emc/motion/control.c:1515 src/emc/motion/control.c:1524
+#: src/emc/motion/control.c:1520 src/emc/motion/control.c:1529
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
 
-#: src/emc/motion/control.c:1519
+#: src/emc/motion/control.c:1524
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr ""
@@ -5760,7 +5810,7 @@ msgid "Coordinate System Control Window"
 msgstr ""
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3666
+#: src/emc/usr_intf/axis/scripts/axis.py:3667
 msgid "Axis "
 msgstr "Tengely "
 
@@ -7511,7 +7561,7 @@ msgstr ""
 msgid "Error saving file"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3438
+#: src/emc/usr_intf/axis/scripts/axis.py:3439
 #, python-format
 msgid ""
 "\n"
@@ -7520,7 +7570,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3451
+#: src/emc/usr_intf/axis/scripts/axis.py:3452
 #, python-format
 msgid ""
 "\n"
@@ -7529,7 +7579,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3464
+#: src/emc/usr_intf/axis/scripts/axis.py:3465
 #, python-format
 msgid ""
 "\n"
@@ -7538,88 +7588,88 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3583
+#: src/emc/usr_intf/axis/scripts/axis.py:3584
 msgid "Axes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3585
+#: src/emc/usr_intf/axis/scripts/axis.py:3586
 msgid "Joints"
 msgstr "Tengelyek"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3587
+#: src/emc/usr_intf/axis/scripts/axis.py:3588
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3010
 msgid "Home All"
 msgstr "Minden nullpontra"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3589
+#: src/emc/usr_intf/axis/scripts/axis.py:3590
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3592
+#: src/emc/usr_intf/axis/scripts/axis.py:3593
 #, python-format
 msgid "Home All %s"
 msgstr "Mindent nullpontra %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3594
+#: src/emc/usr_intf/axis/scripts/axis.py:3595
 #, python-format
 msgid "Unhome All %s"
 msgstr "Minden nullpont törlése %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3635
+#: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3638
+#: src/emc/usr_intf/axis/scripts/axis.py:3639
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3670
+#: src/emc/usr_intf/axis/scripts/axis.py:3671
 msgid ""
 "\n"
 "Note:\n"
 "Individual axis homing is not currently supported for"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3671
+#: src/emc/usr_intf/axis/scripts/axis.py:3672
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3683
+#: src/emc/usr_intf/axis/scripts/axis.py:3684
 msgid "Joint"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3685
+#: src/emc/usr_intf/axis/scripts/axis.py:3686
 msgid "Home Joint"
 msgstr "Tengely nullpontra"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3693
+#: src/emc/usr_intf/axis/scripts/axis.py:3694
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3695
+#: src/emc/usr_intf/axis/scripts/axis.py:3696
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3889
+#: src/emc/usr_intf/axis/scripts/axis.py:3890
 msgid "Run from here"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3950
+#: src/emc/usr_intf/axis/scripts/axis.py:3951
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3952 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3953 share/axis/tcl/axis.tcl:387
 msgid "Show PyVCP pan_el"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4238
+#: src/emc/usr_intf/axis/scripts/axis.py:4246
 msgid "Error in ~/.axisrc"
 msgstr ""
 
@@ -7932,8 +7982,9 @@ msgid "_Save G-code as..."
 msgstr "Aktuális G-kódok:"
 
 #: share/axis/tcl/axis.tcl:80
-msgid "_Properties..."
-msgstr "_Tulajdonságok…"
+#, fuzzy
+msgid "G-code _properties..."
+msgstr "G-kód jellemzők"
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
@@ -19397,28 +19448,38 @@ msgstr ""
 msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:228
+#: lib/python/gladevcp/tooledit_widget.py:229
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:258
+#: lib/python/gladevcp/tooledit_widget.py:259
 msgid "Toolfile does not exist"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:297
+#: lib/python/gladevcp/tooledit_widget.py:298
 msgid "Tooledit widget int error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:307
-#: lib/python/gladevcp/tooledit_widget.py:312
+#: lib/python/gladevcp/tooledit_widget.py:308
+#: lib/python/gladevcp/tooledit_widget.py:313
 msgid "Tooledit widget float error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:359
+#: lib/python/gladevcp/tooledit_widget.py:334
+msgid "Something wrong with the locale settings. Will not save the tool table."
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:356
+msgid ""
+"Error converting a float with the given localization setting. A backup file "
+"has been created: "
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:368
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr "A szerszámtábla újratöltése a linuxcnc-be nem sikerült"
 
-#: lib/python/gladevcp/tooledit_widget.py:528
+#: lib/python/gladevcp/tooledit_widget.py:537
 msgid "Tool file was modified since it was last read"
 msgstr ""
 
@@ -19576,6 +19637,9 @@ msgstr "Mégsem"
 #, fuzzy
 msgid "_Ok"
 msgstr "_OK"
+
+#~ msgid "_Properties..."
+#~ msgstr "_Tulajdonságok…"
 
 #~ msgid "Splines must be in the XY plane"
 #~ msgstr "Az íveknek (Spline) az XY síkban kell lenni"

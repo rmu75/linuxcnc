@@ -3512,16 +3512,16 @@ PLATE</string>
                           <number>4</number>
                          </property>
                          <property name="leftMargin">
-                          <number>4</number>
+                          <number>0</number>
                          </property>
                          <property name="topMargin">
-                          <number>0</number>
+                          <number>3</number>
                          </property>
                          <property name="rightMargin">
-                          <number>0</number>
+                          <number>3</number>
                          </property>
                          <property name="bottomMargin">
-                          <number>0</number>
+                          <number>3</number>
                          </property>
                          <item>
                           <widget class="QWidget" name="widget_view_buttons" native="true">
@@ -3560,6 +3560,34 @@ PLATE</string>
                              <number>3</number>
                             </property>
                             <item>
+                             <widget class="ActionToolButton" name="actiontoolbutton_2">
+                              <property name="minimumSize">
+                               <size>
+                                <width>50</width>
+                                <height>36</height>
+                               </size>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>50</width>
+                                <height>50</height>
+                               </size>
+                              </property>
+                              <property name="text">
+                               <string>OPTN</string>
+                              </property>
+                              <property name="popupMode">
+                               <enum>QToolButton::InstantPopup</enum>
+                              </property>
+                              <property name="userViewAction" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="OptionMenuAction" stdset="0">
+                               <bool>true</bool>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
                              <widget class="ActionToolButton" name="actiontoolbutton">
                               <property name="minimumSize">
                                <size>
@@ -3577,8 +3605,8 @@ PLATE</string>
                                <string>Hold to save current view</string>
                               </property>
                               <property name="text">
-                               <string>User
-View</string>
+                               <string>USER
+VIEW</string>
                               </property>
                               <property name="checkable">
                                <bool>true</bool>
@@ -3922,37 +3950,6 @@ View</string>
                               </property>
                               <property name="alt_textTemplate" stdset="0">
                                <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QPushButton" name="btn_dimensions">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>50</width>
-                                <height>36</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>50</width>
-                                <height>50</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Toggle display dimensions</string>
-                              </property>
-                              <property name="text">
-                               <string>D</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>true</bool>
                               </property>
                              </widget>
                             </item>
@@ -4435,6 +4432,9 @@ View</string>
                              <height>16777215</height>
                             </size>
                            </property>
+                           <property name="focusPolicy">
+                            <enum>Qt::ClickFocus</enum>
+                           </property>
                            <property name="styleSheet">
                             <string notr="true"/>
                            </property>
@@ -4443,6 +4443,13 @@ View</string>
                            </property>
                            <property name="_dtg" stdset="0">
                             <bool>false</bool>
+                           </property>
+                           <property name="grid_color" stdset="0">
+                            <color>
+                             <red>200</red>
+                             <green>139</green>
+                             <blue>138</blue>
+                            </color>
                            </property>
                            <property name="background_color" stdset="0">
                             <color>
@@ -5028,20 +5035,8 @@ ROTATION</string>
                                  <verstretch>0</verstretch>
                                 </sizepolicy>
                                </property>
-                               <property name="frameShape">
-                                <enum>QFrame::NoFrame</enum>
-                               </property>
-                               <property name="frameShadow">
-                                <enum>QFrame::Plain</enum>
-                               </property>
-                               <property name="documentTitle">
-                                <string>Machine Log</string>
-                               </property>
-                               <property name="readOnly">
+                               <property name="machine_log_severity_option" stdset="0">
                                 <bool>true</bool>
-                               </property>
-                               <property name="placeholderText">
-                                <string>Machine Log</string>
                                </property>
                               </widget>
                              </item>
@@ -5071,21 +5066,6 @@ ROTATION</string>
                                  <horstretch>0</horstretch>
                                  <verstretch>0</verstretch>
                                 </sizepolicy>
-                               </property>
-                               <property name="frameShape">
-                                <enum>QFrame::NoFrame</enum>
-                               </property>
-                               <property name="frameShadow">
-                                <enum>QFrame::Plain</enum>
-                               </property>
-                               <property name="documentTitle">
-                                <string>Integrator Log</string>
-                               </property>
-                               <property name="readOnly">
-                                <bool>true</bool>
-                               </property>
-                               <property name="placeholderText">
-                                <string>Integrator Log</string>
                                </property>
                                <property name="integrator_log_option" stdset="0">
                                 <bool>true</bool>
@@ -10093,6 +10073,9 @@ MM/MIN</string>
                       <property name="frame">
                        <bool>true</bool>
                       </property>
+                      <property name="pinName" stdset="0">
+                       <string>jog-linear-increment</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -10208,6 +10191,9 @@ MM/MIN</string>
                       </property>
                       <property name="linear_option" stdset="0">
                        <bool>false</bool>
+                      </property>
+                      <property name="pinName" stdset="0">
+                       <string>jog-angular-increment</string>
                       </property>
                      </widget>
                     </item>
@@ -12361,6 +12347,12 @@ ALL</string>
                         <property name="Qjoint_number" stdset="0">
                          <number>1</number>
                         </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
                         </property>
@@ -12465,52 +12457,6 @@ ALL</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="2" column="0">
-                       <widget class="AxisToolButton" name="axis_select_1">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>36</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>76</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>Y</string>
-                        </property>
-                        <property name="checkable">
-                         <bool>true</bool>
-                        </property>
-                        <property name="autoExclusive">
-                         <bool>false</bool>
-                        </property>
-                        <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
-                        </property>
-                        <property name="joint_number" stdset="0">
-                         <number>1</number>
-                        </property>
-                        <property name="axis_letter" stdset="0">
-                         <string>Y</string>
-                        </property>
-                        <property name="dialog_code_string" stdset="0">
-                         <string>CALCULATOR</string>
-                        </property>
-                        <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
-                        </attribute>
-                       </widget>
-                      </item>
                       <item row="0" column="3">
                        <widget class="ActionButton" name="actionbutton_dtg">
                         <property name="sizePolicy">
@@ -12557,52 +12503,6 @@ ALL</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="0">
-                       <widget class="AxisToolButton" name="axis_select_0">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>36</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>76</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>X</string>
-                        </property>
-                        <property name="checkable">
-                         <bool>true</bool>
-                        </property>
-                        <property name="checked">
-                         <bool>false</bool>
-                        </property>
-                        <property name="autoExclusive">
-                         <bool>false</bool>
-                        </property>
-                        <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
-                        </property>
-                        <property name="axis_letter" stdset="0">
-                         <string>X</string>
-                        </property>
-                        <property name="dialog_code_string" stdset="0">
-                         <string>CALCULATOR</string>
-                        </property>
-                        <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
-                        </attribute>
-                       </widget>
-                      </item>
                       <item row="1" column="1" colspan="2">
                        <widget class="DROLabel" name="dro_axis_0">
                         <property name="sizePolicy">
@@ -12638,54 +12538,23 @@ ALL</string>
                         <property name="Qjoint_number" stdset="0">
                          <number>0</number>
                         </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showZeroOrigin" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="showGotoOrigin" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>false</bool>
+                        </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="2">
-                       <widget class="ActionButton" name="actionbutton_rel">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>36</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>76</height>
-                         </size>
-                        </property>
-                        <property name="baseSize">
-                         <size>
-                          <width>0</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="toolTip">
-                         <string>Show relative coordinates</string>
-                        </property>
-                        <property name="text">
-                         <string>G54</string>
-                        </property>
-                        <property name="checkable">
-                         <bool>true</bool>
-                        </property>
-                        <property name="autoExclusive">
-                         <bool>true</bool>
-                        </property>
-                        <property name="dro_absolute_action" stdset="0">
-                         <bool>false</bool>
-                        </property>
-                        <property name="dro_relative_action" stdset="0">
-                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
@@ -12720,6 +12589,12 @@ ALL</string>
                         </property>
                         <property name="Qjoint_number" stdset="0">
                          <number>2</number>
+                        </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
                         </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
@@ -13195,83 +13070,6 @@ ALL</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="3" column="0">
-                       <widget class="AxisToolButton" name="axis_select_2">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>36</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>76</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>Z</string>
-                        </property>
-                        <property name="checkable">
-                         <bool>true</bool>
-                        </property>
-                        <property name="autoExclusive">
-                         <bool>false</bool>
-                        </property>
-                        <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
-                        </property>
-                        <property name="joint_number" stdset="0">
-                         <number>2</number>
-                        </property>
-                        <property name="axis_letter" stdset="0">
-                         <string>Z</string>
-                        </property>
-                        <property name="dialog_code_string" stdset="0">
-                         <string>CALCULATOR</string>
-                        </property>
-                        <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
-                        </attribute>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="SystemToolButton" name="systemtoolbutton">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>36</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>76</height>
-                         </size>
-                        </property>
-                        <property name="toolTip">
-                         <string>Select work coordinate system</string>
-                        </property>
-                        <property name="text">
-                         <string>WCS</string>
-                        </property>
-                        <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="5" column="5">
                        <widget class="QStackedWidget" name="dro_button_stack_4">
                         <property name="sizePolicy">
@@ -13539,6 +13337,12 @@ ALL</string>
                         <property name="Qjoint_number" stdset="0">
                          <number>3</number>
                         </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
                         </property>
@@ -13742,98 +13546,6 @@ ALL</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="4" column="0">
-                       <widget class="AxisToolButton" name="axis_select_3">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>36</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>76</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>4</string>
-                        </property>
-                        <property name="checkable">
-                         <bool>true</bool>
-                        </property>
-                        <property name="autoExclusive">
-                         <bool>false</bool>
-                        </property>
-                        <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
-                        </property>
-                        <property name="joint_number" stdset="0">
-                         <number>3</number>
-                        </property>
-                        <property name="axis_letter" stdset="0">
-                         <string/>
-                        </property>
-                        <property name="dialog_code_string" stdset="0">
-                         <string>CALCULATOR</string>
-                        </property>
-                        <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
-                        </attribute>
-                       </widget>
-                      </item>
-                      <item row="5" column="0">
-                       <widget class="AxisToolButton" name="axis_select_4">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>36</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>16777215</width>
-                          <height>76</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>5</string>
-                        </property>
-                        <property name="checkable">
-                         <bool>true</bool>
-                        </property>
-                        <property name="autoExclusive">
-                         <bool>false</bool>
-                        </property>
-                        <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
-                        </property>
-                        <property name="joint_number" stdset="0">
-                         <number>4</number>
-                        </property>
-                        <property name="axis_letter" stdset="0">
-                         <string/>
-                        </property>
-                        <property name="dialog_code_string" stdset="0">
-                         <string>CALCULATOR</string>
-                        </property>
-                        <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
-                        </attribute>
-                       </widget>
-                      </item>
                       <item row="5" column="1" colspan="2">
                        <widget class="DROLabel" name="dro_axis_4">
                         <property name="sizePolicy">
@@ -13865,6 +13577,12 @@ ALL</string>
                         </property>
                         <property name="Qjoint_number" stdset="0">
                          <number>4</number>
+                        </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
                         </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
@@ -14104,6 +13822,429 @@ ALL</string>
                           </property>
                          </layout>
                         </widget>
+                       </widget>
+                      </item>
+                      <item row="0" column="2">
+                       <widget class="SystemToolButton" name="systemtoolbutton">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>1</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>36</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>76</height>
+                         </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>Select work coordinate system</string>
+                        </property>
+                        <property name="text">
+                         <string>WCS</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>true</bool>
+                        </property>
+                        <property name="popupMode">
+                         <enum>QToolButton::DelayedPopup</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="IndicatedPushButton" name="btn_mpg_scroll">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>1</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>36</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>76</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>MPG
+SCROLL</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="pin_name" stdset="0">
+                         <string/>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="indicator_status_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="on_color" stdset="0">
+                         <color>
+                          <red>255</red>
+                          <green>0</green>
+                          <blue>255</blue>
+                         </color>
+                        </property>
+                        <property name="shape_option" stdset="0">
+                         <number>4</number>
+                        </property>
+                        <property name="indicator_size" stdset="0">
+                         <double>0.300000000000000</double>
+                        </property>
+                        <property name="right_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="top_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="is_homed_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">selectButtonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="AxisToolButton" name="axis_select_0">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>1</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>36</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>76</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>X</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="checked">
+                         <bool>false</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="popupMode">
+                         <enum>QToolButton::DelayedPopup</enum>
+                        </property>
+                        <property name="pin_name" stdset="0">
+                         <string>axis-select-x</string>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="on_color" stdset="0">
+                         <color>
+                          <red>255</red>
+                          <green>0</green>
+                          <blue>255</blue>
+                         </color>
+                        </property>
+                        <property name="shape_option" stdset="0">
+                         <number>4</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>X</string>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">selectButtonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="AxisToolButton" name="axis_select_1">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>1</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>36</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>76</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>Y</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="popupMode">
+                         <enum>QToolButton::DelayedPopup</enum>
+                        </property>
+                        <property name="pin_name" stdset="0">
+                         <string>axis-select-z</string>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="indicator_status_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="on_color" stdset="0">
+                         <color>
+                          <red>255</red>
+                          <green>0</green>
+                          <blue>255</blue>
+                         </color>
+                        </property>
+                        <property name="shape_option" stdset="0">
+                         <number>4</number>
+                        </property>
+                        <property name="right_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="top_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>1</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>Y</string>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">selectButtonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="AxisToolButton" name="axis_select_2">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>1</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>36</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>76</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>Z</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="popupMode">
+                         <enum>QToolButton::DelayedPopup</enum>
+                        </property>
+                        <property name="arrowType">
+                         <enum>Qt::NoArrow</enum>
+                        </property>
+                        <property name="pin_name" stdset="0">
+                         <string/>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="indicator_status_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="on_color" stdset="0">
+                         <color>
+                          <red>255</red>
+                          <green>0</green>
+                          <blue>255</blue>
+                         </color>
+                        </property>
+                        <property name="shape_option" stdset="0">
+                         <number>4</number>
+                        </property>
+                        <property name="right_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="top_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>2</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>Z</string>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">selectButtonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="4" column="0">
+                       <widget class="AxisToolButton" name="axis_select_3">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>1</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>36</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>76</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>4</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="popupMode">
+                         <enum>QToolButton::DelayedPopup</enum>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="shape_option" stdset="0">
+                         <number>4</number>
+                        </property>
+                        <property name="right_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="top_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>3</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string/>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">selectButtonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="5" column="0">
+                       <widget class="AxisToolButton" name="axis_select_4">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          <horstretch>1</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>36</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>76</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>5</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="popupMode">
+                         <enum>QToolButton::DelayedPopup</enum>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="shape_option" stdset="0">
+                         <number>4</number>
+                        </property>
+                        <property name="right_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="top_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>4</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string/>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">selectButtonGroup</string>
+                        </attribute>
                        </widget>
                       </item>
                      </layout>
@@ -17626,7 +17767,7 @@ ALL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>07:50:46 PM</string>
+             <string>04:32:14 AM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -17722,7 +17863,7 @@ ALL</string>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
-   <extends>QTextEdit</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
@@ -17737,7 +17878,7 @@ ALL</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
@@ -18049,8 +18190,8 @@ ALL</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>151</y>
+     <x>404</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -18065,8 +18206,8 @@ ALL</string>
    <slot>btn_spindle_z_down_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>549</x>
-     <y>121</y>
+     <x>424</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>926</x>
@@ -18091,30 +18232,14 @@ ALL</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_dimensions</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_dimensions_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>429</x>
-     <y>285</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>chk_use_virtual</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>82</y>
+     <x>474</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -18129,8 +18254,8 @@ ALL</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>87</y>
+     <x>474</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -18161,8 +18286,8 @@ ALL</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>72</y>
+     <x>474</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -18193,8 +18318,8 @@ ALL</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>135</y>
+     <x>82</x>
+     <y>105</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
@@ -18209,7 +18334,7 @@ ALL</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
+     <x>474</x>
      <y>85</y>
     </hint>
     <hint type="destinationlabel">
@@ -18241,8 +18366,8 @@ ALL</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>145</y>
+     <x>404</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -18257,8 +18382,8 @@ ALL</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>157</y>
+     <x>404</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -18273,8 +18398,8 @@ ALL</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>74</y>
+     <x>474</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -18305,8 +18430,8 @@ ALL</string>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>81</y>
+     <x>474</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -18401,8 +18526,8 @@ ALL</string>
    <slot>btn_spindle_z_up_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>487</x>
-     <y>121</y>
+     <x>424</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>717</x>
@@ -18417,8 +18542,8 @@ ALL</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>84</y>
+     <x>474</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -18433,8 +18558,8 @@ ALL</string>
    <slot>btn_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>535</x>
-     <y>128</y>
+     <x>424</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>631</x>
@@ -18465,8 +18590,8 @@ ALL</string>
    <slot>btn_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>649</x>
-     <y>128</y>
+     <x>424</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>1073</x>
@@ -18618,6 +18743,22 @@ ALL</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>systemtoolbutton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_systemtool_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>526</x>
+     <y>467</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>383</x>
+     <y>-13</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -18698,10 +18839,11 @@ ALL</string>
   <slot>btn_spindle_z_down_clicked()</slot>
   <slot>btn_pause_clicked()</slot>
   <slot>btn_stop_clicked()</slot>
+  <slot>btn_systemtool_toggled()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="selectButtonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

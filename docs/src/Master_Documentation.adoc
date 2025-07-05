@@ -1,11 +1,10 @@
 :lang: en
 :lversion: {sys: cat ../VERSION}
-:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
 :ascii-ids:
 :masterdir: {indir}
 :revdate: 2021-10-28 
-LinuxCNC V{lversion}, {date}
-============================
+= LinuxCNC V{lversion}
+
 
 :leveloffset: 0
 = Getting Started & Configuration
@@ -68,8 +67,6 @@ include::motion/tweaking-steppers.adoc[]
 include::config/ini-config.adoc[]
 
 include::config/ini-homing.adoc[]
-
-include::config/iov2.adoc[]
 
 include::config/lathe-config.adoc[]
 

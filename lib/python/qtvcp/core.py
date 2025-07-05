@@ -32,10 +32,6 @@ class Info(IStatParent):
             cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
-
-# Now that the class is defined create a reference to it for the other classes
-INI = Info()
-
 class QPin(hal.Pin, QObject):
 
     value_changed = pyqtSignal('PyQt_PyObject')
@@ -52,7 +48,6 @@ class QPin(hal.Pin, QObject):
         self._prev = None
         self._prevDriven = None
         self.REGISTRY.append(self)
-        self.update_start()
         self.prefix = None
 
     def update(self):
@@ -75,7 +70,7 @@ class QPin(hal.Pin, QObject):
         return self.get_name()
 
     # always returns False because
-    # there was no errpr when making pin
+    # there was no error when making pin
     # see class DUMMY
     def error(self):
         return False
@@ -100,13 +95,13 @@ class QPin(hal.Pin, QObject):
         return cls.UPDATE
 
     @classmethod
-    def update_start(cls):
+    def update_start(cls, cycletime=None):
         if QPin.UPDATE:
             return
         QPin.UPDATE = True
         cls.timer = QTimer()
         cls.timer.timeout.connect(cls.update_all)
-        cls.timer.start(INI.HALPIN_CYCLE_TIME)
+        cls.timer.start(cycletime)
 
     @classmethod
     def update_stop(cls):
@@ -123,7 +118,7 @@ class DummyPin(QObject):
         self._kw = kw
 
     # always returns True because
-    # there was an errpr when making HAL pin
+    # there was an error when making HAL pin
     # see class QPin
     def error(self):
         return True
@@ -167,7 +162,12 @@ class _QHal(object):
         self.comp = comp
         self.hal = hal
 
+    def setUpdateRate(self, cyclerate):
+        QPin.update_start(cyclerate)
+
     def newpin(self, *a, **kw):
+        return self.newPin(*a,**kw)
+    def newPin(self, *a, **kw):
         try:
             p = QPin(_hal.component.newpin(self.comp, *a, **kw))
         except ValueError as e:
@@ -191,34 +191,44 @@ class _QHal(object):
             if log.getEffectiveLevel() == logger.VERBOSE:
                 raise
             t = inspect.getframeinfo(inspect.currentframe().f_back)
-            log.error("Qhal: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
+            log.error("QHal: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
                 format(e, t[0], t[1], t[2]))
-            log.error("Qhal: {}".format(traceback.format_exc()))
+            log.error("QHal: {}".format(traceback.format_exc()))
             p = DummyPin(*a, ERROR=e)
         p.prefix = self.comp.getprefix()
         return p
 
-    def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
+    def getpin(self, *a, **kw):
+        return self.getPinObject(self, *a, **kw)
+    def getPinObject(self, *a, **kw):
+        return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
     def getvalue(self, name):
+        return self.getValue(self, name)
+    def getValue(self, name):
         try:
             return hal.get_value(name)
         except Exception as e:
-            raise("Qhal: Error getting value of {}\n {}".format(name, e))
+            raise("QHal: Error getting value of {}\n {}".format(name, e))
 
     def setp(self,name, value):
+        return self.setPin(self,name, value)
+    def setPin(self,name, value):
         try:
             return hal.set_p(name,value)
         except Exception as e:
-            raise("Qhal: Error setting pin {} to {}\n {}".format(name,value, e))
+            raise("QHal: Error setting pin {} to {}\n {}".format(name,value, e))
 
     def sets(self,name, value):
+        return self.setSignal(self,name, value)
+    def setSignal(self,name, value):
         try:
             return hal.set_s(name,value)
         except Exception as e:
-            raise("Qhal: Error setting signal {} to {}\n {}".format(name,value, e))
+            raise("QHal: Error setting signal {} to {}\n {}".format(name,value, e))
 
-    def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
+    def exit(self, *a, **kw):
+        return self.comp.exit(*a, **kw)
 
     # find a unique HAL pin name by adding '-x' to the base name
     # x being an ever increasing number till name is unique
@@ -274,18 +284,18 @@ class Status(GStat):
         self.__class__._instanceNum += 1
         super(GStat, self).__init__()
 
-        # set the default jog speeds before the forced update
-        self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
-        self.current_angular_jog_rate = INI.DEFAULT_ANGULAR_JOG_VEL
-
         # can only have ONE error channel instance in qtvcp
         self.ERROR = linuxcnc.error_channel()
         self._block_polling = False
 
     # we override this function from hal_glib
-    def set_timer(self):
+    # add replace it with setTimer()
+    def set_timer(self, cycleTime=None):
+        pass
+
+    def setTimer(self, cycleTime=None):
         GObject.threads_init()
-        GObject.timeout_add(int(INI.CYCLE_TIME), self.update)
+        GObject.timeout_add(int(cycleTime), self.update)
 
     # error polling is usually set up by screen_option widget
     # to call this function

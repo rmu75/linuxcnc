@@ -89,7 +89,7 @@ include an option for suppressing superfluous commands.
 #include <set>
 #include <stdexcept>
 #include <new>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 #include "rtapi.h"
 #include "inifile.hh"		// INIFILE
@@ -693,8 +693,17 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	block->remappings.insert(STEP_M_7);
 
     // User defined M-Codes in group 8
-    if (is_user_defined_m_code(block, settings, 8))
-	block->remappings.insert(STEP_M_8);
+    if (is_user_defined_m_code(block, settings, 8)) {
+        if (((block->m_modes[8] == 7) && remap_in_progress("M7")) ||
+        ((block->m_modes[8] == 8) && remap_in_progress("M8")) ||
+        ((block->m_modes[8] == 9) && remap_in_progress("M9"))){
+        // recursive behavior
+        CONTROLLING_BLOCK(*settings).builtin_used = true;
+        } else {
+        // non-recursive (ie the built in) behavior
+        block->remappings.insert(STEP_M_8);
+        }
+    }
 
     // User defined M-Codes in group 9
     if (is_user_defined_m_code(block, settings, 9))
@@ -1944,6 +1953,13 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   infile = fopen(filename, "r");
   if(!infile)
     infile = fopen("/dev/null", "r");
+  if(!infile) {
+    // If we can't open the 'filename', we may not be able to open "/dev/null"
+    // either. If so, print an error, close 'outfile' and continue.
+    perror("Interp::save_parameters(): fopen(/dev/null)");
+    fclose(outfile);
+    return INTERP_OK;
+  }
 
   k = 0;
   index = 0;

@@ -225,6 +225,8 @@ int Interp::write_state_tag(block_pointer block,
     bool in_sub = (settings->call_level > 0 && settings->remap_level == 0);
     bool external_sub = strcmp(settings->filename,
 			       settings->sub_context[0].filename);
+    strncpy(state.filename, settings->filename, sizeof(state.filename));
+    state.filename[sizeof(state.filename)-1] = 0;
 
     state.flags[GM_FLAG_IN_REMAP] = in_remap;
     state.flags[GM_FLAG_IN_SUB] = in_sub;
@@ -310,7 +312,7 @@ int Interp::write_state_tag(block_pointer block,
 	(block == NULL) ? -1 : block->m_modes[4];
 
     state.flags[GM_FLAG_SPINDLE_ON] =
-	!(settings->spindle_turning[0] != CANON_STOPPED);
+	(settings->spindle_turning[0] != CANON_STOPPED);
     state.flags[GM_FLAG_SPINDLE_CW] =
 	(settings->spindle_turning[0] == CANON_CLOCKWISE);
 

@@ -17,14 +17,14 @@ An interface is necessary to transmit (and convert) signals and information betw
 Interfaces include:
 - Parallel Port
 - Ethernet
-- Ethercat
+- EtherCAT
 - PCI / PCIe
 - SPI (where the computer has a native SPI interface, such as Raspberry Pi)
 - USB (_not_ realtime interface)
 
 A mix of different interfaces can be used. For example, a combination of ethercat for servo drives, and parallel port for additional General Purpose Inputs / Outputs (GPIO)
 
-Some of these solutions are usable for all aspects of hardware interfacing, and some have specific roles (e.g. non-realtime GPIO, for an operator inferface).
+Some of these solutions are usable for all aspects of hardware interfacing, and some have specific roles (e.g. non-realtime GPIO for an operator interface with switches).
 
 Hardware interface options change over time. This list is not a 100% complete list of all hardware interfaces that can be used with LinuxCNC.
 
@@ -40,7 +40,7 @@ __Advantages:__
 
 __Disadvantages:__
 - Sensitive to the LinuxCNC computer's latency
-- Limited inputs/outputs 
+- Limited inputs/outputs
 - Some PCI/PCIe parallel port cards do not work well or do not properly support the EPP mode (EPP mode is required for parallel port interface to Mesa / PICO cards).
 
 
@@ -50,10 +50,10 @@ Realtime (time critical) tasks such as step generation are done in hardware (not
 === Mesa via Parallel Port
 Mesa use Field-programmable gate array (FPGA) interfaced via parallel port - e.g. 7i43
 
-Website: http://mesanet.com/    Store: http://store.mesanet.com/
+Website: https://mesanet.com/    Store: https://store.mesanet.com/
 
 === Pico Systems via Parallel Port
-http://pico-systems.com/univstep.html
+https://pico-systems.com/univstep.html
 
 
 == Ethernet
@@ -62,10 +62,10 @@ Mesa cards with a Field-programmable gate array (FPGA), interfaced to LinuxCNC c
 
 Multiple ethernet interface FPGA cards are available, with many expansion cards
 
-Website: http://mesanet.com/    Store: http://store.mesanet.com/
+Website: https://mesanet.com/    Store: https://store.mesanet.com/
 
 === Remora Ethernet
-Realtime requirements are offloaded onto a controller board. Multiple differnet controller boards are supported - see Remora docs.
+Realtime requirements are offloaded onto a controller board. Multiple different controller boards are supported - see https://remora-docs.readthedocs.io[Remora docs].
 
 Note that some of these controller boards (e.g. NVEM, EC300, EC500) are designed / sold for use with Mach3. Use with LinuxCNC requires flashing new firmware, which has been developed by the LinuxCNC community. The manufacturer does not support LinuxCNC.
 
@@ -110,12 +110,12 @@ Ethernet interface can be used with a Ethernet to SPI interface.
 https://github.com/multigcs/LinuxCNC-RIO
 
 
-== Ethercat
+== EtherCAT
 Beckhoff EtherCAT(TM) and compatible systems can be made to work with LinuxCNC using the open source etherlab software.
 
 EtherCAT is the open real-time Ethernet network originally developed by Beckhoff.
-The EtherCat master (LinuxCNC computer) uses a standard ethernet (network) interface - no special hardware is needed on the master. The slaves use special hardware.
-There are many EtherCat slave devices available including servo drives, stepper drives, input, output interfaces, VFDs, and others.
+The EtherCAT master (LinuxCNC computer) uses a standard ethernet (network) interface - no special hardware is needed on the master. The slaves use special hardware.
+There are many EtherCAT slave devices available including servo drives, stepper drives, input, output interfaces, VFDs, and others.
 
 https://github.com/linuxcnc-ethercat/linuxcnc-ethercat
 
@@ -125,7 +125,7 @@ Mesa PCI / PCIe cards with a Field-programmable gate array (FPGA). Time critical
 
 Multiple daughter / expansion cards are available
 
-Website: http://mesanet.com/    Store: http://store.mesanet.com/
+Website: https://mesanet.com/    Store: https://store.mesanet.com/
 
 == SPI
 SPI = Serial Peripheral Interface. SPI interfaces can be found on single board computers like Raspberry Pi, or Orange Pi. SPI interface is _not_ generally present on standard computers (AMD/Intel).
@@ -144,17 +144,17 @@ Mesa cards with a Field-programmable gate array (FPGA), interfaced to LinuxCNC c
 
 Example: 7C80 for Raspberry Pi
 
-Website: http://mesanet.com/    Store: http://store.mesanet.com/
+Website: https://mesanet.com/    Store: https://store.mesanet.com/
 
 
 == USB
 USB devices cannot be used to control motors or perform other __"real time"__ tasks.
 
-USB to Parallel port converters are ___NOT___ usable / suitable for CNC use. 
+USB to Parallel port converters are ___NOT___ usable / suitable for CNC use.
 
 === LinuxCNC_ArduinoConnector
-This Project enables you to connect an Arduino to LinuxCNC and provides as many IO's as you could ever wish for. This Software is used as IO Expansion for LinuxCNC.
-It is NOT intended for timing and security relevant IO's. Don't use it for Emergency Stops or Endstop switches!
+This Project enables you to connect an Arduino to LinuxCNC and provides as many I/Os as you could ever wish for. This Software is used as I/O Expansion for LinuxCNC.
+It is NOT intended for timing and security relevant I/Os. Do not use it for Emergency Stops or Endstop switches!
 
 Site: https://github.com/AlexmagToast/LinuxCNC_ArduinoConnector
 

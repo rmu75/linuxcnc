@@ -174,6 +174,17 @@ class INI:
                 p =.001
             print ("RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64 P{}".format(unit,p), file=file)
 
+        if self.d.frontend == _PD._GMOCCAPY:
+            print("SUBROUTINE_PATH = ./macros", file=file)
+            print("REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change_g43 epilog=change_epilog", file=file)
+            print("REMAP=M61  modalgroup=6 prolog=settool_prolog ngc=settool_g43 epilog=settool_epilog", file=file)
+            print(file=file)
+            print("# the Python plugins serves interpreter and task", file=file)
+            print("[PYTHON]", file=file)
+            print("PATH_PREPEND = ./python", file=file)
+            print("TOPLEVEL = ./python/toplevel.py", file=file)
+            print("LOG_LEVEL = 0", file=file)
+
         #base_period = self.d.ideal_period()
 
         print(file=file)
@@ -224,6 +235,9 @@ class INI:
                 print("POSTGUI_HALFILE = qtvcp_postgui.hal", file=file)
             elif self.d.frontend == _PD._GMOCCAPY:
                 print("POSTGUI_HALFILE = gmoccapy_postgui.hal", file=file)
+        # qtplasmac always has a postgui hal fil
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("POSTGUI_HALFILE = qtplasmac_postgui.hal", file=file)
         print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
         print("SHUTDOWN = shutdown.hal", file=file)
         print(file=file)
@@ -317,8 +331,6 @@ class INI:
             print("NO_FORCE_HOMING = 1", file=file)
         print(file=file)
         print("[EMCIO]", file=file)
-        print("EMCIO = io", file=file)
-        print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
         # qtplasmac doesn't require these
         if self.d.frontend != _PD._QTPLASMAC:

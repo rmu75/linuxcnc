@@ -35,7 +35,7 @@ from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize
 from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
 from PyQt5.QtWidgets import QWidget, QAction,\
         QVBoxLayout, QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
-        QFrame, QLabel
+        QFrame, QLabel, QStyle
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -637,7 +637,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def load_program(self, w, filename=None):
         if filename is None:
             filename = self._last_filename
-        elif 'program_clear.ngc' in filename:
+        elif 'file_clear.ngc' in filename:
             self._last_filename = None
         else:
             self._last_filename = filename
@@ -691,7 +691,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if STATUS.is_auto_running():
             self.highlight_line(None, line-1)
             return
-        LOG.debug('editor: got external highlight {}'.format(line))
+        LOG.verbose('editor: got external highlight {}'.format(line))
         #self.highlight_line(None, line-1)
         self.ensureLineVisible(line-1)
         #self.setSelection(line-1,0,line-1,self.lineLength(line-1)-1)
@@ -740,20 +740,20 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
     def select_lineup(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line-1, 0)
         self.highlight_line(None, line-1)
 
     def select_linedown(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line+1, 0)
         self.highlight_line(None, line+1)
 
     def jump_line(self, jump):
         line, col = self.getCursorPosition()
         line = line + jump
-        LOG.debug(line)
+        LOG.verbose(line)
         if line <0:
             line = 0
         elif line > self.lines()-1:
@@ -828,19 +828,22 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         ################################
 
         # Create new action
-        self.newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)
+        icon = self.style().standardIcon( QStyle.SP_FileIcon)
+        self.newAction = QAction(icon, 'New', self)
         self.newAction.setShortcut('Ctrl+N')
         self.newAction.setStatusTip('New document')
         self.newAction.triggered.connect(self.newCall)
 
         # Create open action
-        self.openAction = QAction(QIcon.fromTheme('document-open'), '&Open', self)
+        icon = self.style().standardIcon( QStyle.SP_DirOpenIcon)
+        self.openAction = QAction(icon, '&Open', self)
         self.openAction.setShortcut('Ctrl+O')
         self.openAction.setStatusTip('Open document')
         self.openAction.triggered.connect(self.openCall)
 
         # Create save action
-        self.saveAction = QAction(QIcon.fromTheme('document-save'), '&Save', self)
+        icon = self.style().standardIcon( QStyle.SP_DialogSaveButton)
+        self.saveAction = QAction(icon, '&Save', self)
         self.saveAction.setShortcut('Ctrl+S')
         self.saveAction.setStatusTip('Save document')
         self.saveAction.triggered.connect(self.saveCall)

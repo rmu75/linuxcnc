@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml"><head>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="https://www.w3.org/1999/xhtml"><head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>LinuxCNC</title>
@@ -10,7 +9,7 @@
 //<![CDATA[
 var sections = [['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6',
    'sec7', 'sec8', 'sec9', 'sec10','sec11','sec12','sec13', 'sec14', 'sec15'],
-   ['man_1', 'man_9','man_3hal', 'man_3rtapi', 'man_3hm2', 'man_3']];
+   ['man_1', 'man_9','man_hal', 'man_rtapi', 'man_hm2', 'man_3']];
 
 function storeOK() { // Check for HTML5 Local Storage
   try {
@@ -113,7 +112,7 @@ function setup_page(){
 <h2>LinuxCNC version <strong>@VERSION@</strong> Documentation</h2>
 
 <div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
-<p><a href="http://linuxcnc.org">LinuxCNC Home Page</a>  &bull;
+<p><a href="https://linuxcnc.org">LinuxCNC Home Page</a>  &bull;
 <a href="https://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki</a> &bull;
 <a href="https://forum.linuxcnc.org">Forum</a> &bull;
 <a href="https://github.com/LinuxCNC/linuxcnc">Source</a> &bull;
@@ -170,7 +169,6 @@ function setup_page(){
 		<li><a href="motion/tweaking-steppers.html">Stepper Tuning</a></li>
 		<li><a href="config/ini-config.html">INI Configuration</a></li>
 		<li><a href="config/ini-homing.html">Homing Configuration</a></li>
-		<li><a href="config/iov2.html">I/O Control V2</a></li>
 		<li><a href="config/lathe-config.html">Lathe Configuration</a></li>
 		<li><a href="config/stepper-quickstart.html">Stepper Quick Start</a></li>
 		<li><a href="config/stepper.html">Stepper Configuration</a></li>
@@ -354,6 +352,7 @@ function setup_page(){
 		<li><a href="code/code-notes.html">Code Notes</a></li>
 		<li><a href="code/nml-messages.html">NML Messages</a></li>
 		<li><a href="code/style-guide.html">Style Guide</a></li>
+		<li><a href="gui/gui-dev-reference.html">GUI Development Reference</a></li>
 		<li><a href="code/adding-configs.html">Adding Configs for Selection</a></li>
 		<li><a href="code/contributing-to-linuxcnc.html">Contributing to LinuxCNC</a></li>
 		<li><a href="code/writing-tests.html">Writing tests for LinuxCNC</a></li>

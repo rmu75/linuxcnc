@@ -59,7 +59,7 @@
 #include <libintl.h>
 #include <locale.h>
 #include "usrmotintf.h"
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 #include "tooldata.hh"
 
 #if 0
@@ -133,7 +133,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd);
 std::unique_ptr<NMLmsg> emcTaskCommand;
 
 // signal handling code to stop main loop
-int done;
+volatile int done;
 static int emctask_shutdown(void);
 extern void backtrace(int signo);
 int _task = 1; // control preview behaviour when remapping
@@ -454,12 +454,12 @@ static int max_mdi_queued_commands = MAX_MDI_QUEUE;
   It returns 0 if all messages check out, -1 if any of them fail. If one
   fails, the rest of the list is not checked.
  */
-static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
+static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
 {
     while (il->len() > 0) {
 	auto cmd = il->get();
 
-	switch (cmd->type) {
+	switch (cmd->_type) {
 
 	case EMC_OPERATOR_ERROR_TYPE: {
 	    auto error_msg = static_cast<EMC_OPERATOR_ERROR*>(cmd.get());
@@ -534,7 +534,7 @@ interpret_again:
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP::WAITING;
 				interp_list.clear();
-				emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR,
+				emcAbortCleanup(EMC_ABORT::INTERPRETER_ERROR,
 						"interpreter error"); 
 			    } else if (execRetval == -1
 				    || execRetval == INTERP_EXIT ) {
@@ -710,7 +710,7 @@ void readahead_waiting(void)
 	    int was_open = taskplanopen;
 	    if (was_open) {
 		emcTaskPlanClose();
-		if (emc_debug & EMC_DEBUG_INTERP && was_open) {
+		if ((emc_debug & EMC_DEBUG_INTERP) && was_open) {
 		    rcs_print
 			("emcTaskPlanClose() called at %s:%d\n",
 			 __FILE__, __LINE__);
@@ -731,7 +731,7 @@ static bool allow_while_idle_type() {
     // expect immediate command
     RCS_CMD_MSG *emcCommand;
     emcCommand = emcCommandBuffer->get_address();
-    switch(emcCommand->type) {
+    switch(emcCommand->_type) {
       case EMC_JOG_CONT_TYPE:
       case EMC_JOG_INCR_TYPE:
       case EMC_JOG_STOP_TYPE:
@@ -756,7 +756,7 @@ static int emcTaskPlan(void)
     // check for new command
     if (emcCommand->serial_number != emcStatus->echo_serial_number) {
         // flag it here locally as a new command
-	type = emcCommand->type;
+	type = emcCommand->_type;
     } else {
 	// no new command-- reset local flag
 	type = 0;
@@ -1498,7 +1498,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::DONE;
     }
 
-    switch (cmd->type) {
+    switch (cmd->_type) {
 	// operator messages, if queued, will go out when everything before
 	// them is done
     case EMC_OPERATOR_ERROR_TYPE:
@@ -1604,7 +1604,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("preconditions: unrecognized command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::ERROR;
 	break;
@@ -1638,10 +1638,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	return 0;
     }
     if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->type),
+	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->_type),
 		  emcCommandBuffer->msg2str(cmd));
     }
-    switch (cmd->type) {
+    switch (cmd->_type) {
 	// general commands
 
     case EMC_OPERATOR_ERROR_TYPE:
@@ -2076,10 +2076,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcMotionAbort();
 	// Then call state restore to update the interpreter
 	emcTaskStateRestore();
-        emcIoAbort(EMC_ABORT_TASK_ABORT);
+        emcIoAbort(EMC_ABORT::TASK_ABORT);
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 	mdi_execute_abort();
-	emcAbortCleanup(EMC_ABORT_TASK_ABORT);
+	emcAbortCleanup(EMC_ABORT::TASK_ABORT);
 	retval = 0;
 	break;
 
@@ -2285,10 +2285,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		interp_list.clear();
 		// abort everything
 		emcTaskAbort();
-		emcIoAbort(EMC_ABORT_INTERPRETER_ERROR_MDI);
+		emcIoAbort(EMC_ABORT::INTERPRETER_ERROR_MDI);
 	    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP::IDLE
-		emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR_MDI, "interpreter error during MDI");
+		emcAbortCleanup(EMC_ABORT::INTERPRETER_ERROR_MDI, "interpreter error during MDI");
 		retval = -1;
 		break;
 
@@ -2399,7 +2399,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("ignoring issue of unknown command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	retval = 0;		// don't consider this an error
 	break;
@@ -2407,8 +2407,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     if (retval == -1) {
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("error executing command %d:%s\n", (int)cmd->type,
-			    emc_symbol_lookup(cmd->type));
+	    rcs_print_error("error executing command %d:%s\n", (int)cmd->_type,
+			    emc_symbol_lookup(cmd->_type));
 	}
     }
     /* debug */
@@ -2433,7 +2433,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::DONE;
     }
 
-    switch (cmd->type) {
+    switch (cmd->_type) {
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
@@ -2510,7 +2510,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("postconditions: unrecognized command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::DONE;
 	break;
@@ -2565,7 +2565,7 @@ static int emcTaskExecute(void)
 
 	// abort everything
 	emcTaskAbort();
-        emcIoAbort(EMC_ABORT_TASK_EXEC_ERROR);
+        emcIoAbort(EMC_ABORT::TASK_EXEC_ERROR);
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 	mdi_execute_abort();
 
@@ -2584,7 +2584,7 @@ static int emcTaskExecute(void)
 	// clear out pending command
 	emcTaskCommand = 0;
 	interp_list.clear();
-	emcAbortCleanup(EMC_ABORT_TASK_EXEC_ERROR);
+	emcAbortCleanup(EMC_ABORT::TASK_EXEC_ERROR);
         emcStatus->task.currentLine = 0;
 
 	// clear out the interpreter state
@@ -3146,14 +3146,14 @@ static int iniLoad(const char *filename)
 
     // set flags if RCS_DEBUG in ini file
     if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
-        static long int flags;
+        long unsigned int flags;
         if (sscanf(*inistring, "%lx", &flags) < 1) {
             perror("failed to parse [EMC] RCS_DEBUG");
         }
         // clear all flags
         clear_rcs_print_flag(PRINT_EVERYTHING);
         // set parsed flags
-        set_rcs_print_flag(flags);
+        set_rcs_print_flag((long)flags);
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
@@ -3163,16 +3163,18 @@ static int iniLoad(const char *filename)
         }
     }
 
-    inistring = inifile.Find("VERSION", "EMC");
-    strncpy(version, inistring.value_or("unknown"), LINELEN-1);
+	if (emc_debug & EMC_DEBUG_CONFIG) {
+		inistring = inifile.Find("VERSION", "EMC");
+		rtapi_strlcpy(version, inistring.value_or("unknown"), LINELEN-1);
 
-    inistring = inifile.Find("MACHINE", "EMC");
-    strncpy(machine, inistring.value_or("unknown"), LINELEN-1);
-    extern char *program_invocation_short_name;
-    rcs_print(
-	"%s (%d) task: machine '%s'  version '%s'\n",
-	program_invocation_short_name, getpid(), machine, version
-    );
+		inistring = inifile.Find("MACHINE", "EMC");
+		rtapi_strlcpy(machine, inistring.value_or("unknown"), LINELEN-1);
+		extern char *program_invocation_short_name;
+		rcs_print(
+		"%s (%d) task: machine '%s'  version '%s'\n",
+		program_invocation_short_name, getpid(), machine, version
+		);
+	}
 
     if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
@@ -3301,11 +3303,6 @@ int main(int argc, char *argv[])
 	emctask_shutdown();
 	exit(1);
     }
-
-    if (done) {
-	emctask_shutdown();
-	exit(1);
-    }
     // get configuration information
     iniLoad(emc_inifile);
 
@@ -3315,7 +3312,7 @@ int main(int argc, char *argv[])
     }
 
     // create EMC2_TMP_DIR if it's not existing, yet
-    struct stat s = {0};
+    struct stat s;
     if (stat(EMC2_TMP_DIR, &s) != 0) {
         if(mkdir(EMC2_TMP_DIR, 0700) != 0) {
 		rcs_print_error("mkdir(%s): %s", EMC2_TMP_DIR, strerror(errno));
@@ -3353,7 +3350,7 @@ int main(int argc, char *argv[])
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
     emcAuxEstopOn();
     emcTrajDisable();
-    emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
+    emcIoAbort(EMC_ABORT::TASK_STATE_ESTOP);
     emcJointUnhome(-2);
 
     emcTrajSetMode(EMC_TRAJ_MODE::FREE);
@@ -3395,11 +3392,11 @@ int main(int argc, char *argv[])
 	    if (emcStatus->motion.traj.enabled) {
 		emcTrajDisable();
 		emcTaskAbort();
-		emcIoAbort(EMC_ABORT_AUX_ESTOP);
+		emcIoAbort(EMC_ABORT::AUX_ESTOP);
 		for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 		emcJointUnhome(-2); // only those joints which are volatile_home
 		mdi_execute_abort();
-		emcAbortCleanup(EMC_ABORT_AUX_ESTOP);
+		emcAbortCleanup(EMC_ABORT::AUX_ESTOP);
 		emcTaskPlanSynch();
 	    }
 	    if (emcStatus->io.coolant.mist) {
@@ -3475,7 +3472,7 @@ int main(int argc, char *argv[])
 
             // abort everything
             emcTaskAbort();
-            emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
+            emcIoAbort(EMC_ABORT::MOTION_OR_IO_RCS_ERROR);
             for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);;
 	    mdi_execute_abort();
 	    // without emcTaskPlanClose(), a new run command resumes at
@@ -3495,7 +3492,7 @@ int main(int argc, char *argv[])
 	    interp_list.clear();
 	    emcStatus->task.currentLine = 0;
 
-	    emcAbortCleanup(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
+	    emcAbortCleanup(EMC_ABORT::MOTION_OR_IO_RCS_ERROR);
 
 	    // clear out the interpreter state
 	    emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
@@ -3514,11 +3511,11 @@ int main(int argc, char *argv[])
 	// is not an NML_MODULE and they won't be set automatically
 
 	// do task
-	emcStatus->task.command_type = emcCommand->type;
+	emcStatus->task.command_type = emcCommand->_type;
 	emcStatus->task.echo_serial_number = emcCommand->serial_number;
 
 	// do top level
-	emcStatus->command_type = emcCommand->type;
+	emcStatus->command_type = emcCommand->_type;
 	emcStatus->echo_serial_number = emcCommand->serial_number;
 
 	if (taskPlanError || taskExecuteError ||

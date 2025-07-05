@@ -40,7 +40,7 @@ class Message:
         self.HAL_GCOMP_ = hal_comp
         self.NOTIFY = notify
 
-        # if no notify suplied, make our owm
+        # if no notify supplied, make our owm
         if not notify is None:
             self.notify_normal = self.NOTIFY.new_normal()
 
@@ -166,7 +166,7 @@ class Message:
             elif "okdialog" in type: style = LcncDialog.OK
             elif "yesnodialog" in type: style = LcncDialog.YESNO
             elif "okcancel" in type: style = LcncDialog.OKCANCEL
-            elif "closepromt" in type: style = LcncDialog.CLOSEPROMPT
+            elif "closeprompt" in type: style = LcncDialog.CLOSEPROMPT
 
             dialog.style = style
             if style != LcncDialog.NONE:
