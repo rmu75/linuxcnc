@@ -56,11 +56,11 @@ When 2, a notch filter is created specified by the *f0,Q* pins.";
 pin   in float f0 = 250.0 "The corner frequency of the filter.";
 pin   in float Q = 0.7071 "The Q of the filter.";
 
-param rw float d1 = 0.0 "1st-delayed denominator coef";
-param rw float d2 = 0.0 "2nd-delayed denominator coef";
-param rw float n0 = 1.0 "non-delayed numerator coef";
-param rw float n1 = 0.0 "1st-delayed numerator coef";
-param rw float n2 = 0.0 "2nd-delayed numerator coef";
+pin io float d1 = 0.0 "1st-delayed denominator coef";
+pin io float d2 = 0.0 "2nd-delayed denominator coef";
+pin io float n0 = 1.0 "non-delayed numerator coef";
+pin io float n1 = 0.0 "1st-delayed numerator coef";
+pin io float n2 = 0.0 "2nd-delayed numerator coef";
 pin  out float s1 = 0.0 "1st-delayed internal state (for debug only)";
 pin  out float s2 = 0.0 "2nd-delayed internal state (for debug only)";
 

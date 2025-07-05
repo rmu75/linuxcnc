@@ -20,7 +20,7 @@ before the output is clamped to 0. *deadband* must be at least 1e-8, and must be
 
 pin in float in "Analog input value";
 pin out float out "Analog output value";
-param rw float deadband "The *out* will be zero if *in* is between -*deadband* and +*deadband*.";
+pin io float deadband "The *out* will be zero if *in* is between -*deadband* and +*deadband*.";
 
 option period no;
 function _;

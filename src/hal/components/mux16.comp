@@ -50,8 +50,8 @@ The s32 value will be trunuated and limited to the max and min values of signed 
 |===
 
 """;
-param r float elapsed "Current value of the internal debounce timer for debugging.";
-param r s32 selected "Current value of the internal selection variable after conversion for debugging";
+pin io float elapsed "Current value of the internal debounce timer for debugging.";
+pin io s32 selected "Current value of the internal selection variable after conversion for debugging";
 pin in float in##[16] "array of selectable outputs";
 variable double delaytime;
 variable int lastnum;

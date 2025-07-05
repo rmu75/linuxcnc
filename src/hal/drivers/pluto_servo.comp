@@ -53,20 +53,20 @@ pin out float encoder.#.velocity[4];
 pin in bit encoder.#.reset[4];
 pin io bit encoder.#.index-enable[4] """encoder.\\fIM\\fR corresponds to the
 pins labeled QA\\fIM\\fR, QB\\fIM\\fR, and QZ\\fIM\\fR on the pinout diagram""";
-param rw float encoder.#.scale[4] =1;
+pin in float encoder.#.scale[4] =1;
 
-param rw bit encoder.z-polarity "Set to TRUE if the index pulse is active low, FALSE if it is active high.  Affects all encoders.";
+pin in bit encoder.z-polarity "Set to TRUE if the index pulse is active low, FALSE if it is active high.  Affects all encoders.";
 
 pin in float pwm.#.value[4];
 pin in bit pwm.#.enable[4] "pwm.\\fIM\\fR corresponds to the pins labeled UP\\fIM\\fR and DN\\fIM\\fR on the pinout diagram";
-param rw float pwm.#.offset[4];
-param rw float pwm.#.scale[4]=1;
-param rw float pwm.#.max-dc[4]=1;
-param rw float pwm.#.min-dc[4]=0;
-param rw bit pwm.#.pwmdir[4]=0
+pin in float pwm.#.offset[4];
+pin in float pwm.#.scale[4]=1;
+pin in float pwm.#.max-dc[4]=1;
+pin in float pwm.#.min-dc[4]=0;
+pin in bit pwm.#.pwmdir[4]=0
 "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
-param rw bit pwm.is-pdm "Set to TRUE to use PDM (also called interleaved PWM) mode.  Set to FALSE to use traditional PWM mode.  Affects all PWM outputs.";
+pin in bit pwm.is-pdm "Set to TRUE to use PDM (also called interleaved PWM) mode.  Set to FALSE to use traditional PWM mode.  Affects all PWM outputs.";
 
 
 pin in bit dout.##[20]
@@ -100,7 +100,7 @@ dout.19\tDOWN3
 .PP
 .RE 
 .DT""";
-param rw bit dout.##-invert[20]
+pin in bit dout.##-invert[20]
 "If TRUE, the output on the corresponding \\fBdout.\\fIMM\\fR is inverted.";
 
 pin out bit din.##[20];
@@ -142,7 +142,7 @@ din.19\tQA3
 .RE
 .DT""";
 
-param rw u32 communication_error """Incremented each time 
+pin in u32 communication_error """Incremented each time 
 pluto-servo.read detects an error code in the EPP status register.  While
 this register is nonzero, new values are not being written to the Pluto-P
 board, and the status of digital outputs and the PWM duty cycle of the PWM
@@ -150,8 +150,8 @@ outputs will remain unchanged.  If the watchdog is enabled, it will activate
 soon after the communication error is detected.  To continue after a
 communication error, set this parameter back to zero.""";
 
-param rw s32 debug_0;
-param rw s32 debug_1 """These parameters can display values which are useful to developers or for debugging the driver and firmware.  They are not useful for integrators or users.""";
+pin in s32 debug_0;
+pin in s32 debug_1 """These parameters can display values which are useful to developers or for debugging the driver and firmware.  They are not useful for integrators or users.""";
 
 option singleton;
 option extra_setup;

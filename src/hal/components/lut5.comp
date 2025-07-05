@@ -5,7 +5,7 @@ pin in bit in_2;
 pin in bit in_3;
 pin in bit in_4;
 pin out bit out;
-param rw u32 function;
+pin in u32 function;
 function _ nofp;
 description """
 *lut5*

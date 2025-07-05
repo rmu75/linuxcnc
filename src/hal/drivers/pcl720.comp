@@ -7,11 +7,11 @@ not support the the counters/timers.""";
 pin in bit pin-##-out[32] "Output pins";
 pin out bit pin-##-in[32] "Input pins";
 pin out bit pin-##-in-not[32] "Inverted version of each input pin";
-param rw unsigned reset-time = 5000 """The time in nanoseconds after the write function
+pin in unsigned reset-time = 5000 """The time in nanoseconds after the write function
 has run to reset the pins for which the "reset" parameter is set.""";
-param rw bit pin-##-reset[32] """specifies if the pin should be reset by the "reset"
+pin in bit pin-##-reset[32] """specifies if the pin should be reset by the "reset"
 function""";
-param rw bit pin-##-out-invert[32] "Set to true to invert the sense of the output pin";
+pin in bit pin-##-out-invert[32] "Set to true to invert the sense of the output pin";
 
 pin out  unsigned wait_clocks;
 

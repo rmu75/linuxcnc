@@ -87,7 +87,7 @@ pin out bit removing_offset "Pin for testing";
 pin in float correction_vel "The Velocity to move Z to correct";
 
 // Parameters
-param rw float velocity_tol "The deviation percent from planned velocity";
+pin in float velocity_tol "The deviation percent from planned velocity";
 
 // Global Variables
 variable float last_z_in;

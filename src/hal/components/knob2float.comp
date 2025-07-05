@@ -22,8 +22,8 @@ pin in bit enable "When TRUE, output is controlled by count, when FALSE, output 
 pin in float scale "Amount of output change per count";
 pin out float out "Output value";
 
-param rw float max_out=1.0 "Maximum output value, further increases in count will be ignored";
-param rw float min_out=0.0 "Minimum output value, further decreases in count will be ignored";
+pin io float max_out=1.0 "Maximum output value, further increases in count will be ignored";
+pin io float min_out=0.0 "Minimum output value, further decreases in count will be ignored";
 
 option data knob2float_data;
 

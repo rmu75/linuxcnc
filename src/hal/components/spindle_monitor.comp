@@ -6,8 +6,8 @@ pin in float spindle-feedback;
 pin out bit spindle-at-speed;
 pin out bit spindle-underspeed;
 
-param rw unsigned level "state machine state";
-param rw float threshold;
+pin io unsigned level "state machine state";
+pin in float threshold;
 
 option period no;
 function _;

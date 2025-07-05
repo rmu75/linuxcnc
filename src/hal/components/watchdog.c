@@ -39,7 +39,7 @@ RTAPI_MP_INT(num_inputs, "Number of inputs");
 /* Data needed for each input */
 typedef struct {
     hal_bit_t *input;		/* pin: the input bit HAL pin */
-    hal_float_t timeout;	/* param: maximum alloewd timeb without a transition on bit */
+    hal_float_t *timeout;	/* param: maximum alloewd timeb without a transition on bit */
     hal_float_t oldtimeout;	/* internal:  used to determine whether the timeout has changed */
     hal_s32_t c_secs, c_nsecs;	/* internal:  elapsed seconds and nanoseconds */
     hal_s32_t t_secs, t_nsecs;	/* internal:  seconds and nanoseconds for timeout */
@@ -127,7 +127,7 @@ int rtapi_app_main(void)
 	  goto err;
       }
       
-      inputs[n].timeout=0;
+      *inputs[n].timeout=0;
       inputs[n].oldtimeout=-1;
       inputs[n].c_secs = inputs[n].t_secs = 0;
       inputs[n].c_nsecs = inputs[n].t_nsecs = 0;
@@ -224,7 +224,7 @@ static void set_timeouts(void *arg, long period)
     hal_float_t temp;
     
     for (i=0;i<num_inputs;i++) {
-      temp=inputs[i].timeout;
+      temp = *inputs[i].timeout;
       if (temp<0) temp=0;	// no negative timeout periods
       if (temp != inputs[i].oldtimeout) {
 	// new timeout, convert to secs/ns

@@ -97,18 +97,18 @@ pin out float stepgen.#.position-fb[4];
 pin out s32 stepgen.#.counts[4];
 pin in bit stepgen.#.enable[4];
 pin in bit stepgen.#.reset[4] "When TRUE, reset position-fb to 0";
-param rw float stepgen.#.scale[4] = 1.0;
-param rw float stepgen.#.maxvel[4] = 0;
-param rw bit stepgen.step_polarity;
+pin in float stepgen.#.scale[4] = 1.0;
+pin in float stepgen.#.maxvel[4] = 0;
+pin in bit stepgen.step_polarity;
 
-param rw u32 stepgen.steplen "Step length in ns.";
-param rw u32 stepgen.stepspace "Step space in ns";
-param rw u32 stepgen.dirtime "Dir hold/setup in ns.  Refer to the pdf documentation for a diagram of what these timings mean.";
+pin in u32 stepgen.steplen "Step length in ns.";
+pin in u32 stepgen.stepspace "Step space in ns";
+pin in u32 stepgen.dirtime "Dir hold/setup in ns.  Refer to the pdf documentation for a diagram of what these timings mean.";
 
 pin in bit dout.##[14]
 """dout.\\fIMM\\fR corresponds to the pin labeled
 OUT\\fIM\\fR on the pinout diagram.""";
-param rw bit dout.##-invert[14]
+pin in bit dout.##-invert[14]
 "If TRUE, the output on the corresponding \\fBdout.\\fIMM\\fR is inverted.";
 
 pin out bit din.##[16];
@@ -116,7 +116,7 @@ pin out bit din.##_not[16]
 """din.\\fIMM\\fR corresponds to the pin labeled
 IN\\fIM\\fR on the pinout diagram.""";
 
-param rw u32 communication_error """Incremented each time 
+pin in u32 communication_error """Incremented each time 
 pluto-step.read detects an error code in the EPP status register.  While
 this register is nonzero, new values are not being written to the Pluto-P
 board, and the status of digital outputs and the PWM duty cycle of the PWM
@@ -124,10 +124,10 @@ outputs will remain unchanged.  If the hardware watchdog is enabled, it will
 activate shortly after the communication error is detected by LinuxCNC.  To continue
 after a communication error, set this parameter back to zero.""";
 
-param rw s32 debug_0;
-param rw s32 debug_1;
-param rw float debug_2=.5;
-param rw float debug_3=2.0
+pin in s32 debug_0;
+pin in s32 debug_1;
+pin in float debug_2=.5;
+pin in float debug_3=2.0
  """Registers that hold debugging information of interest to developers""";
 
 option singleton;

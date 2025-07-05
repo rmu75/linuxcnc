@@ -91,28 +91,28 @@ pin out bit out-dir
 pin out float out-abs
 "Absolute value of the input value";
 
-param r signed in_type = -1 "state machine output, will probably hide after debug";
-param r signed out_type = -1 "state machine output, will probably hide after debug";
+pin io signed in_type = -1 "state machine output, will probably hide after debug";
+pin io signed out_type = -1 "state machine output, will probably hide after debug";
 
-param rw signed scale = 512 if personality & 0x06
+pin in signed scale = 512 if personality & 0x06
 "The number of encoder counts per rotor revolution.";
-param rw signed poles = 4 if personality & 0x06
+pin in signed poles = 4 if personality & 0x06
 """The number of motor poles. The encoder scale will be divided by this value
 to determine the number of encoder counts per electrical revolution.""";
-param rw signed encoder-offset = 0 if personality & 0x0A
+pin in signed encoder-offset = 0 if personality & 0x0A
 """The offset, in encoder counts, between the motor electrical zero and the
 encoder zero modulo the number of counts per electrical revolution""";
-param r signed offset_measured = 0 if personality & 0x04
+pin io signed offset_measured = 0 if personality & 0x04
 """The encoder offset measured by the homing sequence (in certain modes)""";
-param rw float drive-offset = 0 """The angle, in degrees, applied to the commanded angle by the drive in degrees.
+pin in float drive-offset = 0 """The angle, in degrees, applied to the commanded angle by the drive in degrees.
 This value is only used during the homing sequence of drives with incremental encoder feedback.
 It is used to back-calculate from commanded angle to actual phase angle.
 It is only relevant to drives which expect rotor-angle input rather than phase-angle demand. Should be 0 for most drives.""";
 
-param rw unsigned output-pattern=25 if personality & 0x400
+pin in unsigned output-pattern=25 if personality & 0x400
 """Commutation pattern to be output in Hall Signal translation mode. See the description of *pattern* for details.""";
 
-param rw unsigned pattern=25 if personality & 0x01
+pin io unsigned pattern=25 if personality & 0x01
 """Commutation pattern to use, from 0 to 47. Default is type 25.
 Every plausible combination is included.
 The table below shows the excitation pattern along the top, and the pattern code on the left hand side.

@@ -35,8 +35,8 @@ typedef struct {
         hal_u32_t *keycode;
     } hal;
     struct {
-        hal_u32_t rollover;
-        hal_bit_t invert;
+        hal_u32_t *rollover;
+        hal_bit_t *invert;
     } param;
     hal_u32_t ncols;
     hal_u32_t nrows;
@@ -98,7 +98,7 @@ void keydown(kb_inst_t *inst){
         return;
     }
     
-    if (inst->num_keys >= inst->param.rollover) return;
+    if (inst->num_keys >= *inst->param.rollover) return;
     inst->num_keys++;
     
     *inst->hal.key[r * inst->ncols + c] = 1;
@@ -112,7 +112,7 @@ void loop(void *arg, long period){
     
     if (inst->scan){ //scanning request
         for (c = 0; c < inst->ncols; c++){
-            scan += ((*inst->hal.cols[c] != inst->param.invert) << c);
+            scan += ((*inst->hal.cols[c] != *inst->param.invert) << c);
         }
         if (scan == inst->now[inst->row] && scan != inst->then[inst->row]){
             // debounced and changed
@@ -140,10 +140,10 @@ void loop(void *arg, long period){
         inst->then[inst->row] = inst->now[inst->row];
         inst->now[inst->row] = scan;
         
-        *inst->hal.rows[inst->row] = inst->param.invert;
+        *inst->hal.rows[inst->row] = *inst->param.invert;
         inst->row++;
         if (inst->row >= inst->nrows) inst->row = 0;
-        *inst->hal.rows[inst->row] = !inst->param.invert;
+        *inst->hal.rows[inst->row] = !*inst->param.invert;
     }
     else
     {
@@ -201,7 +201,7 @@ int rtapi_app_main(void){
         inst->ncols = 0;
         inst->scan = 0;
         inst->keystroke = 0;
-        inst->param.invert = 1;
+        *inst->param.invert = 1;
         
         for(j = 0; config[i][j] !=0; j++){
             int n = (config[i][j] | 0x20); //lower case
@@ -241,7 +241,7 @@ int rtapi_app_main(void){
         inst->now = hal_malloc(inst->nrows * sizeof(hal_u32_t));
         inst->then = hal_malloc(inst->nrows * sizeof(hal_u32_t));
         inst->row = 0;
-        inst->param.rollover = 2;
+        *inst->param.rollover = 2;
         
         
         if (names[i]){

@@ -205,7 +205,7 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
         velocity_cmd = ff_vel - (0.5 * error_at_match / f_period_s);
 
         // apply accel limits?
-        if (s->hal.param.maxaccel > 0) {
+        if (*s->hal.param.maxaccel > 0) {
             if (velocity_cmd > (*s->hal.pin.velocity_fb + (*s->hal.param.maxaccel * f_period_s))) {
                 velocity_cmd = *s->hal.pin.velocity_fb + (*s->hal.param.maxaccel * f_period_s);
             } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (*s->hal.param.maxaccel * f_period_s))) {

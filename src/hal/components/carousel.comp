@@ -140,13 +140,13 @@ pin out bit    homed = 0 "Shows that homing is complete. Only used in index and 
 pin in  bit    unhome = 0 "Should only really be necessary for testing";
 pin out float counts-target "Target position for a stepgen or external PID controller";
 
-param r  signed state = 0 "Current component state";
-param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
-param r  float  timer "Shows the value of the internal timer";
-param r signed motor-dir "Internal tag for search direction";
-param r signed counts-offset "Internal offset of index pin";
-param rw unsigned debounce "How many thread cycles to wait for the position to stabilise";
-param r signed target "Current target pocket, debug";
+pin io  signed state = 0 "Current component state";
+pin io  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
+pin io  float  timer "Shows the value of the internal timer";
+pin io signed motor-dir "Internal tag for search direction";
+pin io signed counts-offset "Internal offset of index pin";
+pin in unsigned debounce "How many thread cycles to wait for the position to stabilise";
+pin io signed target "Current target pocket, debug";
 
 option count_function;
 option extra_setup;
@@ -160,7 +160,7 @@ variable int inst_pockets;
 variable int inst_code;
 variable int inst_parity;
 variable int old_index = 0;
-param r signed base_counts = 0;
+pin io signed base_counts = 0;
 variable int old_unhome = 0;
 function _ ;
 

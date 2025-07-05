@@ -1,5 +1,5 @@
 component pi500_vfd "Powtran PI500 Modbus driver";
-param rw unsigned mbslaveaddr     "Modbus slave address";
+pin in unsigned mbslaveaddr     "Modbus slave address";
 pin in float commanded_frequency  "Frequency of vfd";
 pin in bit run                    "run the vfd";
 pin in bit enable                 "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";

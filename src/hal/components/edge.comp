@@ -20,12 +20,12 @@ pin in bit in;
 pin out bit out "Goes high when the desired edge is seen on 'in'";
 pin out bit out_invert "Goes low when the desired edge is seen on 'in'";
 
-param rw bit both=FALSE "If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge";
-param rw bit in_edge=TRUE "If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising";
-param rw signed out_width_ns=0 "Time in nanoseconds of the output pulse";
+pin in bit both=FALSE "If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge";
+pin in bit in_edge=TRUE "If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising";
+pin in signed out_width_ns=0 "Time in nanoseconds of the output pulse";
 
-param r signed time_left_ns "Time left in this output pulse";
-param r bit last_in "Previous input value";
+pin io signed time_left_ns "Time left in this output pulse";
+pin io bit last_in "Previous input value";
 variable int first = 1;
 
 function _ nofp "Produce output pulses from input edges";

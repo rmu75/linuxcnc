@@ -133,11 +133,11 @@ typedef struct {
     hal_bit_t	*jog_mode;	// termed 'jog-run' in manual - might be useful for spindle positioning
     hal_s32_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
 
-    hal_float_t	looptime;
-    hal_float_t	speed_tolerance; 	
-    hal_float_t	motor_nameplate_hz;	// speeds are scaled in Hz, not RPM
-    hal_float_t	motor_nameplate_RPM;	// nameplate RPM at default Hz
-    hal_float_t	rpm_limit;		// do-not-exceed output frequency
+    hal_float_t	*looptime;
+    hal_float_t	*speed_tolerance; 	
+    hal_float_t	*motor_nameplate_hz;	// speeds are scaled in Hz, not RPM
+    hal_float_t	*motor_nameplate_RPM;	// nameplate RPM at default Hz
+    hal_float_t	*rpm_limit;		// do-not-exceed output frequency
     hal_bit_t	*enabled;		// if set: control VFD via Modbus commands, panel control disabled
     // if zero (default): manual control through panel enabled
     hal_float_t	*upper_limit_hz;		// VFD setup parameter - maximum output frequency in HZ
@@ -385,9 +385,9 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 
 retry:
     // set frequency register
-    hzcalc = haldata->motor_nameplate_hz / haldata->motor_nameplate_RPM;
+    hzcalc = *haldata->motor_nameplate_hz / *haldata->motor_nameplate_RPM;
     freq_reg =  (int)round(fabs((*(haldata->speed_command) * hzcalc * 100.0)));
-    freq_cap =  (int)round(fabs((haldata->rpm_limit * hzcalc * 100)));
+    freq_cap =  (int)round(fabs((*haldata->rpm_limit * hzcalc * 100)));
 
     // limit frequency to frequency set via max-rpm
     if (freq_reg > freq_cap)
@@ -468,7 +468,7 @@ int read_initial(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     GETREG(REG_UPPERLIMIT, &max_freq);
     *(haldata->upper_limit_hz) = (float)max_freq/100.0;
     *(haldata->max_rpm) = *(haldata->upper_limit_hz) * 
-            haldata->motor_nameplate_RPM / haldata->motor_nameplate_hz;
+            *haldata->motor_nameplate_RPM / *haldata->motor_nameplate_hz;
 
     if (p->report_device) {
         GETREG(SR_RATED_CURRENT, &current);
@@ -548,7 +548,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         {
             float speed_error;
             speed_error = (*haldata->RPM / *haldata->speed_command) - 1.0;
-            if (fabs(speed_error) > haldata->speed_tolerance) {
+            if (fabs(speed_error) > *haldata->speed_tolerance) {
                 *haldata->at_speed = 0;
             } else {
                 *haldata->at_speed = 1;
@@ -644,11 +644,11 @@ int set_defaults(param_pointer p)
     *(h->errorcount) = 0;
     *(h->max_speed) = 0;
 
-    h->looptime = 0.1;
-    h->speed_tolerance = 0.01;      // output frequency within 1% of target frequency
-    h->motor_nameplate_hz = p->motor_hz;
-    h->motor_nameplate_RPM = p->motor_rpm;
-    h->rpm_limit = p->motor_rpm;
+    *h->looptime = 0.1;
+    *h->speed_tolerance = 0.01;      // output frequency within 1% of target frequency
+    *h->motor_nameplate_hz = p->motor_hz;
+    *h->motor_nameplate_RPM = p->motor_rpm;
+    *h->rpm_limit = p->motor_rpm;
 
     p->failed_reg = 0;
     return 0;
@@ -782,11 +782,11 @@ int main(int argc, char **argv)
                 *(p->haldata->modbus_ok) = 0;
             }
             /* don't want to scan too fast, and shouldn't delay more than a few seconds */
-            if (p->haldata->looptime < 0.001) p->haldata->looptime = 0.001;
-            if (p->haldata->looptime > 2.0) p->haldata->looptime = 2.0;
-            loop_timespec.tv_sec = (time_t)(p->haldata->looptime);
-            loop_timespec.tv_nsec = (long)((p->haldata->looptime - loop_timespec.tv_sec) * 1000000000l);
-            if (!p->haldata->max_speed)
+            if (*p->haldata->looptime < 0.001) *p->haldata->looptime = 0.001;
+            if (*p->haldata->looptime > 2.0) *p->haldata->looptime = 2.0;
+            loop_timespec.tv_sec = (time_t)(*p->haldata->looptime);
+            loop_timespec.tv_nsec = (long)((*p->haldata->looptime - loop_timespec.tv_sec) * 1000000000l);
+            if (!*p->haldata->max_speed)
                 nanosleep(&loop_timespec, &remaining);
         }
 

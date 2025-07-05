@@ -73,9 +73,6 @@ static struct haldata {
   // Example pin pointers
   hal_u32_t *in;
   hal_u32_t *out;
-  // Example parameters
-  hal_float_t param_rw;
-  hal_float_t param_ro;
 } *haldata;
 // hal pin/param types:
 // hal_bit_t   bit
@@ -107,10 +104,6 @@ static int userkins_setup(void) {
     // hal pin examples:
     res += hal_pin_u32_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,HAL_PREFIX);
     res += hal_pin_u32_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out",HAL_PREFIX);
-
-    // hal parameter examples:
-    res += hal_pin_float_newf(HAL_OUT, &haldata->param_rw,comp_id,"%s.param-rw",HAL_PREFIX);
-    res += hal_pin_float_newf(HAL_IN, &haldata->param_ro,comp_id,"%s.param-ro",HAL_PREFIX);
 
     if (res) goto error;
     hal_ready(comp_id);
@@ -191,7 +184,6 @@ int kinematicsInverse(const EmcPose * pos,
 
     //example hal pin update (homing reqd before kinematicsInverse)
     *haldata->out = *haldata->in; //dereference
-    //read from param example: *haldata->out = haldata->param_rw;
 
     return 0;
 } // kinematicsInverse()

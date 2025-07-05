@@ -76,7 +76,7 @@ typedef struct {
 
 typedef struct {
     int channels;		/* number of channels in group */
-    hal_s32_t delay;		/* parameter: delay for this group */
+    hal_s32_t *delay;		/* parameter: delay for this group */
     debounce_t *filter_array;	/* pointer to individual filter data */
 } debounce_group_t;
 
@@ -193,8 +193,8 @@ static void debounce(void *arg, long period)
     /* point to filter group */
     group = (debounce_group_t *) arg;
     /* first make sure delay is sane */
-    if (group->delay < 0) {
-	group->delay = 1;
+    if (*group->delay < 0) {
+	*group->delay = 1;
     }
     /* loop thru filters */
     for (n = 0; n < group->channels; n++) {
@@ -203,7 +203,7 @@ static void debounce(void *arg, long period)
 	/* update this filter */
 	if (*(filter->in)) {
 	    /* input true, is state at threshold? */
-	    if (filter->state < group->delay) {
+	    if (filter->state < *group->delay) {
 		/* no, increment */
 		filter->state++;
 	    } else {
@@ -260,7 +260,7 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
 	return -1;
     }
     /* set default parameter values */
-    addr->delay = 5;
+    *addr->delay = 5;
     addr->channels = group_size;
 
     /* loop to export each filter in group */

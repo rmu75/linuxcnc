@@ -77,11 +77,11 @@ pin out bit vel_status "When the THC thinks we are at requested speed";
 pin out float offset_value "The Current Offset";
 
 // Parameters
-param rw float vel_scale "The scale to convert the Velocity signal to Volts";
-param rw float scale_offset "The offset of the velocity input at 0 volts";
-param rw float velocity_tol "The deviation percent from planned velocity";
-param rw float voltage_tol "The deviation of Tip Voltage before correction takes place";
-param rw float correction_vel "The amount of change in user units per period to move Z to correct";
+pin in float vel_scale "The scale to convert the Velocity signal to Volts";
+pin in float scale_offset "The offset of the velocity input at 0 volts";
+pin in float velocity_tol "The deviation percent from planned velocity";
+pin in float voltage_tol "The deviation of Tip Voltage before correction takes place";
+pin in float correction_vel "The amount of change in user units per period to move Z to correct";
 
 // Global Variables
 variable float offset;

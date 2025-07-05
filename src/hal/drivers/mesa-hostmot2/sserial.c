@@ -1212,10 +1212,11 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                                        chan->name,
                                        chan->confs[i].NameString,
                                        j);
-                        r = hal_pin_bit_new(name,
-                                              HAL_OUT,
-                                              &(chan->pins[i].invert[j]),
-                                              hm2->llio->comp_id);
+                       //TODO:
+                       // r = hal_pin_bit_new(name,
+                       //                       HAL_OUT,
+                       //                       &(chan->pins[i].invert[j]),
+                       //                       hm2->llio->comp_id);
                         if (r < 0) {
                             HM2_ERR("error adding pin '%s', aborting\n", name);
                             return r;
@@ -1322,10 +1323,11 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                     rtapi_snprintf(name, sizeof(name), "%s.%s-invert",
                                    chan->name,
                                    chan->confs[i].NameString);
-                    r = hal_pin_bit_new(name,
-                                          HAL_OUT,
-                                          &chan->pins[i].invert,
-                                          hm2->llio->comp_id);
+                    //TODO:
+                   // r = hal_pin_bit_new(name,
+                   //                       HAL_OUT,
+                   //                       &chan->pins[i].invert,
+                   //                       hm2->llio->comp_id);
                     if (r < 0) {
                         HM2_ERR("error adding pin '%s', aborting\n", name);
                         return r;

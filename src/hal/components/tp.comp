@@ -22,7 +22,7 @@ pin in bit in "Input signal";
 pin out bit q "Output signal";
 pin out float et "Elapsed time since start of pulse in seconds";
 
-param rw float pt "Pulse time in seconds";
+pin io float pt "Pulse time in seconds";
 
 variable int in_old; // Value of in on last cycle, for rising edge detection
 

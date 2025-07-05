@@ -22,7 +22,7 @@ pin in bit in2;
 pin in bit in3;
 pin out bit out;
 
-param rw bit invert;
+pin in bit invert;
 
 option period no;
 function _ nofp;

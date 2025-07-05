@@ -20,9 +20,9 @@ pin out bit digital.#.in [4] "Miscellaneous Digital Inputs";
 pin in bit enable.#.out [8] "Amplifier-enable control pins";
 pin out bit watchdog.has-bit """Indicates the status of the 7i65 Watchdog (which
 is separate from the FPGA card watchdog""";
-param rw float scale-# [8] = 10 """Analogue output scale factor. For example if
+pin io float scale-# [8] = 10 """Analogue output scale factor. For example if
 the scale is 7 then an input of 1.0 will give 7V on the output terminals""";
-param rw bit is-bipolar-# [8] = 1 """Set this value to TRUE for a plus/minus
+pin in bit is-bipolar-# [8] = 1 """Set this value to TRUE for a plus/minus
 "scale" output. Set to 0 for a 0-"scale" output""";
 
 option extra_setup yes;

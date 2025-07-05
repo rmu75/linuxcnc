@@ -22,7 +22,7 @@ pin in bit in "Input signal";
 pin out bit q "Output signal";
 pin out float et "Elapsed time since rising edge in seconds";
 
-param rw float pt "Delay time in seconds";
+pin io float pt "Delay time in seconds";
 
 function _ fp "Update the timer";
 license "GPL";

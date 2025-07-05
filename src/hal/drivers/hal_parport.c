@@ -133,8 +133,7 @@ typedef struct {
     hal_bit_t *control_out[4];	/* ptrs for out pins 1, 14, 16, 17 */
     hal_bit_t control_inv[4];	/* pol. params for output pins 1, 14, 16, 17 */
     hal_bit_t control_reset[4];	/* reset flag for output pins 1, 14, 16, 17 */
-    hal_u32_t reset_time;       /* min ns between write and reset */
-    hal_u32_t debug1, debug2;
+    hal_u32_t *reset_time;       /* min ns between write and reset */
     long long write_time;
     unsigned short outdata;
     unsigned char reset_mask;       /* reset flag for pin 2..9 */
@@ -362,8 +361,8 @@ static void reset_port(void *arg, long period) {
     long long deadline, reset_time_tsc;
     unsigned char outdata = (unsigned char)((port->outdata&~port->reset_mask) ^ port->reset_val);
    
-    if(port->reset_time > period/4) port->reset_time = period/4;
-    reset_time_tsc = ns2tsc(port->reset_time);
+    if(*port->reset_time > period/4) *port->reset_time = period/4;
+    reset_time_tsc = ns2tsc(*port->reset_time);
 
     if(outdata != port->outdata) {
         deadline = port->write_time + reset_time_tsc;
@@ -699,10 +698,6 @@ static int export_port(int portnum, parport_t * port)
 	    port->data_out, port->data_inv, port->data_reset, 7);
 	retval += hal_pin_u32_newf(HAL_OUT, &port->reset_time, comp_id, 
 			"parport.%d.reset-time", portnum);
-	retval += hal_pin_u32_newf(HAL_OUT, &port->debug1, comp_id, 
-			"parport.%d.debug1", portnum);
-	retval += hal_pin_u32_newf(HAL_OUT, &port->debug2, comp_id, 
-			"parport.%d.debug2", portnum);
 	port->write_time = 0;
     }
     if(port->use_control_in == 0) {

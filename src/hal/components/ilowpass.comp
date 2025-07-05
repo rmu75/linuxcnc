@@ -18,10 +18,10 @@ pin in s32 in;
 pin out s32 out """*out* tracks *in* * *scale* through a low-pass
 filter of *gain* per period.""";
 
-param rw float scale = 1024 """A scale factor applied to the output
+pin in float scale = 1024 """A scale factor applied to the output
 value of the low-pass filter.""";
 
-param rw float gain = .5 """Together with the period, sets the rate at
+pin in float gain = .5 """Together with the period, sets the rate at
 which the output changes.  Useful range is between 0 and 1, with higher
 values causing the input value to be tracked more quickly.  For
 instance, a setting of 0.9 causes the output value to go 90% of the way

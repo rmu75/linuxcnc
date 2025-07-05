@@ -17,11 +17,11 @@
 component joyhandle "sets nonlinear joypad movements, deadbands and scales";
 pin in float in;
 pin out float out;
-param rw float power = 2.0;
-param rw float deadband = 0.;
-param rw float scale = 1.;
-param rw float offset = 0.;
-param rw bit inverse = 0;	
+pin io float power = 2.0;
+pin io float deadband = 0.;
+pin in float scale = 1.;
+pin in float offset = 0.;
+pin in bit inverse = 0;	
 
 description """
 The component *joyhandle* uses the following formula for a non linear joypad movements:

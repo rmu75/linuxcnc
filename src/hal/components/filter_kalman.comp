@@ -51,8 +51,8 @@ pin    in   bit  reset = FALSE
 has higher priority than *passthrough* pin).""";
 pin    in float     zk                     "Measured value.";
 pin   out float xk_out                     "Estimated value.";
-param  rw float     Rk = 1.17549e-38       "Estimation of the noise covariances (process).";
-param  rw float     Qk = 1.17549e-38       "Estimation of the noise covariances (observation).";
+pin in float     Rk = 1.17549e-38       "Estimation of the noise covariances (process).";
+pin in float     Qk = 1.17549e-38       "Estimation of the noise covariances (observation).";
 
 option extra_setup yes;
 option period no;

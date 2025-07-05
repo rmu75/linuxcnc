@@ -38,9 +38,9 @@ typedef struct {
     hal_data_u *output;
     hal_u32_t *sel_int;
     hal_bit_t **sel_bit;
-    unsigned int selection;
+    hal_u32_t *selection;
     hal_u32_t *debounce;
-    unsigned int timer;
+    hal_u32_t *timer;
     hal_bit_t *suppress;
     int in_type;
     int out_type;
@@ -284,13 +284,13 @@ void write_fp(void *arg, long period) {
 
     if (*inst->suppress && s == 0)
         return;
-    if (s != inst->selection && inst->timer < *inst->debounce) {
+    if (s != *inst->selection && *inst->timer < *inst->debounce) {
         inst->timer += period / 1000;
         return;
     }
 
-    inst->selection = s;
-    inst->timer = 0;
+    *inst->selection = s;
+    *inst->timer = 0;
 
     if ((int)s >= inst->size)
         s = inst->size - 1;
@@ -348,13 +348,13 @@ void write_nofp(void *arg, long period) {
 
     if (*inst->suppress && s == 0)
         return;
-    if (s != inst->selection && inst->timer < *inst->debounce) {
+    if (s != *inst->selection && *inst->timer < *inst->debounce) {
         inst->timer += period / 1000;
         return;
     }
 
-    inst->selection = s;
-    inst->timer = 0;
+    *inst->selection = s;
+    *inst->timer = 0;
 
     if ((int)s >= inst->size)
         s = inst->size - 1;

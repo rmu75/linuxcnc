@@ -33,10 +33,10 @@ pin in bit pin_3_out  "Also called TX (transmit data); pin 2 on the 25-pin seria
 pin in bit pin_4_out "Also called DTR (data terminal ready); pin 20 on the 25-pin serial pinout";
 pin in bit pin_7_out "Also called RTS (request to send); pin 4 on the 25-pin serial pinout";
 
-param rw bit pin_3_out_invert;
-param rw bit pin_4_out_invert;
-param rw bit pin_7_out_invert;
-param r u32 ioaddr;
+pin in bit pin_3_out_invert;
+pin in bit pin_4_out_invert;
+pin in bit pin_7_out_invert;
+pin io u32 ioaddr;
 
 option count_function;
 option extra_setup;

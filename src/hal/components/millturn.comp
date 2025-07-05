@@ -42,9 +42,6 @@ static struct haldata {
   // Example pin pointers:
   hal_u32_t *in;
   hal_u32_t *out;
-  // Example parameters:
-  hal_float_t param_rw;
-  hal_float_t param_ro;
 
   //Declare hal pin pointers used for switchable kinematics
   hal_bit_t   *kinstype_is_0;
@@ -75,9 +72,6 @@ static int millturn_setup(void) {
     // hal pin examples:
     res += hal_pin_u32_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,HAL_PREFIX);
     res += hal_pin_u32_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out",HAL_PREFIX);
-    // hal parameter examples:
-    res += hal_pin_float_newf(HAL_OUT, &haldata->param_rw,comp_id,"%s.param-rw",HAL_PREFIX);
-    res += hal_pin_float_newf(HAL_IN, &haldata->param_ro,comp_id,"%s.param-ro",HAL_PREFIX);
 
     // hal pins required for switchable kinematics:
     res += hal_pin_bit_new("kinstype.is-0", HAL_OUT, &(haldata->kinstype_is_0), comp_id);
@@ -214,7 +208,6 @@ int kinematicsInverse(const EmcPose * pos,
 
     //example hal pin update (homing reqd before kinematicsInverse)
     *haldata->out = *haldata->in; //dereference
-    //read from param example: *haldata->out = haldata->param_rw;
 
     return 0;
 } // kinematicsInverse()

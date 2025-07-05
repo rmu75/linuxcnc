@@ -23,8 +23,8 @@ Sample usage: loadrt lincurve count=3 personality=4,4,4
 for a set of three 4-element graphs.
  """;
 
-param rw float x-val-##[16 : personality] "axis breakpoints";
-param rw float y-val-##[16 : personality] "output values to be interpolated";
+pin in float x-val-##[16 : personality] "axis breakpoints";
+pin in float y-val-##[16 : personality] "output values to be interpolated";
 
 pin in float in_ "The input value";
 pin out float out_ "The output value";

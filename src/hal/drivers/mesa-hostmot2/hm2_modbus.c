@@ -217,13 +217,13 @@ typedef struct {
 	hal_bit_t *fault;
 	hal_u32_t *faultcmd;
 	hal_u32_t *lasterror;
-	hal_u32_t baudrate;	// RO
-	hal_u32_t parity;	// RO
-	hal_u32_t stopbits;	// RO
-	hal_u32_t icdelay;	// RO Inter character delay
-	hal_u32_t txdelay;	// RO Inter frame delay for packets sent
-	hal_u32_t rxdelay;	// RO Inter frame delay for packet end detection in receive
-	hal_u32_t drvdelay;	// RO Delay before sending data (in bit times)
+	hal_u32_t *baudrate;	// RO
+	hal_u32_t *parity;	// RO
+	hal_u32_t *stopbits;	// RO
+	hal_u32_t *icdelay;	// RO Inter character delay
+	hal_u32_t *txdelay;	// RO Inter frame delay for packets sent
+	hal_u32_t *rxdelay;	// RO Inter frame delay for packet end detection in receive
+	hal_u32_t *drvdelay;	// RO Delay before sending data (in bit times)
 } hm2_modbus_hal_t;
 
 // The command structure and data buffer.
@@ -370,7 +370,7 @@ static void setup_icdelay(hm2_modbus_inst_t *inst, unsigned baudrate, unsigned p
 	} else {
 		inst->maxicharbits = 0;
 	}
-	inst->hal->icdelay = inst->maxicharbits;
+	*inst->hal->icdelay = inst->maxicharbits;
 }
 
 //
@@ -439,12 +439,12 @@ static int send_comms_change(hm2_modbus_inst_t *inst)
 	inst->cfg_tx.drivedelay = cc->cmd.idrvdelay ? cc->cmd.idrvdelay : 1;
 
 	// Expose to HAL
-	inst->hal->baudrate = baudrate;
-	inst->hal->parity   = parity;
-	inst->hal->stopbits = stopbits;
-	inst->hal->rxdelay  = inst->cfg_rx.ifdelay;
-	inst->hal->txdelay  = inst->cfg_tx.ifdelay;
-	inst->hal->drvdelay = inst->cfg_tx.drivedelay;
+	*inst->hal->baudrate = baudrate;
+	*inst->hal->parity   = parity;
+	*inst->hal->stopbits = stopbits;
+	*inst->hal->rxdelay  = inst->cfg_rx.ifdelay;
+	*inst->hal->txdelay  = inst->cfg_tx.ifdelay;
+	*inst->hal->drvdelay = inst->cfg_tx.drivedelay;
 	// Redo the inter-character delay settings
 	setup_icdelay(inst, baudrate, parity, stopbits, cc->cmd.iicdelay);
 
@@ -2798,13 +2798,13 @@ int rtapi_app_main(void)
 						goto errout; \
 					} \
 				} while(0)
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->baudrate), comp_id, "%s.baudrate", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->parity),   comp_id, "%s.parity", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->stopbits), comp_id, "%s.stopbits", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->icdelay),  comp_id, "%s.icdelay", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->txdelay),  comp_id, "%s.txdelay", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->rxdelay),  comp_id, "%s.rxdelay", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->drvdelay), comp_id, "%s.drivedelay", inst->name));
+		CHECK(hal_pin_u32_newf(HAL_IN, &(inst->hal->baudrate), comp_id, "%s.baudrate", inst->name));
+		CHECK(hal_pin_u32_newf(HAL_IN, &(inst->hal->parity),   comp_id, "%s.parity", inst->name));
+		CHECK(hal_pin_u32_newf(HAL_IN, &(inst->hal->stopbits), comp_id, "%s.stopbits", inst->name));
+		CHECK(hal_pin_u32_newf(HAL_IN, &(inst->hal->icdelay),  comp_id, "%s.icdelay", inst->name));
+		CHECK(hal_pin_u32_newf(HAL_IN, &(inst->hal->txdelay),  comp_id, "%s.txdelay", inst->name));
+		CHECK(hal_pin_u32_newf(HAL_IN, &(inst->hal->rxdelay),  comp_id, "%s.rxdelay", inst->name));
+		CHECK(hal_pin_u32_newf(HAL_IN, &(inst->hal->drvdelay), comp_id, "%s.drivedelay", inst->name));
 
 		CHECK(hal_pin_bit_newf(HAL_IN,  &(inst->hal->suspend),   comp_id, "%s.suspend", inst->name));
 		CHECK(hal_pin_bit_newf(HAL_IN,  &(inst->hal->reset),     comp_id, "%s.reset", inst->name));
@@ -2812,7 +2812,7 @@ int rtapi_app_main(void)
 		CHECK(hal_pin_u32_newf(HAL_OUT, &(inst->hal->faultcmd),  comp_id, "%s.fault-command", inst->name));
 		CHECK(hal_pin_u32_newf(HAL_OUT, &(inst->hal->lasterror), comp_id, "%s.last-error-code", inst->name));
 
-		inst->hal->baudrate = inst->cfg_rx.baudrate = inst->cfg_tx.baudrate = inst->mbccb->baudrate;
+		*inst->hal->baudrate = inst->cfg_rx.baudrate = inst->cfg_tx.baudrate = inst->mbccb->baudrate;
 		unsigned parity = 0;
 		if(inst->mbccb->format & MBCCB_FORMAT_PARITYEN) {
 			inst->cfg_rx.flags |= HM2_PKTUART_CONFIG_PARITYEN;
@@ -2830,22 +2830,22 @@ int rtapi_app_main(void)
 			inst->cfg_tx.flags |= HM2_PKTUART_CONFIG_STOPBITS2;
 			stopbits = 2;
 		}
-		inst->hal->parity   = parity;
-		inst->hal->stopbits = stopbits;
+		*inst->hal->parity   = parity;
+		*inst->hal->stopbits = stopbits;
 		if(!inst->mbccb->rxdelay)	// Auto
-			inst->hal->rxdelay = inst->cfg_rx.ifdelay = calc_ifdelay(inst, inst->mbccb->baudrate, parity, stopbits) - 1;
+			*inst->hal->rxdelay = inst->cfg_rx.ifdelay = calc_ifdelay(inst, inst->mbccb->baudrate, parity, stopbits) - 1;
 		else	// Manual
-			inst->hal->rxdelay = inst->cfg_rx.ifdelay = inst->mbccb->rxdelay;
+			*inst->hal->rxdelay = inst->cfg_rx.ifdelay = inst->mbccb->rxdelay;
 
 		if(!inst->mbccb->txdelay)	// Auto
-			inst->hal->txdelay = inst->cfg_tx.ifdelay = calc_ifdelay(inst, inst->mbccb->baudrate, parity, stopbits) + 1;
+			*inst->hal->txdelay = inst->cfg_tx.ifdelay = calc_ifdelay(inst, inst->mbccb->baudrate, parity, stopbits) + 1;
 		else	// Manual
-			inst->hal->txdelay = inst->cfg_tx.ifdelay = inst->mbccb->txdelay;
+			*inst->hal->txdelay = inst->cfg_tx.ifdelay = inst->mbccb->txdelay;
 
 		if(!inst->mbccb->drvdelay)	// Auto
-			inst->hal->drvdelay = inst->cfg_tx.drivedelay = 1;
+			*inst->hal->drvdelay = inst->cfg_tx.drivedelay = 1;
 		else	// Manual
-			inst->hal->drvdelay = inst->cfg_tx.drivedelay = inst->mbccb->drvdelay;
+			*inst->hal->drvdelay = inst->cfg_tx.drivedelay = inst->mbccb->drvdelay;
 
 		inst->cfg_rx.filterrate = 0;	// Zero means 2 times baudrate
 		inst->cfg_rx.flags |= HM2_PKTUART_CONFIG_RXEN;

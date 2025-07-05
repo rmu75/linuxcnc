@@ -1,6 +1,6 @@
 component wj200_vfd "Hitachi wj200 modbus driver";
-param rw unsigned mbslaveaddr     "Modbus slave address";
-param rw float frequency_scale = 1 "RPM / frequency, default 1";
+pin in unsigned mbslaveaddr     "Modbus slave address";
+pin in float frequency_scale = 1 "RPM / frequency, default 1";
 pin in float commanded_frequency  "Frequency of vfd (scaled to RPM)";
 pin out float motor_frequency     "Motor's actual frequency (scaled to RPM)";
 pin out bit motor_reverse         "1 when actually turning in reverse";
