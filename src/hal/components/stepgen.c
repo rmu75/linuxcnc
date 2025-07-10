@@ -1050,7 +1050,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	"stepgen.%d.counts", num);
     if (retval != 0) { return retval; }
     /* export parameter for position scaling */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_scale), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->pos_scale), comp_id,
 	"stepgen.%d.position-scale", num);
     if (retval != 0) { return retval; }
     /* export pin for command */
@@ -1075,24 +1075,24 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	"stepgen.%d.frequency", num);
     if (retval != 0) { return retval; }
     /* export parameter for max frequency */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->maxvel), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxvel), comp_id,
 	"stepgen.%d.maxvel", num);
     if (retval != 0) { return retval; }
     /* export parameter for max accel/decel */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->maxaccel), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxaccel), comp_id,
 	"stepgen.%d.maxaccel", num);
     if (retval != 0) { return retval; }
     /* every step type uses steplen */
     retval = hal_pin_u32_newf(HAL_OUT, &(addr->step_len), comp_id,
 	"stepgen.%d.steplen", num);
     if (retval != 0) { return retval; }
-    if (step_type < 2) {
+    //if (step_type < 2) {
 	/* step/dir and up/down use 'stepspace' */
 	retval = hal_pin_u32_newf(HAL_OUT, &(addr->step_space),
 	    comp_id, "stepgen.%d.stepspace", num);
 	if (retval != 0) { return retval; }
-    }
-    if ( step_type == 0 ) {
+    //}
+    //if ( step_type == 0 ) {
 	/* step/dir is the only one that uses dirsetup and dirhold */
 	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_setup),
 	    comp_id, "stepgen.%d.dirsetup", num);
@@ -1100,12 +1100,12 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_hold_dly),
 	    comp_id, "stepgen.%d.dirhold", num);
 	if (retval != 0) { return retval; }
-    } else {
+    //} else {
 	/* the others use dirdelay */
 	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_hold_dly),
 	    comp_id, "stepgen.%d.dirdelay", num);
 	if (retval != 0) { return retval; }
-    }
+    //}
     /* export output pins */
     if ( step_type == 0 ) {
 	/* step and direction */
