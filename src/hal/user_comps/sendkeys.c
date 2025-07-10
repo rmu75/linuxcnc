@@ -34,7 +34,7 @@ typedef struct{
     hal_s32_t *current_event;
     hal_bit_t *init;
     hal_bit_t **trigger;
-    hal_u32_t *event;
+    hal_u32_t **event;
 } sendkeys_hal;
 
 typedef struct {
@@ -253,9 +253,9 @@ int main(int argc, char* argv[]) {
                 }
                 ioctl(param->fd, UI_SET_EVBIT, EV_KEY);
                 for (j = 0; j < param->num_events; j++){
-                    if (hal->event[j] > 0 && hal->event[j] < KEY_MAX){
+                    if (*hal->event[j] > 0 && *hal->event[j] < KEY_MAX){
                         ioctl(param->fd, UI_SET_KEYBIT, hal->event[j]);
-                        rtapi_print("SET_EVBIT %i\n", hal->event[j]);
+                        rtapi_print("SET_EVBIT %i\n", *hal->event[j]);
                     }
                 }
                 struct uinput_user_dev uidev;
@@ -275,10 +275,10 @@ int main(int argc, char* argv[]) {
                 if ((int)(*hal->keycode & 0x3F) > param->num_events) continue;
                 if (hal->event[*hal->keycode & 0x3F] == 0) continue;
                 if ((*hal->keycode & 0xC0) == 0xC0){ // keydown
-                    emit(param->fd, EV_KEY, hal->event[*hal->keycode & 0x3F], 1);
+                    emit(param->fd, EV_KEY, *hal->event[*hal->keycode & 0x3F], 1);
                     emit(param->fd, EV_SYN, SYN_REPORT, 0);
                 } else if ((*hal->keycode & 0xC0) == 0x80){ // keyup
-                    emit(param->fd, EV_KEY, hal->event[*hal->keycode & 0x3F], 0);
+                    emit(param->fd, EV_KEY, *hal->event[*hal->keycode & 0x3F], 0);
                     emit(param->fd, EV_SYN, SYN_REPORT, 0);
                 }
                 param->oldcode = *hal->keycode;
@@ -286,10 +286,10 @@ int main(int argc, char* argv[]) {
             for (j = 0; j < param->num_triggers; j++){
                 if (param->prev[j] != *hal->trigger[j]){
                     if (*hal->trigger[j]){ // keydown
-                        emit(param->fd, EV_KEY, hal->event[param->num_codes + j], 1);
+                        emit(param->fd, EV_KEY, *hal->event[param->num_codes + j], 1);
                         emit(param->fd, EV_SYN, SYN_REPORT, 0);
                     } else { // keyup
-                        emit(param->fd, EV_KEY, hal->event[param->num_codes + j], 0);
+                        emit(param->fd, EV_KEY, *hal->event[param->num_codes + j], 0);
                         emit(param->fd, EV_SYN, SYN_REPORT, 0);
                     }
                     param->prev[j] = *hal->trigger[j];
