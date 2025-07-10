@@ -114,8 +114,6 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
     HAL_IN = hal.HAL_IN
     HAL_OUT = hal.HAL_OUT
     HAL_IO = hal.HAL_IO
-    HAL_IN = hal.HAL_IN
-    HAL_OUT = hal.HAL_OUT
 
     PINS = 1
     SIGS = SIGNALS = 2
