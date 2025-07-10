@@ -857,7 +857,7 @@ static bool record_soft_error(hm2_eth_t *board) {
         board->comm_error_counter = *board->hal->packet_error_limit;
     *board->hal->packet_error_level = board->comm_error_counter;
     bool result = board->comm_error_counter < *board->hal->packet_error_limit;
-    if(!result) *board->llio.io_error = true;
+    if(!result) **board->llio.io_error = true;
     *board->hal->packet_error_exceeded = !result;
     return result;
 }
@@ -884,7 +884,7 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
     // pin (or they did something else like fiddle with the error limit
     // during a run, in which case we don't care if we reset the counter
     // or not)
-    if(board->hal && board->comm_error_counter == *board->hal->packet_error_limit && !*board->llio.io_error) {
+    if(board->hal && board->comm_error_counter == *board->hal->packet_error_limit && !**board->llio.io_error) {
         board->comm_error_counter = 0;
     }
 

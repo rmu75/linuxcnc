@@ -86,7 +86,7 @@ void hm2_periodm_force_write(hostmot2_t *hm2) {
     hm2->llio->write(hm2->llio, hm2->periodm.mode_write_addr, hm2->periodm.mode_write_reg, (hm2->periodm.num_instances * sizeof(rtapi_u32)));
     hm2->llio->write(hm2->llio, hm2->periodm.limit_addr, hm2->periodm.limit_reg, (hm2->periodm.num_instances * sizeof(rtapi_u32)));
     
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((**hm2->llio->io_error) != 0) return;
 
 }
 

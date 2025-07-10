@@ -132,7 +132,7 @@ void hm2_oneshot_force_write(hostmot2_t *hm2) {
     hm2->llio->write(hm2->llio, hm2->oneshot.control_addr, hm2->oneshot.control_reg, (hm2->oneshot.num_instances * sizeof(rtapi_u32)));
 
     
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((**hm2->llio->io_error) != 0) return;
 
 }
 
