@@ -7,4 +7,3 @@ loadrt lincurve_test count=4 personality=2,3
 loadrt bitslice_test count=4 personality=2,3
 
 show pin
-show parameter

@@ -7,4 +7,3 @@ loadrt lincurve_test names=lc1,lc2,lc3,lc4 personality=2,3
 loadrt bitslice_test names=bs1,bs2,bs3,bs4 personality=2,3
 
 show pin
-show parameter
