@@ -1,0 +1,54 @@
+'\" t
+.\"     Title: constant
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 07/05/2025
+.\"    Manual: LinuxCNC Documentation
+.\"    Source: LinuxCNC
+.\"  Language: English
+.\"
+.TH "CONSTANT" "9" "07/05/2025" "LinuxCNC" "LinuxCNC Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+constant \- Use a parameter to set the value of a pin
+.SH "SYNOPSIS"
+.sp
+\fBloadrt constant\fR [\fBcount\fR=\fIN\fR|\fBnames\fR=\fIname1\fR[,\fIname2\fR\&...]]
+.SH "FUNCTIONS"
+.PP
+\fBconstant\fR\&.\fIN\fR (requires a floating\-point thread)
+.RS 4
+.RE
+.SH "PINS"
+.PP
+\fBconstant\fR\&.\fIN\fR\&.\fBout\fR float out
+.RS 4
+.RE
+.PP
+\fBconstant\fR\&.\fIN\fR\&.\fBvalue\fR float in
+.RS 4
+.RE
+.SH "AUTHOR"
+.sp
+John Kasunich
+.SH "LICENSE"
+.sp
+GPL
