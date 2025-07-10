@@ -1092,7 +1092,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	    comp_id, "stepgen.%d.stepspace", num);
 	if (retval != 0) { return retval; }
     //}
-    //if ( step_type == 0 ) {
+    if ( step_type == 0 ) {
 	/* step/dir is the only one that uses dirsetup and dirhold */
 	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_setup),
 	    comp_id, "stepgen.%d.dirsetup", num);
@@ -1100,12 +1100,13 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_hold_dly),
 	    comp_id, "stepgen.%d.dirhold", num);
 	if (retval != 0) { return retval; }
-    //} else {
+    } else {
+	addr->dir_setup = hal_malloc(sizeof(hal_u32_t));
 	/* the others use dirdelay */
 	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_hold_dly),
 	    comp_id, "stepgen.%d.dirdelay", num);
 	if (retval != 0) { return retval; }
-    //}
+    }
     /* export output pins */
     if ( step_type == 0 ) {
 	/* step and direction */
