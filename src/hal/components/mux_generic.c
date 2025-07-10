@@ -285,7 +285,7 @@ void write_fp(void *arg, long period) {
     if (*inst->suppress && s == 0)
         return;
     if (s != *inst->selection && *inst->timer < *inst->debounce) {
-        inst->timer += period / 1000;
+        *inst->timer += period / 1000;
         return;
     }
 
@@ -349,7 +349,7 @@ void write_nofp(void *arg, long period) {
     if (*inst->suppress && s == 0)
         return;
     if (s != *inst->selection && *inst->timer < *inst->debounce) {
-        inst->timer += period / 1000;
+        *inst->timer += period / 1000;
         return;
     }
 
