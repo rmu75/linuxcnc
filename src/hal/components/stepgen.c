@@ -1083,27 +1083,27 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	"stepgen.%d.maxaccel", num);
     if (retval != 0) { return retval; }
     /* every step type uses steplen */
-    retval = hal_pin_u32_newf(HAL_OUT, &(addr->step_len), comp_id,
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->step_len), comp_id,
 	"stepgen.%d.steplen", num);
     if (retval != 0) { return retval; }
     //if (step_type < 2) {
 	/* step/dir and up/down use 'stepspace' */
-	retval = hal_pin_u32_newf(HAL_OUT, &(addr->step_space),
+	retval = hal_pin_u32_newf(HAL_IO, &(addr->step_space),
 	    comp_id, "stepgen.%d.stepspace", num);
 	if (retval != 0) { return retval; }
     //}
     if ( step_type == 0 ) {
 	/* step/dir is the only one that uses dirsetup and dirhold */
-	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_setup),
+	retval = hal_pin_u32_newf(HAL_IO, &(addr->dir_setup),
 	    comp_id, "stepgen.%d.dirsetup", num);
 	if (retval != 0) { return retval; }
-	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_hold_dly),
+	retval = hal_pin_u32_newf(HAL_IO, &(addr->dir_hold_dly),
 	    comp_id, "stepgen.%d.dirhold", num);
 	if (retval != 0) { return retval; }
     } else {
 	addr->dir_setup = hal_malloc(sizeof(hal_u32_t));
 	/* the others use dirdelay */
-	retval = hal_pin_u32_newf(HAL_OUT, &(addr->dir_hold_dly),
+	retval = hal_pin_u32_newf(HAL_IO, &(addr->dir_hold_dly),
 	    comp_id, "stepgen.%d.dirdelay", num);
 	if (retval != 0) { return retval; }
     }

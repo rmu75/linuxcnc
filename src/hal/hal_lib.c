@@ -1533,7 +1533,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
        for debugging and testing use only */
     /* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
-    hal_pin_s32_new(buf, HAL_OUT, &new->maxtime, comp_id);
+    hal_pin_s32_new(buf, HAL_IO, &new->maxtime, comp_id);
     *new->maxtime = 0;
 
     /* create a parameter with the function's maximum runtime in it */
@@ -1696,7 +1696,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     }
 
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax", new->name);
-    if (hal_pin_s32_new(buf, HAL_OUT, &new->maxtime, new->comp_id)) {
+    if (hal_pin_s32_new(buf, HAL_IO, &new->maxtime, new->comp_id)) {
         rtapi_print_msg(RTAPI_MSG_ERR,
            "HAL: ERROR: fail to create param '%s.tmax'\n", new->name);
         return -EINVAL;
