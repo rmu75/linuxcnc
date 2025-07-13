@@ -127,7 +127,7 @@ typedef struct {
     GtkWidget *offset_entry;
     GtkWidget *offset_ac;
     /* widgets for source selection dialog */
-    GtkWidget *lists[3];	/* lists for pins, signals, and params */
+    GtkWidget *lists[2];	/* lists for pins, signals, and params */
     GtkWidget *notebook;        /* pointer to the notebook */
 } scope_vert_t;
 

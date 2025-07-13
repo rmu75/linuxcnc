@@ -896,7 +896,7 @@ static gboolean dialog_select_source(int chan_num)
     hal_pin_t *pin;
     hal_sig_t *sig;
 
-    char *tab_label_text[3];
+    char *tab_label_text[2];
     char *name[HAL_NAME_LEN + 1];
     char signal_name[HAL_NAME_LEN + 1];
     char title[BUFLEN];
@@ -933,10 +933,9 @@ static gboolean dialog_select_source(int chan_num)
     /* text for tab labels */
     tab_label_text[0] = _("Pins");
     tab_label_text[1] = _("Signals");
-    tab_label_text[2] = _("Parameters");
 
     /* loop to create three identical tabs */
-    for (n = 0; n < 3; n++) {
+    for (n = 0; n < 2; n++) {
         /* Create a scrolled window to display the list */
         scrolled_window = gtk_scrolled_window_new(NULL, NULL);
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -1140,9 +1139,6 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan)
     } else if ( chan->data_source_type == 1 ) {
 	// signal
 	fprintf(fp, "SIG %s\n", chan->name);
-    } else if ( chan->data_source_type == 2 ) {
-	// pin
-	fprintf(fp, "PARAM %s\n", chan->name);
     } else {
 	// not configured
 	return;
