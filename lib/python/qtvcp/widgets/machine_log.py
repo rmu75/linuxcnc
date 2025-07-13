@@ -50,7 +50,7 @@ class MachineLog(QWidget, _HalWidgetBase):
         self._error_fg_color = QColor(255, 0, 0)
         self._error_bg_color = QColor(255,255,255)
         self._warning_fg_color = QColor(255, 255, 0)
-        self._warning_bg_color = QColor(255, 255, 255)
+        self._warning_bg_color = QColor(0, 0, 0)
         self._debug_fg_color = QColor(128, 128, 128)
         self._debug_bg_color = QColor(255, 255, 255)
         self._info_fg_color = QColor(0, 0, 0)
@@ -126,6 +126,11 @@ class MachineLog(QWidget, _HalWidgetBase):
         return ','.join(options)
 
     def updateMachineLog(self, message, option):
+
+        if option == 'DELETE':
+                self.clear()
+                return
+
         if message:
             if option is None: option = ''
 
@@ -202,7 +207,7 @@ class MachineLog(QWidget, _HalWidgetBase):
         logText = file.readAll()
         file.close()
         if str(logText, encoding='utf8') == "":
-            self.logText.setPlainText('No Logging found. Is QtVcp in debugging or verbose mode (-i, -d or -v)?')
+            self.logText.setPlainText('No Logging found. Is QtVcp in info, debugging or verbose mode (-i, -d or -v)?')
             return
         self.logText.setPlainText(str(logText, encoding='utf8'))
         # scroll down to show last entry
@@ -220,13 +225,30 @@ class MachineLog(QWidget, _HalWidgetBase):
         self.logText.setCursorWidth(0)
 
     def getLogText(self):
-        return self.logText.toPlainText()
+        if self._machine_log_severity:
+            return self.readTableData()
+        else:
+            return self.logText.toPlainText()
 
     def clear(self):
         self.logTable.clearContents()
         self.logTable.setRowCount(0)
         self.logText.setPlainText('')
 
+    def readTableData(self):
+        data = ''
+        for row in range(self.logTable.rowCount()):
+            row_data = []
+            for col in range(self.logTable.columnCount()):
+                item = self.logTable.item(row, col).text()
+                if col == 1:
+                    # pad the severity column for ease of reading 
+                    row_data.append("{:^10}".format(item))
+                elif item != '':
+                    row_data.append(item)
+            data += ' '.join(row_data)
+            data +='\n'
+        return data
 
 ################## properties ###################
 

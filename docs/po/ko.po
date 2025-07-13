@@ -2,17 +2,21 @@
 # Copyright (C) YEAR Free Software Foundation, Inc.
 # This file is distributed under the same license as the PACKAGE package.
 # jonghak <jonghak9028@gmail.com>, 2024.
+# 강경서 <rudtj2306@ajou.ac.kr>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:14+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2024-12-22 07:59+0000\n"
+"Last-Translator: 강경서 <rudtj2306@ajou.ac.kr>\n"
 "Language-Team: none\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -84,13 +88,13 @@ msgstr ""
 #: INSTALL.adoc:1
 #, no-wrap
 msgid "en"
-msgstr ""
+msgstr "영어"
 
 #. type: Title =
 #: src/Master_Developer.adoc:7
 #, no-wrap
 msgid "Developer Manual V{lversion}, {date}"
-msgstr ""
+msgstr "개발자 설명서 V{버전},{날짜}"
 
 #. type: Title ==
 #: src/Master_Developer.adoc:9 src/code/building-linuxcnc.adoc:6
@@ -109,7 +113,7 @@ msgstr ""
 #: src/user/user-intro.adoc:7
 #, no-wrap
 msgid "Introduction"
-msgstr ""
+msgstr "소개"
 
 #. type: Target for macro image
 #: src/Master_Developer.adoc:11 src/Master_Getting_Started.adoc:13
@@ -127,50 +131,50 @@ msgstr ""
 #: src/Master_Documentation.adoc:11
 #, no-wrap
 msgid "Getting Started & Configuration"
-msgstr ""
+msgstr "시작&환경설정"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:14
 #, no-wrap
 msgid "Getting Started with LinuxCNC"
-msgstr ""
+msgstr "LinuxCNC 시작하기"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:31
 #, no-wrap
 msgid "General User Information"
-msgstr ""
+msgstr "일반사용자정보"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:50
 #, no-wrap
 msgid "Configuration Wizards"
-msgstr ""
+msgstr "환경설정 마법사"
 
 #. type: Title ===
 #: src/Master_Documentation.adoc:59 src/config/ini-homing.adoc:109
 #: src/drivers/hostmot2.adoc:712
 #, no-wrap
 msgid "Configuration"
-msgstr ""
+msgstr "환경설정"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:85
 #, no-wrap
 msgid "HAL (Hardware Abstraction Layer)"
-msgstr ""
+msgstr "하드웨어 추출 계층"
 
 #. type: Title ===
 #: src/Master_Documentation.adoc:120 src/hal/components.adoc:86
 #, no-wrap
 msgid "Hardware Drivers"
-msgstr ""
+msgstr "하드웨어 드라이버"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:159
 #, no-wrap
 msgid "Hardware Examples"
-msgstr ""
+msgstr "하드웨어 예시"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:173
@@ -182,7 +186,7 @@ msgstr ""
 #: src/Master_Documentation.adoc:184
 #, no-wrap
 msgid "Advanced Topics"
-msgstr ""
+msgstr "심화된주제들"
 
 #. type: Title ===
 #: src/Master_Documentation.adoc:209 src/index.tmpl:278 src/code/rs274.adoc:15
@@ -197,73 +201,73 @@ msgstr ""
 #: src/motion/switchkins.adoc:135 src/tooldatabase/tooldatabase.adoc:80
 #, no-wrap
 msgid "Usage"
-msgstr ""
+msgstr "용법"
 
 #. type: Title ==
 #: src/Master_Documentation.adoc:212 src/code/code-notes.adoc:774
 #: src/user/user-intro.adoc:154
 #, no-wrap
 msgid "User Interfaces"
-msgstr ""
+msgstr "사용자인터페이스"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:235
 #, no-wrap
 msgid "G-code Programming"
-msgstr ""
+msgstr "G-code 프로그래밍"
 
 #. type: Title ==
 #: src/Master_Documentation.adoc:262 src/user/user-intro.adoc:161
 #, no-wrap
 msgid "Virtual Control Panels"
-msgstr ""
+msgstr "가상제어판"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:291
 #, no-wrap
 msgid "User Interface Programming"
-msgstr ""
+msgstr "사용자인터페이스 프로그래밍"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:306
 #, no-wrap
 msgid "Glossary, Copyright & History"
-msgstr ""
+msgstr "어휘, 저작권&역사"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:309
 #, no-wrap
 msgid "Overleaf"
-msgstr ""
+msgstr "오버리프"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:316
 #, no-wrap
 msgid "Copyright"
-msgstr ""
+msgstr "복사본"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:322
 #, no-wrap
 msgid "LinuxCNC History"
-msgstr ""
+msgstr "LinuxCNC 기록"
 
 #. type: Title =
 #: src/Master_Getting_Started.adoc:7
 #, no-wrap
 msgid "Getting Started V{lversion}, {date}"
-msgstr ""
+msgstr "시작하기 V{버전},{날짜}"
 
 #. type: Plain text
 #: src/Master_Getting_Started.adoc:10
 msgid "The LinuxCNC Team"
-msgstr ""
+msgstr "LinuxCN팀"
 
 #. type: Title =
 #: src/Master_Integrator.adoc:7
 #, no-wrap
 msgid "Integrator Information V{lversion}, {date}"
-msgstr ""
+msgstr "통합된 정보 V{버전},{날짜}\n"
 
 #. type: TH
 #: src/index.tmpl:6 src/common/glossary.adoc:178 man/man9/matrix_kb.9:10
@@ -367,12 +371,12 @@ msgstr ""
 #. type: Attribute 'alt' of: <html><body><div><img>
 #: src/index.tmpl:93
 msgid "LinuxCNC Logo"
-msgstr ""
+msgstr "LinuxCNC 로고"
 
 #. type: Content of: <html><body>
 #: src/index.tmpl:96
 msgid "@TRANSLATIONS@"
-msgstr ""
+msgstr "번역"
 
 #. type: Content of: <html><body><p>
 #: src/index.tmpl:97
@@ -390,12 +394,12 @@ msgstr ""
 #. type: Content of: <html><body>
 #: src/index.tmpl:108
 msgid "@ENDTRANSLATIONS@"
-msgstr ""
+msgstr "번역종료"
 
 #. type: Content of: <html><body><h2>
 #: src/index.tmpl:112
 msgid "LinuxCNC version <strong>@VERSION@</strong> Documentation"
-msgstr ""
+msgstr "LinuxCNC 버전 <strong>@VERSION@></strong> 문서"
 
 #. type: Content of: <html><body><div><p>
 #: src/index.tmpl:115
@@ -419,7 +423,7 @@ msgstr ""
 #. type: Content of: <html><body><h3>
 #: src/index.tmpl:124
 msgid "Getting Started &amp; Configuration"
-msgstr ""
+msgstr "시작하기 &amp;환경설정"
 
 #. type: Content of: <html><body><p><a>
 #: src/index.tmpl:126
@@ -452,7 +456,7 @@ msgstr ""
 #. type: Content of: <html><body><p>
 #: src/index.tmpl:127
 msgid "Getting Started with LinuxCNC</a>"
-msgstr ""
+msgstr "LinuxCNC와 시작"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:130
@@ -464,7 +468,8 @@ msgstr ""
 msgid ""
 "<a href=\"getting-started/system-requirements.html\">Computer System "
 "Requirements</a>"
-msgstr ""
+msgstr "<a href=\"getting-started/system-requirements.html\">컴퓨터 시스템 "
+"필요조건</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:132
@@ -472,26 +477,28 @@ msgid ""
 "<a href=\"getting-started/hardware-interface.html\">Hardware Interface / "
 "Supported Hardware</a>"
 msgstr ""
+"<a href=\"getting-started/hardware-interface.html\">하드웨어 인터페이스/ "
+"지원된 하드웨어</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:133
 msgid "<a href=\"getting-started/getting-linuxcnc.html\">Getting LinuxCNC</a>"
-msgstr ""
+msgstr "<a href=\"getting-started/getting-linuxcnc.html\">LinuxCNC 다운로드</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:134
 msgid "<a href=\"getting-started/running-linuxcnc.html\">Running LinuxCNC</a>"
-msgstr ""
+msgstr "<a href=\"getting-started/running-linuxcnc.html\">LinuxCNC 실행하기</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:135
 msgid "<a href=\"getting-started/updating-linuxcnc.html\">Updating LinuxCNC</a>"
-msgstr ""
+msgstr "<a href=\"getting-started/updating-linuxcnc.html\">향상된 LinuxCNC</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:136
 msgid "<a href=\"common/linux-faq.html\">Linux FAQ</a>"
-msgstr ""
+msgstr "<a href=\"common/linux-faq.html\">Linux 자주묻는 질문</a>"
 
 #. type: Content of: <html><body><p><a>
 #: src/index.tmpl:140
@@ -501,42 +508,42 @@ msgstr ""
 #. type: Content of: <html><body><p>
 #: src/index.tmpl:141
 msgid "General User Information</a>"
-msgstr ""
+msgstr "일반적인 사용자 정보</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:144
 msgid "<a href=\"user/user-foreword.html\">User Foreword</a>"
-msgstr ""
+msgstr "<a href=\"user/user-foreword.html\">사용자 머리말</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:145
 msgid "<a href=\"user/user-intro.html\">LinuxCNC User Introduction</a>"
-msgstr ""
+msgstr "<a href=\"user/user-intro.html\">LinuxCNC 사용자 자기소개</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:146
 msgid "<a href=\"user/user-concepts.html\">Important User Concepts</a>"
-msgstr ""
+msgstr "<a href=\"user/user-concepts.html\">중요한 사용자 컨셉들</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:147
 msgid "<a href=\"user/starting-linuxcnc.html\">Starting LinuxCNC</a>"
-msgstr ""
+msgstr "<a href=\"user/starting-linuxcnc.html\">LinuxCNC 시작하기</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:148
 msgid "<a href=\"gcode/machining-center.html\">CNC Machine Overview</a>"
-msgstr ""
+msgstr "<a href=\"gcode/machining-center.html\">CNC 기계 개요</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:149
 msgid "<a href=\"lathe/lathe-user.html\">Lathe User Information</a>"
-msgstr ""
+msgstr "<a href=\"lathe/lathe-user.html\">선반 사용자 메뉴얼</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:150
 msgid "<a href=\"plasma/plasma-cnc-primer.html\">Plasma CNC Primer</a>"
-msgstr ""
+msgstr "<a href=\"plasma/plasma-cnc-primer.html\">플라즈마 CNC 입문서</a>"
 
 #. type: Content of: <html><body><p><a>
 #: src/index.tmpl:154
@@ -546,7 +553,7 @@ msgstr ""
 #. type: Content of: <html><body><p>
 #: src/index.tmpl:155
 msgid "Configuration Wizards</a>"
-msgstr ""
+msgstr "환경설정 마법사</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:158
@@ -570,7 +577,7 @@ msgstr ""
 #. type: Content of: <html><body><p>
 #: src/index.tmpl:164
 msgid "Configuration</a>"
-msgstr ""
+msgstr "환경설정</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:167
@@ -635,7 +642,7 @@ msgstr ""
 #. type: Content of: <html><body><p>
 #: src/index.tmpl:182
 msgid "HAL (Hardware Abstraction Layer)</a>"
-msgstr ""
+msgstr "하드웨어 추출 계층</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:185
@@ -645,7 +652,7 @@ msgstr ""
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:186
 msgid "<a href=\"hal/basic-hal.html\">HAL Basics</a>"
-msgstr ""
+msgstr "<a href=\"hal/basic-hal.html\">HAL 기본구조</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:187
@@ -722,12 +729,12 @@ msgstr ""
 #. type: Content of: <html><body><p>
 #: src/index.tmpl:204
 msgid "Hardware Drivers</a>"
-msgstr ""
+msgstr "하드웨어 드라이버들</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:207
 msgid "<a href=\"hal/parallel-port.html\">Parallel Port Driver</a>"
-msgstr ""
+msgstr "<a href=\"hal/parallel-port.html\">평행한 포트 드라이버r</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:208
@@ -737,7 +744,7 @@ msgstr ""
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:209
 msgid "<a href=\"drivers/gm.html\">General Mechatronics GM6-PCI Driver</a>"
-msgstr ""
+msgstr "<a href=\"drivers/gm.html\">일반적인 기전공학 GM6-PCI 드라이버</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:210
@@ -752,7 +759,7 @@ msgstr ""
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:212
 msgid "<a href=\"drivers/hal_pi_gpio.html\">Raspberry Pi GPIO Driver</a>"
-msgstr ""
+msgstr "<a href=\"drivers/hal_pi_gpio.html\">라즈베리파이 GPIO 드라이버r</a>"
 
 #. type: Content of: <html><body><div><ul><li>
 #: src/index.tmpl:213
