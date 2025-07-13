@@ -326,7 +326,6 @@ static int do_help_cmd(char *command);
 static int unloadrt_comp(char *mod_name);
 static const char *data_type(int type);
 static const char *pin_data_dir(int dir);
-static const char *param_data_dir(int dir);
 static const char *data_arrow1(int dir);
 static const char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
@@ -391,8 +390,8 @@ typedef enum {
   
 typedef enum {
   hcEcho, hcVerbose, hcEnable, hcConfig, hcCommMode, hcCommProt,
-  hcComps, hcPins, hcPinVals, hcSigs, hcSigVals, hcParams, hcParamVals, hcFuncts, hcThreads,
-  hcComp, hcPin, hcPinVal, hcSig, hcSigVal, hcParam, hcParamVal, hcFunct, hcThread,
+  hcComps, hcPins, hcPinVals, hcSigs, hcSigVals, hcFuncts, hcThreads,
+  hcComp, hcPin, hcPinVal, hcSig, hcSigVal, hcFunct, hcThread,
   hcLoadRt, hcUnload, hcLoadUsr, hcLinkps, hcLinksp, hcLinkpp, hcNet, hcUnlinkp,
   hcLock, hcUnlock, hcNewSig, hcDelSig, hcSetP, hcSetS, hcAddF, hcDelF,
   hcSave, hcStart, hcStop, hcUnknown
@@ -976,7 +975,7 @@ static int doSetp(char *name, char *value, connectionRecType *context)
         if(pin == 0) {
             rtapi_mutex_give(&(hal_data->mutex));
             snprintf(errorStr, sizeof(errorStr),
-                "HAL:%d: ERROR: parameter or pin '%s' not found\n", linenumber, name);
+                "HAL:%d: ERROR: pin '%s' not found\n", linenumber, name);
             sockWriteError(nakStr, context);
             return -EINVAL;
         } else {
@@ -1859,7 +1858,7 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
 }
 
 
-/* Switch function for pin/sig/param type for the print_*_list functions */
+/* Switch function for pin/sig type for the print_*_list functions */
 static const char *data_type(int type)
 {
     const char *type_str;
@@ -1904,25 +1903,6 @@ static const char *pin_data_dir(int dir)
 	pin_dir = "???";
     }
     return pin_dir;
-}
-
-/* Switch function for param direction for the print_*_list functions  */
-static const char *param_data_dir(int dir)
-{
-    const char *param_dir;
-
-    switch (dir) {
-    case HAL_IN:
-	param_dir = "RO";
-	break;
-    case HAL_OUT:
-	param_dir = "RW";
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	param_dir = "??";
-    }
-    return param_dir;
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
@@ -2081,10 +2061,6 @@ static int doSave(char *type, char *filename, connectionRecType *context)
               else 
 	        if (strcmp(type, "neta") == 0)
 	          save_nets(dst, 1);
-                else 
-		  if (strcmp(type, "param") == 0){
-
-      }
                   else 
 		    if (strcmp(type, "thread") == 0)
 	              save_threads(dst);
@@ -3000,8 +2976,6 @@ int commandSet(connectionRecType *context)
     case hcPinVals: break;
     case hcSigs: break;
     case hcSigVals: break;
-    case hcParams: break;
-    case hcParamVals: break;
     case hcFuncts: break;
     case hcThreads: break;
     case hcComp: break;
@@ -3009,8 +2983,6 @@ int commandSet(connectionRecType *context)
     case hcPinVal: break;
     case hcSig: break;
     case hcSigVal: break;
-    case hcParam: break;
-    case hcParamVal: break;
     case hcFunct: break;
     case hcThread: break;
     case hcLoadRt: ret = setLoadRt(tokens[0], context); break;

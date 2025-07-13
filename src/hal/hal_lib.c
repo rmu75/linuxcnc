@@ -3079,7 +3079,6 @@ static void free_thread_struct(hal_thread_t * thread)
 #if 0
     rtapi_intptr_t *prev, next;
     char time[HAL_NAME_LEN + 1], tmax[HAL_NAME_LEN + 1];
-    hal_param_t *param;
 #endif
 
     /* if we're deleting a thread, we need to stop all threads */

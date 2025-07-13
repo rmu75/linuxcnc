@@ -63,22 +63,22 @@ static const char *nonRT_command_table[] = {
 };
 
 static const char *alias_table[] = {
-    "param", "pin",
+    "pin",
     NULL,
 };
 
 static const char *show_table[] = {
-    "all", "alias", "comp", "pin", "sig", "param", "funct", "thread",
+    "all", "alias", "comp", "pin", "sig", "funct", "thread",
     NULL,
 };
 
 static const char *save_table[] = {
-    "all", "alias", "comp", "sig", "link", "linka", "net", "neta", "param", "thread",
+    "all", "alias", "comp", "sig", "link", "linka", "net", "neta", "thread",
     NULL,
 };
 
 static const char *list_table[] = {
-    "comp", "alias", "pin", "sig", "param", "funct", "thread",
+    "comp", "alias", "pin", "sig", "funct", "thread",
     NULL
 };
 

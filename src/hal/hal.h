@@ -299,17 +299,6 @@ typedef enum {
     HAL_IO = (HAL_IN | HAL_OUT),
 } hal_pin_dir_t;
 
-/** HAL parameters also have a direction attribute.  For parameters,
-    the attribute determines whether the user can write the value
-    of the parameter, or simply read it.  HAL_IN parameters are
-    read-only, and HAL_OUT ones are writable with 'halcmd setp'.
-*/
-
-// typedef enum {
-//     HAL_IN = 64,
-//     HAL_OUT = HAL_IN | 128 /* HAL_WO */,
-// } hal_param_dir_t;
-
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
 #include <rtapi_bool.h>
