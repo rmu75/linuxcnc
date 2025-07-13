@@ -1,14 +1,14 @@
 /** This file, 'meter.c', is a GUI program that serves as a simple
     meter to look at HAL signals.  It is a user space component and
-    uses GTK 3 for the GUI code.  It allows you to view one pin,
-    signal, or parameter, and updates its display about 10 times
+    uses GTK 3 for the GUI code.  It allows you to view one pin or
+    signal, and updates its display about 10 times
     per second.  (It is not a realtime program, and heavy loading
     can temporarily slow or stop the update.)  Clicking on the 'Select'
-    button pops up a dialog that allows you to select what pin/signal/
-    parameter you want to monitor.  Multiple instances of the program
+    button pops up a dialog that allows you to select what pin/signal
+    you want to monitor.  Multiple instances of the program
     can be started if you want to monitor more than one item.  If you
     add "pin|sig|par[am] <name>" to the command line, the meter will
-    initially display the pin/signal/parameter <name>, otherwise it
+    initially display the pin/signal <name>, otherwise it
     will initially display nothing.
 */
 /* Added ability to specify initial window position on command line 
@@ -70,20 +70,20 @@
 *                            TYPEDEFS                                  *
 ************************************************************************/
 
-/** a 'probe' is an object that references a HAL pin, signal, or
-    parameter.  The user may select the item that is to be probed.
+/** a 'probe' is an object that references a HAL pin or signal.
+ * The user may select the item that is to be probed.
 */
 
 #define PROBE_NAME_LEN 63
 
 typedef struct {
-    int listnum;		/* 0 = pin, 1 = signal, 2 = parameter */
+    int listnum;		/* 0 = pin, 1 = signal */
     char *pickname;		/* name from list, not validated */
     hal_pin_t *pin;		/* metadata (if it's a pin) */
     hal_sig_t *sig;		/* metadata (if it's a signal) */
     GtkWidget *window;		/* selection dialog window */
     GtkWidget *notebook;	/* pointer to the notebook */
-    GtkWidget *lists[2];	/* lists for pins, sigs, and params */
+    GtkWidget *lists[2];	/* lists for pins and sigs */
     char probe_name[PROBE_NAME_LEN + 1];	/* name of this probe */
 } probe_t;
 
@@ -117,7 +117,7 @@ static meter_t *meter_new(void);
 
 /** 'probe_new()' creates a new probe structure.  It also creates
     a dialog window for the probe that allows the user to pick the
-    pin, signal, or parameter that the probe will attach to.  It
+    pin or signal that the probe will attach to.  It
     should be called during the init phase of the program, before
     the main event loop is started.
 */
@@ -206,13 +206,13 @@ int main(int argc, gchar * argv[])
 	                initial_name = argv[n];
                     n++;
 	            } else {
-	                printf(_("ERROR: no pin/signal/parameter name\n"));
+	                printf(_("ERROR: no pin/signal name\n"));
 	                return -1;
 	            }	
         }     
     }
     if ((initial_name == NULL) && (small == 1)) {
-        printf(_("ERROR: -s option requires a probe type and a pin/signal/parameter name\n"));
+        printf(_("ERROR: -s option requires a probe type and a pin/signal name\n"));
         return -1;
     }
 
@@ -250,7 +250,7 @@ int main(int argc, gchar * argv[])
     g_signal_connect(main_window, "destroy",
             G_CALLBACK(gtk_main_quit), NULL);
 
-    /* a vbox to hold the displayed value and the pin/sig/param name */
+    /* a vbox to hold the displayed value and the pin/sig name */
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 2);
     gtk_container_add(GTK_CONTAINER(main_window), vbox);
@@ -400,7 +400,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 
     /*
      * This part clears the list, then add all items back into the list.
-     * If a pin, signal, or parameter is showing in the main window, that item
+     * If a pin or signal is showing in the main window, that item
      * should be selected in the "Select item to probe" window, when the window
      * is displayed again.
      *
@@ -577,7 +577,7 @@ static void create_probe_window(probe_t * probe)
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 2);
     gtk_container_add(GTK_CONTAINER(probe->window), vbox);
 
-    /* create a notebook to hold pin, signal, and parameter list */
+    /* create a notebook to hold pin and signal list */
     probe->notebook = gtk_notebook_new();
     gtk_box_pack_start(GTK_BOX(vbox), probe->notebook, TRUE, TRUE, 0);
 
