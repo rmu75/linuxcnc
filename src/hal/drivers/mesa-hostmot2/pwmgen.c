@@ -292,7 +292,8 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         hm2->pwmgen.instance[i].written_output_type = *hm2->pwmgen.instance[i].hal.param.output_type;
         hm2->pwmgen.instance[i].written_offset_mode = *hm2->pwmgen.instance[i].hal.param.offset_mode;
-        hm2->pwmgen.instance[i].written_dither = *hm2->pwmgen.instance[i].hal.param.dither;
+	if (hm2->pwmgen.instance[i].hal.param.dither)
+	  hm2->pwmgen.instance[i].written_dither = *hm2->pwmgen.instance[i].hal.param.dither;
         hm2->pwmgen.instance[i].written_enable = *hm2->pwmgen.instance[i].hal.pin.enable;
     }
 
@@ -327,7 +328,7 @@ void hm2_pwmgen_write(hostmot2_t *hm2) {
     
     // update dither?
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
-        if (*hm2->pwmgen.instance[i].hal.param.dither != hm2->pwmgen.instance[i].written_dither) {
+        if (hm2->pwmgen.instance[i].hal.param.dither && *hm2->pwmgen.instance[i].hal.param.dither != hm2->pwmgen.instance[i].written_dither) {
             goto force_write;
         }
 
@@ -512,6 +513,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
                      HM2_ERR("error adding param '%s', aborting\n", name);
                     goto fail1;
                 }
+		*(hm2->pwmgen.instance[i].hal.param.dither) = 0;  
             }
             rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.scale", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
@@ -536,7 +538,6 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             // init hal objects
             *(hm2->pwmgen.instance[i].hal.pin.enable) = 0;
             *(hm2->pwmgen.instance[i].hal.pin.value) = 0.0;
-            *(hm2->pwmgen.instance[i].hal.param.dither) = 0;  
             *(hm2->pwmgen.instance[i].hal.param.scale) = 1.0;        
             *(hm2->pwmgen.instance[i].hal.param.offset_mode) = 0;
             *(hm2->pwmgen.instance[i].hal.param.output_type) = HM2_PWMGEN_OUTPUT_TYPE_PWM;

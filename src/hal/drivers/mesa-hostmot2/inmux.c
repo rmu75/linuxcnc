@@ -165,7 +165,6 @@ int hm2_inmux_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->llio->read(hm2->llio,hm2->inmux.control_addr + (i * md->instance_stride),&temp, sizeof(rtapi_u32));
             temp  = (temp & 0x0000001f) +1;
 	    hm2->inmux.instance[i].scanwidth = temp;         
-	    *hm2->inmux.instance[i].hal.param.scan_width = temp;
 
             rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.scan_rate", hm2->llio->name, i);
             r = hal_pin_u32_new(name, HAL_OUT, &(hm2->inmux.instance[i].hal.param.scan_rate), hm2->llio->comp_id);
@@ -215,6 +214,7 @@ int hm2_inmux_parse_md(hostmot2_t *hm2, int md_index) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
+	    *hm2->inmux.instance[i].hal.param.scan_width = temp;
 
             {
                 unsigned j = 0;
