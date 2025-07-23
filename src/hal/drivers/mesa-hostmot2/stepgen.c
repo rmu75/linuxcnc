@@ -1179,7 +1179,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             *hm2->stepgen.instance[i].hal.param.dirsetup  = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
             *hm2->stepgen.instance[i].hal.param.dirhold   = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
 
-            hm2->stepgen.instance[i].hal.param.step_type = 0;      // step & dir
+            *hm2->stepgen.instance[i].hal.param.step_type = 0;      // step & dir
 
             if (hm2->stepgen.firmware_supports_swap) {
                 hm2->stepgen.instance[i].hal.param.swap_step_dir = 0;  // no swap
