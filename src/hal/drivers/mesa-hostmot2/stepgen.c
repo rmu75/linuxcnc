@@ -1137,6 +1137,14 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-3", hm2->llio->name, i);
+                r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.table[3]), hm2->llio->comp_id);
+                if (r < 0) {
+                    HM2_ERR("error adding param '%s', aborting\n", name);
+                    r = -ENOMEM;
+                    goto fail5;
+                }
+                rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-4", hm2->llio->name, i);
+                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[4]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
