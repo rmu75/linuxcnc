@@ -296,7 +296,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
         ) {
 
             r = hal_pin_bit_newf(
-                HAL_OUT,
+                HAL_IN,
                 &(hm2->pin[i].instance->hal.param.invert_output),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.invert_output",
@@ -309,7 +309,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             }
 
             r = hal_pin_bit_newf(
-                HAL_OUT,
+                HAL_IN,
                 &(hm2->pin[i].instance->hal.param.is_opendrain),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.is_opendrain",
@@ -349,7 +349,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 
             // parameters
             r = hal_pin_bit_newf(
-                HAL_OUT,
+                HAL_IN,
                 &(hm2->pin[i].instance->hal.param.is_output),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.is_output",

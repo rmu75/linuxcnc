@@ -455,7 +455,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
         // these hal parameters affect all pwmgen instances
         r = hal_pin_u32_newf(
-            HAL_OUT,
+            HAL_IN,
             &(hm2->pwmgen.hal->param.pwm_frequency),
             hm2->llio->comp_id,
             "%s.pwmgen.pwm_frequency",
@@ -469,7 +469,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->pwmgen.written_pwm_frequency = 0;
 
         r = hal_pin_u32_newf(
-            HAL_OUT,
+            HAL_IN,
             &(hm2->pwmgen.hal->param.pdm_frequency),
             hm2->llio->comp_id,
             "%s.pwmgen.pdm_frequency",
@@ -501,14 +501,14 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
  
             // parameters
             rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.offset-mode", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->pwmgen.instance[i].hal.param.offset_mode), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.param.offset_mode), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
             if (hm2->pwmgen.firmware_supports_dither) {
                 rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.dither", hm2->llio->name, i);
-                r = hal_pin_bit_new(name, HAL_OUT, &(hm2->pwmgen.instance[i].hal.param.dither), hm2->llio->comp_id);
+                r = hal_pin_bit_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.param.dither), hm2->llio->comp_id);
                 if (r < 0) {
                      HM2_ERR("error adding param '%s', aborting\n", name);
                     goto fail1;
@@ -516,14 +516,14 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 		*(hm2->pwmgen.instance[i].hal.param.dither) = 0;  
             }
             rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
 
             r = hal_pin_s32_newf(
-                HAL_OUT,
+                HAL_IN,
                 &(hm2->pwmgen.instance[i].hal.param.output_type),
                 hm2->llio->comp_id,
                 "%s.pwmgen.%02d.output-type",

@@ -152,7 +152,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
 
     // params
     r = hal_pin_u32_newf(
-        HAL_OUT,
+        HAL_IN,
         &(hm2->watchdog.instance[0].hal.param.timeout_ns),
         hm2->llio->comp_id,
         "%s.watchdog.timeout_ns",

@@ -1041,7 +1041,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             // parameters
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.position_scale), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.position_scale), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1049,7 +1049,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxvel", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.maxvel), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.maxvel), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1057,7 +1057,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxaccel", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.maxaccel), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.maxaccel), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1065,7 +1065,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steplen", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.steplen), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.steplen), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1073,7 +1073,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepspace", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.stepspace), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.stepspace), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1081,7 +1081,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirsetup", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.dirsetup), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.dirsetup), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1089,7 +1089,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirhold", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.dirhold), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.dirhold), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1097,7 +1097,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.step_type", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.step_type), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.step_type), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -1106,7 +1106,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             if (hm2->stepgen.firmware_supports_swap) {
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.swap_step_dir", hm2->llio->name, i);
-                r = hal_pin_bit_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.swap_step_dir), hm2->llio->comp_id);
+                r = hal_pin_bit_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.swap_step_dir), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
@@ -1116,28 +1116,27 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             if (hm2->stepgen.instance[i].table_width > 2){
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-0", hm2->llio->name, i);
-                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[0]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.table[0]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-1", hm2->llio->name, i);
-                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[1]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.table[1]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-2", hm2->llio->name, i);
-                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[2]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.param.table[2]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-3", hm2->llio->name, i);
-                r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.param.table[3]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding param '%s', aborting\n", name);
                     r = -ENOMEM;
